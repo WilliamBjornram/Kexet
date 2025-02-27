@@ -22,13 +22,23 @@ Player 1 (Heli) then moves (from the full action space).
 Terminal conditions are checked after each move.
 """
 
+"""
+Att fixa:
+- class Action???
+- observation klass längst ned?
+- funktioner som jag inte förstår vad de gör?
+- noder i grafen som bara ubåten ska kunna gå till
+- ändra graphclass för punkten ovan
+- ändra i legal moves mm för punkten ovan
+"""
+
 import enum
 import numpy as np
 import pyspiel
 import random
 import math
 
-# kanske ändra här?
+# ändra här?
 class Action(enum.IntEnum):
   PASS = 0
   BET = 1
@@ -68,12 +78,8 @@ class SubmarineHelicopterGame(pyspiel.Game):
     max_moves = math.ceil(self._budget/5) # tar budget/5 och rundar uppåt för att få max antal drag
                                     # blir ett worst case scenario där ubåt bara står stilla, till tiden gått ut
     
-    # beräknar max antal actions möjliga i en nod
-    max_act = 0
-    for key in self._graph.adjacency:
-      tl = self._graph.adjacency[key]
-      if len(tl) > max_act:
-        max_act = len(tl)
+    # sätter action space till all noder, vi ger sen det subset som är aktuellt i varje nod
+    max_act = len(self._graph.nodes)
 
     _GAME_INFO = pyspiel.GameInfo(
         num_distinct_actions=max_act, # varierar, därför sätter vi till max antal actions
@@ -99,22 +105,17 @@ class SubmarineHelicopterGame(pyspiel.Game):
 
 
 class SubmarineHelicopterState(pyspiel.State):
-  """A Python version of the Submarine Helicopter game state.
-
-  The state stores:
-    - sub_pos: the node where the Sub is currently located.
-    - heli_pos: the node where the heli is currently located.
-    - timer: remaining budget for the Sub.
-    - _current_player: whose turn it is (0 for Sub, 1 for Heli).
-    - _game_over: flag for terminal state.
+  """
+  State håller koll på:
+    - sub_pos: node_id för ubåtens nuvarande position
+    - heli_pos: node_id för helikopterns nuvarande position
+    - timer: återstående budget för ubåten
+    - _current_player: vems tur det är
+    - _game_over: flagga för om spelet är över
   """
 
   def __init__(self, game, graph, budget):
-    """Initializes state.
-
-    The graph is passed from the game. The initial positions and budget are set
-    based on the graph.
-    """
+    """initialiserar spelet"""
     super().__init__(game)
     self.graph = graph
 
@@ -123,7 +124,7 @@ class SubmarineHelicopterState(pyspiel.State):
     # randomiserar vart ubåt startar
     start_candidates = [node for node, flag in self.graph.start_nodes.items() if flag]
     if not start_candidates:
-      raise Exception("No start nodes defined in graph.")
+      raise Exception("Inga startnoder definerade i grafen.")
     self.sub_pos = random.choice(start_candidates)
 
     # startar i någon av noderna [1,2,3] (randomiserat)
@@ -148,8 +149,7 @@ class SubmarineHelicopterState(pyspiel.State):
     if player == 0:
       return self.graph.adjacency[self.sub_pos]
     elif player == 1:
-      adj_l = self.graph.adjacency[self.heli_pos]
-      return list(self.graph.nodes.keys())
+      return self.heli_act() # hjälp metod för att returnera lista med drag för heli
     else:
       return []
 
@@ -164,8 +164,8 @@ class SubmarineHelicopterState(pyspiel.State):
       key = f"{self.sub_pos}:{action}"
       move_cost = self.graph.weights.get(key, float('inf'))
       self.timer -= move_cost
-      if not self.graph.adjacency[self.sub_pos].get(action, False):
-        raise Exception(f"Illegalt drag från Ubåt.")
+      if action not in self._legal_actions(self._current_player):
+        raise Exception("Illegalt drag från Ubåt.")
       self.sub_pos = action
 
       # kolla om spelet är slut
@@ -173,34 +173,30 @@ class SubmarineHelicopterState(pyspiel.State):
       if terminal:
         self._game_over = True
         # om klart så returnerar vi reward
-        self._returns = self._terminal_returns(reward)
+        self._returns = [reward, -reward]
         return
 
-      # om inte klart byter tur till nästa spelare
+      # byter tur till nästa spelare
       self._current_player = 1
-
+      
     elif self._current_player == 1:
-      # alla drag giltiga
+      # kollar så gör legalt drag
+      if action not in self._legal_actions(self._current_player):
+        raise Exception("Illegalt drag från Helikopter.")
       self.heli_pos = action
 
       # samma som ovan
       terminal, reward = self._check_terminal()
       if terminal:
         self._game_over = True
-        self._returns = self._terminal_returns(reward)
-      else:
-        # byter spelare
-        self._current_player = 0
-
-  ##### ta vidare härifrån ########
+        self._returns = [reward, -reward]
+      
+      # byter spelare
+      self._current_player = 0
 
   def _check_terminal(self):
-    """Checks if the state is terminal and returns (terminal_flag, reward).
-
-    Reward is from the Sub's perspective (and game is zero-sum).
-      - If Sub reaches an end node, reward = +1.
-      - If Sub is caught (Sub and Heli in same node) or timer <= 0, reward = -1.
-      - Otherwise, game continues.
+    """kollar om episoden är slut och returnerar (terminal_flag, belöning).
+    belöning är från ubåtens perspektiv (och spelet är zero-sum, så omvända belöningen är helikopterns).
     """
     # om ubåt vid slutnod -> spelet slut
     if self.graph.end_nodes.get(self.sub_pos, 0) == 1:
@@ -217,28 +213,33 @@ class SubmarineHelicopterState(pyspiel.State):
       return True, -1
     return False, 0
 
-  def _terminal_returns(self, sub_reward):
-    """returnerar vector för belöning,
-    eftersom spelet är zero-sum, så blir Heli's belöning negativ
-    """
-    return [sub_reward, -sub_reward]
-
-  def is_terminal(self):
-    """returnerar True om spelet är över"""
-    return self._game_over
-
   def returns(self):
     """returnerar belöning om state är terminal,
     annars om inte terminal -> 0
     """
-    if not self.is_terminal():
+    if not self._game_over:
       return [0.0, 0.0]
     return self._returns
+  
+  def is_terminal(self):
+    """returnerar True om spelet är över (obligatoriskt)"""
+    return self._game_over
 
   def __str__(self):
     """Returns a string representation of the state."""
     return (f"Submarine at {self.sub_pos}, Heli at {self.heli_pos}, "
             f"Timer: {self.timer:.1f}, History: {self.history}")
+  
+  # blir en unik lista med alla neighbors och indirekta neighbors (två steg)
+  def heli_act(self):
+    output = set()
+    adj_l = self.graph.adjacency[self.heli_pos]
+    for entry in adj_l:
+      tl = self.graph.adjacency[entry]
+      output.add(entry)
+      for x in tl:
+        output.add(x)
+    return list(output)
 
 
 class SubmarineHelicopterObserver:
