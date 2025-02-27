@@ -118,6 +118,7 @@ EXPECTED_GAMES = frozenset([
     "python_mfg_periodic_aversion",
     "python_mfg_predator_prey",
     "python_kuhn_poker",
+    "python_submarine_helicopter",
     "python_team_dominoes",
     "python_tic_tac_toe",
     "python_liars_poker",
@@ -131,7 +132,6 @@ EXPECTED_GAMES = frozenset([
     "solitaire",
     "spades",
     "stones_and_gems",
-    "python_submarine_helicopter"
     "tarok",
     "tic_tac_toe",
     "tiny_bridge_2p",

@@ -22,7 +22,7 @@ import pyspiel
 
 
 def main(_):
-  game = pyspiel.load_game("kuhn_poker")
+  game = pyspiel.load_game("python_submarine_helicopter")
 
   cfr_solver = cfr.CFRSolver(game)
   iterations = 1000
