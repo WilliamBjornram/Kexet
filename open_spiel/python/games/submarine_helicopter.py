@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Lint as python3
-"""Kuhn Poker implemented in Python.
+"""Submarine Helicopter game implemented in Python.
 
 This is a simple demonstration of implementing a game in Python, featuring
 chance and imperfect information.
@@ -33,58 +33,59 @@ import numpy as np
 
 import pyspiel
 
-
+# implementation?
 class Action(enum.IntEnum):
   PASS = 0
   BET = 1
 
 
-_NUM_PLAYERS = 2
-_DECK = frozenset([0, 1, 2])
+_NUM_PLAYERS = 2 # kan ändras?
 _GAME_TYPE = pyspiel.GameType(
-    short_name="python_kuhn_poker",
-    long_name="Python Kuhn Poker",
-    dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
-    chance_mode=pyspiel.GameType.ChanceMode.EXPLICIT_STOCHASTIC,
-    information=pyspiel.GameType.Information.IMPERFECT_INFORMATION,
-    utility=pyspiel.GameType.Utility.ZERO_SUM,
-    reward_model=pyspiel.GameType.RewardModel.TERMINAL,
+    short_name="python_submarine_helicopter",
+    long_name="Python Submarine Helicopter",
+    dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL, # kan ändras?
+    chance_mode=pyspiel.GameType.ChanceMode.EXPLICIT_STOCHASTIC, # slumpen avgör om man blir "fångad" + inte alltid samma startnod
+    information=pyspiel.GameType.Information.IMPERFECT_INFORMATION, # de vet inte om varandras position
+    utility=pyspiel.GameType.Utility.ZERO_SUM, # om de ena vinner förlorar den andra
+    reward_model=pyspiel.GameType.RewardModel.TERMINAL, # implementation
     max_num_players=_NUM_PLAYERS,
     min_num_players=_NUM_PLAYERS,
-    provides_information_state_string=True,
-    provides_information_state_tensor=True,
-    provides_observation_string=True,
-    provides_observation_tensor=True,
-    provides_factored_observation_string=True)
+    provides_information_state_string=True, # ??
+    provides_information_state_tensor=True, # ??
+    provides_observation_string=True, # ??
+    provides_observation_tensor=True, # ??
+    provides_factored_observation_string=True) # ??
 _GAME_INFO = pyspiel.GameInfo(
-    num_distinct_actions=len(Action),
-    max_chance_outcomes=len(_DECK),
+    num_distinct_actions=0, # sätt under runtime i stället
+    max_chance_outcomes=0, # sätt under runtime i stället
     num_players=_NUM_PLAYERS,
-    min_utility=-2.0,
-    max_utility=2.0,
+    min_utility=-1.0, # belöning?
+    max_utility=1.0, # belöning?
     utility_sum=0.0,
-    max_game_length=3)  # e.g. Pass, Bet, Bet
+    max_game_length=100)  # sök som tidigare, att implementera
 
 
-class KuhnPokerGame(pyspiel.Game):
-  """A Python version of Kuhn poker."""
+class SubmarineHelicopterGame(pyspiel.Game):
+  """A Python version of Submarine Helicopter game."""
 
   def __init__(self, params=None):
-    super().__init__(_GAME_TYPE, _GAME_INFO, params or dict())
+    super().__init__(_GAME_TYPE, _GAME_INFO, params or dict()) # sök och bestäm max_game_length?
 
+# troligtvis OK
   def new_initial_state(self):
     """Returns a state corresponding to the start of a game."""
-    return KuhnPokerState(self)
+    return SubmarineHelicopterState(self)
 
+# kolla på denna
   def make_py_observer(self, iig_obs_type=None, params=None):
     """Returns an object used for observing game state."""
-    return KuhnPokerObserver(
+    return SubmarineHelicopterObserver(
         iig_obs_type or pyspiel.IIGObservationType(perfect_recall=False),
         params)
 
 
-class KuhnPokerState(pyspiel.State):
-  """A python version of the Kuhn poker state."""
+class SubmarineHelicopterState(pyspiel.State):
+  """A python version of the Submarine Helicopter game state."""
 
   def __init__(self, game):
     """Constructor; should only be called by Game.new_initial_state."""
@@ -166,7 +167,7 @@ class KuhnPokerState(pyspiel.State):
     return "".join([str(c) for c in self.cards] + ["pb"[b] for b in self.bets])
 
 
-class KuhnPokerObserver:
+class SubmarineHelicopterObserver:
   """Observer, conforming to the PyObserver interface (see observation.py)."""
 
   def __init__(self, iig_obs_type, params):
@@ -224,4 +225,4 @@ class KuhnPokerObserver:
 
 # Register the game with the OpenSpiel library
 
-pyspiel.register_game(_GAME_TYPE, KuhnPokerGame)
+pyspiel.register_game(_GAME_TYPE, SubmarineHelicopterGame)

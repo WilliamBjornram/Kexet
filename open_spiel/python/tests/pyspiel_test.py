@@ -131,6 +131,7 @@ EXPECTED_GAMES = frozenset([
     "solitaire",
     "spades",
     "stones_and_gems",
+    "python_submarine_helicopter"
     "tarok",
     "tic_tac_toe",
     "tiny_bridge_2p",

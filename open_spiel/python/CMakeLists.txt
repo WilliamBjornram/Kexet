@@ -261,6 +261,7 @@ set(PYTHON_TESTS ${PYTHON_TESTS}
   voting/ranked_pairs_test.py
   voting/schulze_test.py
   voting/stv_test.py
+  games/submarine_helicopter_test.py # added
 )
 
 # Add Jax tests if it is enabled.
