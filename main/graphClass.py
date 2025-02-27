@@ -19,8 +19,6 @@ class Graph:
 
         # when initializing at end loads graph from csv file
         self.load_from_csv(csv_file)
-        temp = self.calc_shortest_path()
-        print(temp)
 
     def load_from_csv(self, csv_file):
         # Expected columns: node_id:prob,x,y,is_start,is_end,neighbors:weights
@@ -52,20 +50,10 @@ class Graph:
 
                 # new entry into dictionaries
                 self.nodes[node_id] = (x, y)
-                self.adjacency[node_id] = self.convert_to_mask(neighbors, size)
+                self.adjacency[node_id] = neighbors
 
                 self.start_nodes[node_id] = bool(is_start)
                 self.end_nodes[node_id] = bool(is_end)
-
-    def neighbors(self, node):
-        return self.adjacency[node]
-    
-    def convert_to_mask(self, neighbors, size):
-        # initialiserar en array med samma size som action space
-        mask = np.zeros(size, dtype=bool)
-        # sätter alla legala drag till True
-        mask[neighbors] = True
-        return mask
     
     def calc_shortest_path(self):
 

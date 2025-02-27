@@ -13,70 +13,84 @@
 # limitations under the License.
 
 # Lint as python3
-"""Submarine Helicopter game implemented in Python.
+"""Submarine Helicopter game implemented in Python with OpenSpiel.
 
-This is a simple demonstration of implementing a game in Python, featuring
-chance and imperfect information.
-
-Python games are significantly slower than C++, but it may still be suitable
-for prototyping or for small games.
-
-It is possible to run C++ algorithms on Python implemented games, This is likely
-to have good performance if the algorithm simply extracts a game tree and then
-works with that. It is likely to be poor if the algorithm relies on processing
-and updating states as it goes, e.g. MCTS.
+This version is adapted from a Gymnasium implementation.
+The game is zero-sum and features imperfect information.
+Player 0 (Sub) moves first along legal (neighboring) nodes while incurring a cost.
+Player 1 (Heli) then moves (from the full action space).
+Terminal conditions are checked after each move.
 """
 
 import enum
-
 import numpy as np
-
 import pyspiel
+import random
+import math
 
-# implementation?
+# kanske ändra här?
 class Action(enum.IntEnum):
   PASS = 0
   BET = 1
 
+# Player 0 == Sub, Player 1 == Helicopter
+_NUM_PLAYERS = 2
 
-_NUM_PLAYERS = 2 # kan ändras?
 _GAME_TYPE = pyspiel.GameType(
     short_name="python_submarine_helicopter",
     long_name="Python Submarine Helicopter",
-    dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL, # kan ändras?
-    chance_mode=pyspiel.GameType.ChanceMode.EXPLICIT_STOCHASTIC, # slumpen avgör om man blir "fångad" + inte alltid samma startnod
-    information=pyspiel.GameType.Information.IMPERFECT_INFORMATION, # de vet inte om varandras position
-    utility=pyspiel.GameType.Utility.ZERO_SUM, # om de ena vinner förlorar den andra
-    reward_model=pyspiel.GameType.RewardModel.TERMINAL, # implementation
+    dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
+    chance_mode=pyspiel.GameType.ChanceMode.DETERMINISTIC, # bör vi ha EXPLICIT_STOCHASTIC?
+    information=pyspiel.GameType.Information.IMPERFECT_INFORMATION,
+    utility=pyspiel.GameType.Utility.ZERO_SUM,
+    reward_model=pyspiel.GameType.RewardModel.TERMINAL,
     max_num_players=_NUM_PLAYERS,
     min_num_players=_NUM_PLAYERS,
-    provides_information_state_string=True, # ??
-    provides_information_state_tensor=True, # ??
-    provides_observation_string=True, # ??
-    provides_observation_tensor=True, # ??
-    provides_factored_observation_string=True) # ??
-_GAME_INFO = pyspiel.GameInfo(
-    num_distinct_actions=0, # sätt under runtime i stället
-    max_chance_outcomes=0, # sätt under runtime i stället
-    num_players=_NUM_PLAYERS,
-    min_utility=-1.0, # belöning?
-    max_utility=1.0, # belöning?
-    utility_sum=0.0,
-    max_game_length=100)  # sök som tidigare, att implementera
+    provides_information_state_string=True, # den här och de under behöver vi se över
+    provides_information_state_tensor=True,
+    provides_observation_string=True,
+    provides_observation_tensor=True,
+    provides_factored_observation_string=True)
 
 
 class SubmarineHelicopterGame(pyspiel.Game):
-  """A Python version of Submarine Helicopter game."""
+  """A Python version of the Submarine Helicopter game using OpenSpiel."""
 
-  def __init__(self, params=None):
-    super().__init__(_GAME_TYPE, _GAME_INFO, params or dict()) # sök och bestäm max_game_length?
+  def __init__(self, params=None, graph=None):
+    """Constructor.
 
-# troligtvis OK
+    Args:
+      params: (optional) dictionary av parametrar
+      graph: en instans av graphClass
+    """
+    self._graph = graph  # laddar in grafen
+    self._budget = self.graph.calc_shortest_path() * 2
+    max_moves = math.ceil(self._budget/5) # tar budget/5 och rundar uppåt för att få max antal drag
+                                    # blir ett worst case scenario där ubåt bara står stilla, till tiden gått ut
+    
+    # beräknar max antal actions möjliga i en nod
+    max_act = 0
+    for key in self._graph.adjacency:
+      tl = self._graph.adjacency[key]
+      if len(tl) > max_act:
+        max_act = len(tl)
+
+    _GAME_INFO = pyspiel.GameInfo(
+        num_distinct_actions=max_act, # varierar, därför sätter vi till max antal actions
+        max_chance_outcomes=2, # när sub.pos == heli.pos chance ger två alternativ
+        num_players=_NUM_PLAYERS,
+        min_utility=-1.0, # belöning max, min och summa (zero sums)
+        max_utility=1.0,
+        utility_sum=0.0,
+        max_game_length=max_moves)
+
+    super().__init__(_GAME_TYPE, _GAME_INFO, params or dict())
+
   def new_initial_state(self):
-    """Returns a state corresponding to the start of a game."""
-    return SubmarineHelicopterState(self)
+    """Returns a new initial state."""
+    return SubmarineHelicopterState(self, self._graph, self._budget)
 
-# kolla på denna
+# förstår inte denna
   def make_py_observer(self, iig_obs_type=None, params=None):
     """Returns an object used for observing game state."""
     return SubmarineHelicopterObserver(
@@ -85,144 +99,180 @@ class SubmarineHelicopterGame(pyspiel.Game):
 
 
 class SubmarineHelicopterState(pyspiel.State):
-  """A python version of the Submarine Helicopter game state."""
+  """A Python version of the Submarine Helicopter game state.
 
-  def __init__(self, game):
-    """Constructor; should only be called by Game.new_initial_state."""
+  The state stores:
+    - sub_pos: the node where the Sub is currently located.
+    - heli_pos: the node where the heli is currently located.
+    - timer: remaining budget for the Sub.
+    - _current_player: whose turn it is (0 for Sub, 1 for Heli).
+    - _game_over: flag for terminal state.
+  """
+
+  def __init__(self, game, graph, budget):
+    """Initializes state.
+
+    The graph is passed from the game. The initial positions and budget are set
+    based on the graph.
+    """
     super().__init__(game)
-    self.cards = []
-    self.bets = []
-    self.pot = [1.0, 1.0]
-    self._game_over = False
-    self._next_player = 0
+    self.graph = graph
 
-  # OpenSpiel (PySpiel) API functions are below. This is the standard set that
-  # should be implemented by every sequential-move game with chance.
+    self.timer = budget
+
+    # randomiserar vart ubåt startar
+    start_candidates = [node for node, flag in self.graph.start_nodes.items() if flag]
+    if not start_candidates:
+      raise Exception("No start nodes defined in graph.")
+    self.sub_pos = random.choice(start_candidates)
+
+    # startar i någon av noderna [1,2,3] (randomiserat)
+    self.heli_pos = random.randint(1, 3)
+
+    self._game_over = False
+
+    # ubåten rör sig först
+    self._current_player = 0
+
+    # för att hålla koll på vilka drag som gjorts
+    self.history = []
 
   def current_player(self):
-    """Returns id of the next player to move, or TERMINAL if game is over."""
+    """returnerar id av den aktuella spelaren annars om spel slut -> terminal"""
     if self._game_over:
       return pyspiel.PlayerId.TERMINAL
-    elif len(self.cards) < _NUM_PLAYERS:
-      return pyspiel.PlayerId.CHANCE
-    else:
-      return self._next_player
+    return self._current_player
 
   def _legal_actions(self, player):
-    """Returns a list of legal actions, sorted in ascending order."""
-    assert player >= 0
-    return [Action.PASS, Action.BET]
-
-  def chance_outcomes(self):
-    """Returns the possible chance outcomes and their probabilities."""
-    assert self.is_chance_node()
-    outcomes = sorted(_DECK - set(self.cards))
-    p = 1.0 / len(outcomes)
-    return [(o, p) for o in outcomes]
+    """returnerar en lista på legala drag för aktuell spelare"""
+    if player == 0:
+      return self.graph.adjacency[self.sub_pos]
+    elif player == 1:
+      adj_l = self.graph.adjacency[self.heli_pos]
+      return list(self.graph.nodes.keys())
+    else:
+      return []
 
   def _apply_action(self, action):
-    """Applies the specified action to the state."""
-    if self.is_chance_node():
-      self.cards.append(action)
-    else:
-      self.bets.append(action)
-      if action == Action.BET:
-        self.pot[self._next_player] += 1
-      self._next_player = 1 - self._next_player
-      if ((min(self.pot) == 2) or
-          (len(self.bets) == 2 and action == Action.PASS) or
-          (len(self.bets) == 3)):
-        self._game_over = True
+    """genomför action"""
 
-  def _action_to_string(self, player, action):
-    """Action -> string."""
-    if player == pyspiel.PlayerId.CHANCE:
-      return f"Deal:{action}"
-    elif action == Action.PASS:
-      return "Pass"
-    else:
-      return "Bet"
+    # håller koll på vilka drag som gjorts
+    self.history.append((self._current_player, action))
+
+    if self._current_player == 0:
+      # om det är ubåts drag
+      key = f"{self.sub_pos}:{action}"
+      move_cost = self.graph.weights.get(key, float('inf'))
+      self.timer -= move_cost
+      if not self.graph.adjacency[self.sub_pos].get(action, False):
+        raise Exception(f"Illegalt drag från Ubåt.")
+      self.sub_pos = action
+
+      # kolla om spelet är slut
+      terminal, reward = self._check_terminal()
+      if terminal:
+        self._game_over = True
+        # om klart så returnerar vi reward
+        self._returns = self._terminal_returns(reward)
+        return
+
+      # om inte klart byter tur till nästa spelare
+      self._current_player = 1
+
+    elif self._current_player == 1:
+      # alla drag giltiga
+      self.heli_pos = action
+
+      # samma som ovan
+      terminal, reward = self._check_terminal()
+      if terminal:
+        self._game_over = True
+        self._returns = self._terminal_returns(reward)
+      else:
+        # byter spelare
+        self._current_player = 0
+
+  ##### ta vidare härifrån ########
+
+  def _check_terminal(self):
+    """Checks if the state is terminal and returns (terminal_flag, reward).
+
+    Reward is from the Sub's perspective (and game is zero-sum).
+      - If Sub reaches an end node, reward = +1.
+      - If Sub is caught (Sub and Heli in same node) or timer <= 0, reward = -1.
+      - Otherwise, game continues.
+    """
+    # om ubåt vid slutnod -> spelet slut
+    if self.graph.end_nodes.get(self.sub_pos, 0) == 1:
+      return True, +1
+    # 
+    if self.sub_pos == self.heli_pos:
+      num = random.randint(1, 10)
+      if num > self.graph.discovery[self.sub_pos]:
+        return False, 0
+      else:
+        return True, -1
+    # om timer är slut -> negativ belöning
+    if self.timer <= 0:
+      return True, -1
+    return False, 0
+
+  def _terminal_returns(self, sub_reward):
+    """returnerar vector för belöning,
+    eftersom spelet är zero-sum, så blir Heli's belöning negativ
+    """
+    return [sub_reward, -sub_reward]
 
   def is_terminal(self):
-    """Returns True if the game is over."""
+    """returnerar True om spelet är över"""
     return self._game_over
 
   def returns(self):
-    """Total reward for each player over the course of the game so far."""
-    pot = self.pot
-    winnings = float(min(pot))
-    if not self._game_over:
-      return [0., 0.]
-    elif pot[0] > pot[1]:
-      return [winnings, -winnings]
-    elif pot[0] < pot[1]:
-      return [-winnings, winnings]
-    elif self.cards[0] > self.cards[1]:
-      return [winnings, -winnings]
-    else:
-      return [-winnings, winnings]
+    """returnerar belöning om state är terminal,
+    annars om inte terminal -> 0
+    """
+    if not self.is_terminal():
+      return [0.0, 0.0]
+    return self._returns
 
   def __str__(self):
-    """String for debug purposes. No particular semantics are required."""
-    return "".join([str(c) for c in self.cards] + ["pb"[b] for b in self.bets])
+    """Returns a string representation of the state."""
+    return (f"Submarine at {self.sub_pos}, Heli at {self.heli_pos}, "
+            f"Timer: {self.timer:.1f}, History: {self.history}")
 
 
 class SubmarineHelicopterObserver:
-  """Observer, conforming to the PyObserver interface (see observation.py)."""
+  """Observer for the Submarine Helicopter game state.
 
+  For simplicity, we build a flat observation vector consisting of:
+    - One-hot encoding of the Sub's current node.
+    - One-hot encoding of the Heli's current node.
+    - A normalized timer value.
+  """
   def __init__(self, iig_obs_type, params):
-    """Initializes an empty observation tensor."""
     if params:
       raise ValueError(f"Observation parameters not supported; passed {params}")
 
-    # Determine which observation pieces we want to include.
-    pieces = [("player", 2, (2,))]
-    if iig_obs_type.private_info == pyspiel.PrivateInfoType.SINGLE_PLAYER:
-      pieces.append(("private_card", 3, (3,)))
-    if iig_obs_type.public_info:
-      if iig_obs_type.perfect_recall:
-        pieces.append(("betting", 6, (3, 2)))
-      else:
-        pieces.append(("pot_contribution", 2, (2,)))
-
-    # Build the single flat tensor.
-    total_size = sum(size for name, size, shape in pieces)
-    self.tensor = np.zeros(total_size, np.float32)
-
-    # Build the named & reshaped views of the bits of the flat tensor.
-    self.dict = {}
-    index = 0
-    for name, size, shape in pieces:
-      self.dict[name] = self.tensor[index:index + size].reshape(shape)
-      index += size
+    # Assume graph has N nodes. We will set N later when observing.
+    self.tensor = None
+    self.iig_obs_type = iig_obs_type
 
   def set_from(self, state, player):
-    """Updates `tensor` and `dict` to reflect `state` from PoV of `player`."""
-    self.tensor.fill(0)
-    if "player" in self.dict:
-      self.dict["player"][player] = 1
-    if "private_card" in self.dict and len(state.cards) > player:
-      self.dict["private_card"][state.cards[player]] = 1
-    if "pot_contribution" in self.dict:
-      self.dict["pot_contribution"][:] = state.pot
-    if "betting" in self.dict:
-      for turn, action in enumerate(state.bets):
-        self.dict["betting"][turn, action] = 1
+    """Update the observation tensor from the state."""
+    # Let N be the number of nodes.
+    N = len(state.graph.nodes)
+    # We construct an observation vector: [sub_one_hot, heli_one_hot, timer]
+    obs = np.zeros(2 * N + 1, dtype=np.float32)
+    obs[state.sub_pos] = 1.0  # one-hot for Sub's position.
+    obs[N + state.heli_pos] = 1.0  # one-hot for Heli's position.
+    # Normalize timer by budget.
+    obs[-1] = state.timer / state.budget
+    self.tensor = obs
 
   def string_from(self, state, player):
-    """Observation of `state` from the PoV of `player`, as a string."""
-    pieces = []
-    if "player" in self.dict:
-      pieces.append(f"p{player}")
-    if "private_card" in self.dict and len(state.cards) > player:
-      pieces.append(f"card:{state.cards[player]}")
-    if "pot_contribution" in self.dict:
-      pieces.append(f"pot[{int(state.pot[0])} {int(state.pot[1])}]")
-    if "betting" in self.dict and state.bets:
-      pieces.append("".join("pb"[b] for b in state.bets))
-    return " ".join(str(p) for p in pieces)
+    """Returns a string representation of the observation."""
+    return (f"Sub:{state.sub_pos} Heli:{state.heli_pos} Timer:{state.timer:.1f}")
 
 
-# Register the game with the OpenSpiel library
-
+# Register the game with OpenSpiel.
 pyspiel.register_game(_GAME_TYPE, SubmarineHelicopterGame)
