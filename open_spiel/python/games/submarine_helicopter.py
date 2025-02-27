@@ -24,24 +24,15 @@ Terminal conditions are checked after each move.
 
 """
 Att fixa:
-- class Action???
-- observation klass längst ned?
-- funktioner som jag inte förstår vad de gör?
 - noder i grafen som bara ubåten ska kunna gå till
 - ändra graphclass för punkten ovan
 - ändra i legal moves mm för punkten ovan
 """
 
-import enum
 import numpy as np
 import pyspiel
 import random
 import math
-
-# ändra här?
-class Action(enum.IntEnum):
-  PASS = 0
-  BET = 1
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
@@ -64,10 +55,10 @@ _GAME_TYPE = pyspiel.GameType(
 
 
 class SubmarineHelicopterGame(pyspiel.Game):
-  """A Python version of the Submarine Helicopter game using OpenSpiel."""
+  """en Python version av spelet Submarine Helicopter mha OpenSpiel."""
 
   def __init__(self, params=None, graph=None):
-    """Constructor.
+    """konstruktor
 
     Args:
       params: (optional) dictionary av parametrar
@@ -93,12 +84,11 @@ class SubmarineHelicopterGame(pyspiel.Game):
     super().__init__(_GAME_TYPE, _GAME_INFO, params or dict())
 
   def new_initial_state(self):
-    """Returns a new initial state."""
+    """returnerar ett objekt med återställt state"""
     return SubmarineHelicopterState(self, self._graph, self._budget)
 
-# förstår inte denna
   def make_py_observer(self, iig_obs_type=None, params=None):
-    """Returns an object used for observing game state."""
+    """returnerar ett objekt för observation"""
     return SubmarineHelicopterObserver(
         iig_obs_type or pyspiel.IIGObservationType(perfect_recall=False),
         params)
@@ -119,6 +109,7 @@ class SubmarineHelicopterState(pyspiel.State):
     super().__init__(game)
     self.graph = graph
 
+    self.buget = budget
     self.timer = budget
 
     # randomiserar vart ubåt startar
@@ -259,21 +250,29 @@ class SubmarineHelicopterObserver:
     self.iig_obs_type = iig_obs_type
 
   def set_from(self, state, player):
-    """Update the observation tensor from the state."""
-    # Let N be the number of nodes.
     N = len(state.graph.nodes)
-    # We construct an observation vector: [sub_one_hot, heli_one_hot, timer]
+    # Create an observation vector of length 2*N + 1.
     obs = np.zeros(2 * N + 1, dtype=np.float32)
-    obs[state.sub_pos] = 1.0  # one-hot for Sub's position.
-    obs[N + state.heli_pos] = 1.0  # one-hot for Heli's position.
-    # Normalize timer by budget.
-    obs[-1] = state.timer / state.budget
+    if player == 0:
+      # Player 0 sees its own (Sub's) position.
+      obs[state.sub_pos] = 1.0  
+      # Optionally, fill the opponent's part with zeros or a default value.
+    elif player == 1:
+      # Player 1 sees its own (Heli's) position.
+      obs[N + state.heli_pos] = 1.0
+    # Public info: the timer.
+    obs[-1] = state.timer/state.budget
     self.tensor = obs
 
   def string_from(self, state, player):
     """Returns a string representation of the observation."""
-    return (f"Sub:{state.sub_pos} Heli:{state.heli_pos} Timer:{state.timer:.1f}")
+    rstring = ""
+    if player == 0:
+      rstring = f"Sub:{state.sub_pos}, Timer:{state.timer:.1f}"
+    elif player == 1:
+      rstring = f"Heli:{state.heli_pos}, Timer:{state.timer:.1f}"
+    return rstring
 
 
-# Register the game with OpenSpiel.
+# registrera spelet i open_spiel
 pyspiel.register_game(_GAME_TYPE, SubmarineHelicopterGame)
