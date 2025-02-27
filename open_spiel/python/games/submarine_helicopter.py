@@ -13,21 +13,15 @@
 # limitations under the License.
 
 # Lint as python3
+
 """Submarine Helicopter game implemented in Python with OpenSpiel.
 
-This version is adapted from a Gymnasium implementation.
 The game is zero-sum and features imperfect information.
 Player 0 (Sub) moves first along legal (neighboring) nodes while incurring a cost.
-Player 1 (Heli) then moves (from the full action space).
+Player 1 (Heli) then moves 1 or 2 nodes.
 Terminal conditions are checked after each move.
 """
 
-"""
-Att fixa:
-- noder i grafen som bara ubåten ska kunna gå till
-- ändra graphclass för punkten ovan
-- ändra i legal moves mm för punkten ovan
-"""
 
 import numpy as np
 import pyspiel
@@ -41,17 +35,17 @@ _GAME_TYPE = pyspiel.GameType(
     short_name="python_submarine_helicopter",
     long_name="Python Submarine Helicopter",
     dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
-    chance_mode=pyspiel.GameType.ChanceMode.DETERMINISTIC, # bör vi ha EXPLICIT_STOCHASTIC?
+    chance_mode=pyspiel.GameType.ChanceMode.DETERMINISTIC,
     information=pyspiel.GameType.Information.IMPERFECT_INFORMATION,
     utility=pyspiel.GameType.Utility.ZERO_SUM,
     reward_model=pyspiel.GameType.RewardModel.TERMINAL,
     max_num_players=_NUM_PLAYERS,
     min_num_players=_NUM_PLAYERS,
-    provides_information_state_string=True, # den här och de under behöver vi se över
-    provides_information_state_tensor=True,
+    provides_information_state_string=True,
+    provides_information_state_tensor=False,
     provides_observation_string=True,
     provides_observation_tensor=True,
-    provides_factored_observation_string=True)
+    provides_factored_observation_string=False)
 
 
 class SubmarineHelicopterGame(pyspiel.Game):
@@ -113,10 +107,9 @@ class SubmarineHelicopterState(pyspiel.State):
     self.timer = budget
 
     # randomiserar vart ubåt startar
-    start_candidates = [node for node, flag in self.graph.start_nodes.items() if flag]
-    if not start_candidates:
+    if not self.graph.start_nodes:
       raise Exception("Inga startnoder definerade i grafen.")
-    self.sub_pos = random.choice(start_candidates)
+    self.sub_pos = random.choice(self.graph.start_nodes)
 
     # startar i någon av noderna [1,2,3] (randomiserat)
     self.heli_pos = random.randint(1, 3)
@@ -189,16 +182,16 @@ class SubmarineHelicopterState(pyspiel.State):
     """kollar om episoden är slut och returnerar (terminal_flag, belöning).
     belöning är från ubåtens perspektiv (och spelet är zero-sum, så omvända belöningen är helikopterns).
     """
-    # om ubåt vid slutnod -> spelet slut
-    if self.graph.end_nodes.get(self.sub_pos, 0) == 1:
-      return True, +1
-    # 
+    # om ubåt.pos == heli.pos spelet kan ta slut
     if self.sub_pos == self.heli_pos:
       num = random.randint(1, 10)
       if num > self.graph.discovery[self.sub_pos]:
         return False, 0
       else:
         return True, -1
+    # om ubåt vid slutnod -> spelet slut
+    if self.sub_pos in self.graph.end_nodes:
+      return True, +1
     # om timer är slut -> negativ belöning
     if self.timer <= 0:
       return True, -1
@@ -217,12 +210,12 @@ class SubmarineHelicopterState(pyspiel.State):
     return self._game_over
 
   def __str__(self):
-    """Returns a string representation of the state."""
-    return (f"Submarine at {self.sub_pos}, Heli at {self.heli_pos}, "
+    """returnerar en string som representation över state"""
+    return (f"Sub: {self.sub_pos}, Heli: {self.heli_pos}, "
             f"Timer: {self.timer:.1f}, History: {self.history}")
   
-  # blir en unik lista med alla neighbors och indirekta neighbors (två steg)
   def heli_act(self):
+    """blir en unik lista med alla neighbors och indirekta neighbors (två steg)"""
     output = set()
     adj_l = self.graph.adjacency[self.heli_pos]
     for entry in adj_l:

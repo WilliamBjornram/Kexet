@@ -10,8 +10,8 @@ class Graph:
         # dictionary for neighbors with node_id as key and neighbors as numpy array
         self.adjacency = {}
         # lists for start and end nodes for the sub
-        self.start_nodes = {}
-        self.end_nodes = {}
+        self.start_nodes = []
+        self.end_nodes = []
         # dictionary for keeping track of weights between nodes
         self.weights = {}
         # dictionary for probability of discovery
@@ -52,8 +52,8 @@ class Graph:
                 self.nodes[node_id] = (x, y)
                 self.adjacency[node_id] = neighbors
 
-                self.start_nodes[node_id] = bool(is_start)
-                self.end_nodes[node_id] = bool(is_end)
+                self.start_nodes.append(node_id) if bool(is_start) else None
+                self.end_nodes.append(node_id) if bool(is_end) else None
     
     def calc_shortest_path(self):
 
