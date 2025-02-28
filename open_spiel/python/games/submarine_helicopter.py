@@ -22,11 +22,12 @@ Player 1 (Heli) then moves 1 or 2 nodes.
 Terminal conditions are checked after each move.
 """
 
-
 import numpy as np
 import pyspiel
 import random
 import math
+import csv
+import heapq
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
@@ -51,14 +52,15 @@ _GAME_TYPE = pyspiel.GameType(
 class SubmarineHelicopterGame(pyspiel.Game):
   """en Python version av spelet Submarine Helicopter mha OpenSpiel."""
 
-  def __init__(self, params=None, graph=None):
+  def __init__(self, params=None):
     """konstruktor
 
     Args:
       params: (optional) dictionary av parametrar
       graph: en instans av graphClass
     """
-    self._graph = graph  # laddar in grafen
+    file = params["graph"]
+    self._graph =  Graph(file) # laddar in grafen
     self._budget = self._graph.calc_shortest_path() * 2
     max_moves = math.ceil(self._budget/5) # tar budget/5 och rundar uppåt för att få max antal drag
                                     # blir ett worst case scenario där ubåt bara står stilla, till tiden gått ut
@@ -75,7 +77,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
         utility_sum=0.0,
         max_game_length=max_moves)
 
-    super().__init__(_GAME_TYPE, _GAME_INFO, params or dict())
+    super().__init__(_GAME_TYPE, _GAME_INFO, dict())
 
   def new_initial_state(self):
     """returnerar ett objekt med återställt state"""
@@ -84,7 +86,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
   def make_py_observer(self, iig_obs_type=None, params=None):
     """returnerar ett objekt för observation"""
     return SubmarineHelicopterObserver(
-        iig_obs_type or pyspiel.IIGObservationType(perfect_recall=False),
+        iig_obs_type or pyspiel.IIGObservationType(perfect_recall=True),
         params)
 
 
@@ -128,6 +130,7 @@ class SubmarineHelicopterState(pyspiel.State):
       return pyspiel.PlayerId.TERMINAL
     return self._current_player
 
+  ###### måste ta bort noder för heli där inte ubåt kan hittas så inte förgävesletar
   def _legal_actions(self, player):
     """returnerar en lista på legala drag för aktuell spelare"""
     if player == 0:
@@ -220,9 +223,9 @@ class SubmarineHelicopterState(pyspiel.State):
     adj_l = self.graph.adjacency[self.heli_pos]
     for entry in adj_l:
       tl = self.graph.adjacency[entry]
-      output.add(entry)
+      output.add(entry) if self.graph.discovery[entry] != 0 else None
       for x in tl:
-        output.add(x)
+        output.add(x) if self.graph.discovery[entry] != 0 else None
     return list(output)
 
 
@@ -265,7 +268,120 @@ class SubmarineHelicopterObserver:
     elif player == 1:
       rstring = f"Heli:{state.heli_pos}, Timer:{state.timer:.1f}"
     return rstring
+  
 
+#class for the graph the game is based of, loads graph from csv file
+class Graph:
+    def __init__(self, csv_file):
+        # (x, y) position for each node save with node_id as key and (x, y) as tuple
+        self.nodes = {}
+        # dictionary for neighbors with node_id as key and neighbors as numpy array
+        self.adjacency = {}
+        # lists for start and end nodes for the sub
+        self.start_nodes = []
+        self.end_nodes = []
+        # dictionary for keeping track of weights between nodes
+        self.weights = {}
+        # dictionary for probability of discovery
+        self.discovery = {}
+
+        # when initializing at end loads graph from csv file
+        self.load_from_csv(csv_file)
+
+    def load_from_csv(self, csv_file):
+        # Expected columns: node_id:prob,x,y,is_start,is_end,neighbors:weights
+        # Here we assume that after is_end, all subsequent fields are neighbors.
+        with open(csv_file, 'r', newline='') as f:
+            reader = csv.reader(f)
+            header = next(reader)
+            rows = list(reader)
+            size = len(rows)
+            for row in rows:
+                # for each row saves the values, see structure of csv file above
+                node_id = int(row[0].split(":")[0])
+                self.discovery[node_id] = int(row[0].split(":")[1])
+                x = float(row[1])
+                y = float(row[2])
+                is_start = int(row[3])
+                is_end = int(row[4])
+                # remaining fields are neighbors:weights
+                neighbors_w = [n for n in row[5:]]
+                # empty list for neighbors
+                neighbors = []
+                for n in neighbors_w:
+                    # first indice after split is node_id for neighbors
+                    temp = n.split(":")
+                    neighbors.append(int(temp[0]))
+                    # creating a unique key for weights dictionary
+                    key = str(node_id) + ":" + temp[0]
+                    self.weights[key] = int(temp[1])
+
+                # new entry into dictionaries
+                self.nodes[node_id] = (x, y)
+                self.adjacency[node_id] = neighbors
+
+                self.start_nodes.append(node_id) if bool(is_start) else None
+                self.end_nodes.append(node_id) if bool(is_end) else None
+
+    # gör klassen iterable
+    def __iter__(self):
+        return iter(self.nodes)
+
+    # för att kunna köra len(Graph)
+    def __len__(self):
+        return len(self.nodes)
+    
+    def calc_shortest_path(self):
+
+        # Initialize distances and predecessors.
+        dist = {node: float('inf') for node in self.nodes}
+        prev = {node: None for node in self.nodes}
+
+        # Get all start and end nodes.
+        start_nodes = [node for node, flag in self.start_nodes.items() if flag]
+        end_nodes = [node for node, flag in self.end_nodes.items() if flag]
+
+        if not start_nodes or not end_nodes:
+            raise Exception("No start- or endnodes")
+
+        # Multi-source initialization: set distance 0 for all start nodes.
+        heap = []
+        for s in start_nodes:
+            dist[s] = 0
+            heapq.heappush(heap, (0, s))
+
+        # Run Dijkstra's algorithm.
+        while heap:
+            current_dist, u = heapq.heappop(heap)
+            if current_dist > dist[u]:
+                continue
+            # Retrieve neighbors using the boolean mask in self.adjacency[u].
+            # np.where returns a tuple with an array; we take the first element.
+            for v in np.where(self.adjacency[u])[0]:
+                v = int(v)  # ensure v is a plain int
+                key = f"{u}:{v}"
+                # Get the edge weight; if missing, skip this neighbor.
+                weight_uv = self.weights.get(key)
+                if weight_uv is None:
+                    continue
+                alt = current_dist + weight_uv
+                if alt < dist[v]:
+                    dist[v] = alt
+                    prev[v] = u
+                    heapq.heappush(heap, (alt, v))
+
+        # Among all end nodes, pick the one with the smallest distance.
+        best_end = None
+        best_cost = float('inf')
+        for e in end_nodes:
+            if dist[e] < best_cost:
+                best_cost = dist[e]
+                best_end = e
+
+        if best_end is None or best_cost == float('inf'):
+            raise Exception("No shortest path found.")
+
+        return best_cost
 
 # registrera spelet i open_spiel
 pyspiel.register_game(_GAME_TYPE, SubmarineHelicopterGame)

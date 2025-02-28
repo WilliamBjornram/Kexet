@@ -54,6 +54,14 @@ class Graph:
 
                 self.start_nodes.append(node_id) if bool(is_start) else None
                 self.end_nodes.append(node_id) if bool(is_end) else None
+
+    # gör klassen iterable
+    def __iter__(self):
+        return iter(self.nodes)
+
+    # för att kunna köra len(Graph)
+    def __len__(self):
+        return len(self.nodes)
     
     def calc_shortest_path(self):
 

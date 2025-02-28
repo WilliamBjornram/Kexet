@@ -1,8 +1,10 @@
 import random
 import pyspiel
-import numpy as np
 
-game = pyspiel.load_game("python_submarine_helicopter")
+file = "/Users/davidklasa/Documents/GitHub/Kexet/main/graph2.csv"
+params = {"graph" : file}
+
+game = pyspiel.load_game("python_submarine_helicopter", params)
 state = game.new_initial_state()
 
 while not state.is_terminal():
