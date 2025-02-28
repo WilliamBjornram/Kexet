@@ -59,7 +59,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
       graph: en instans av graphClass
     """
     self._graph = graph  # laddar in grafen
-    self._budget = self.graph.calc_shortest_path() * 2
+    self._budget = self._graph.calc_shortest_path() * 2
     max_moves = math.ceil(self._budget/5) # tar budget/5 och rundar uppåt för att få max antal drag
                                     # blir ett worst case scenario där ubåt bara står stilla, till tiden gått ut
     
