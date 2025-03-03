@@ -1,10 +1,8 @@
 import random
+from open_spiel.python import games
 import pyspiel
 
-file = "/Users/davidklasa/Documents/GitHub/Kexet/main/graph2.csv"
-params = {"graph" : file}
-
-game = pyspiel.load_game("python_submarine_helicopter", params)
+game = pyspiel.load_game("python_submarine_helicopter")
 state = game.new_initial_state()
 
 while not state.is_terminal():
@@ -21,8 +19,9 @@ while not state.is_terminal():
                 flag = False
             x += 1
     elif pl == 1:
-        num = len(legal_actions)
+        num = len(legal_actions)-1
         pos = legal_actions[random.randint(1, num)]
     state.apply_action(pos)
 
+print(state)
 print(state.returns())
