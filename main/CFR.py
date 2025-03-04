@@ -19,18 +19,17 @@ from absl import flags
 
 from open_spiel.python.algorithms import cfr
 from open_spiel.python.algorithms import exploitability
+from open_spiel.python import games
 import pyspiel
 
 FLAGS = flags.FLAGS
 
 flags.DEFINE_integer("iterations", 100, "Number of iterations")
-flags.DEFINE_string("game", "kuhn_poker", "Name of the game")
-flags.DEFINE_integer("players", 2, "Number of players")
 flags.DEFINE_integer("print_freq", 10, "How often to print the exploitability")
 
 
 def main(_):
-  game = pyspiel.load_game(FLAGS.game, {"players": FLAGS.players})
+  game = pyspiel.load_game("python_submarine_helicopter")
   cfr_solver = cfr.CFRSolver(game)
 
   for i in range(FLAGS.iterations):
