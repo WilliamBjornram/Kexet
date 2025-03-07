@@ -105,7 +105,7 @@ class SubmarineHelicopterState(pyspiel.State):
     super().__init__(game)
     self.graph = graph
 
-    self.buget = budget
+    self.budget = budget
     self.timer = budget
 
     # randomiserar vart ubåt startar
