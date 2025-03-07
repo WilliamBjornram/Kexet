@@ -114,8 +114,10 @@ class SubmarineHelicopterState(pyspiel.State):
       raise Exception("Inga startnoder definerade i grafen.")
     self.sub_pos = random.choice(self.graph.start_nodes)
 
-    # startar i någon av noderna [1,2,3] (randomiserat)
-    self.heli_pos = random.randint(1, 3)
+    # Startar i någon av start nodens grannar
+    min_lista = (self.graph.adjacency[random.choice(self.graph.start_nodes)])
+    filterad_lista = [x for x in min_lista if x not in self.graph.start_nodes]
+    self.heli_pos = random.choice(filterad_lista)
 
     self._game_over = False
 
