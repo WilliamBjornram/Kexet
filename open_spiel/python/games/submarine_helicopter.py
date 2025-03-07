@@ -112,12 +112,16 @@ class SubmarineHelicopterState(pyspiel.State):
     # randomiserar vart ubåt startar
     if not self.graph.start_nodes:
       raise Exception("Inga startnoder definerade i grafen.")
-    self.sub_pos = random.choice(self.graph.start_nodes)
+    
+    #Får inte vara random enligt CFR
+    self.sub_pos = 0
+    #self.sub_pos = random.choice(self.graph.start_nodes)
 
     # Startar i någon av start nodens grannar
-    min_lista = (self.graph.adjacency[random.choice(self.graph.start_nodes)])
-    filterad_lista = [x for x in min_lista if x not in self.graph.start_nodes]
-    self.heli_pos = random.choice(filterad_lista)
+    #min_lista = (self.graph.adjacency[random.choice(self.graph.start_nodes)])
+    #filterad_lista = [x for x in min_lista if x not in self.graph.start_nodes]
+    #self.heli_pos = random.choice(filterad_lista)
+    self.heli_pos = 2
 
     self._game_over = False
 
@@ -126,6 +130,20 @@ class SubmarineHelicopterState(pyspiel.State):
 
     # för att hålla koll på vilka drag som gjorts
     self.history = []
+  
+  #Behöver en clone function så att CFR ska fungera
+  def clone(self):
+    # Create a new state instance using the same game, graph, and budget.
+    new_state = SubmarineHelicopterState(self.get_game(), self.graph, self.budget)
+    # Copy all relevant mutable attributes
+    new_state.timer = self.timer
+    new_state.sub_pos = self.sub_pos
+    new_state.heli_pos = self.heli_pos
+    new_state._game_over = self._game_over
+    new_state._current_player = self._current_player
+    new_state.history = list(self.history)
+    return new_state
+
 
   def current_player(self):
     """returnerar id av den aktuella spelaren annars om spel slut -> terminal"""
@@ -190,7 +208,8 @@ class SubmarineHelicopterState(pyspiel.State):
     """
     # om ubåt.pos == heli.pos spelet kan ta slut
     if self.sub_pos == self.heli_pos:
-      num = random.randint(1, 10)
+      #num = random.randint(1, 10)
+      num = 1
       if num > self.graph.discovery[self.sub_pos]:
         return False, 0
       else:
@@ -246,6 +265,7 @@ class SubmarineHelicopterObserver:
 
     # Assume graph has N nodes. We will set N later when observing.
     self.tensor = None
+    self.dict = None
     self.iig_obs_type = iig_obs_type
     self.decay_factor = decay_factor
 
@@ -280,26 +300,30 @@ class SubmarineHelicopterObserver:
     obs[2*N+1 : 2*N+1+N] = decayed_visits
 
     self.tensor = obs
+    self.dict = {"observation": obs.tolist()}
 
     
 
   def string_from(self, state, player):
     # For demonstration, also show the decayed visits in string form
     # so you can visually debug.
+    """
     N = len(state.graph.nodes)
     decayed_visits = np.zeros(N, dtype=np.float32)
     for (pl, action) in state.history:
         decayed_visits *= self.decay_factor
         if pl == player:
-            decayed_visits[action] += 1.0
+            decayed_visits[action] += 1.0"""
 
     if player == 0:
         position_info = f"Sub pos: {state.sub_pos}"
     else:
         position_info = f"Heli pos: {state.heli_pos}"
 
-    visits_info = f"Decayed visits: {decayed_visits}"
-    return f"{position_info}, Timer: {state.timer:.1f}, {visits_info}"
+    #visits_info = f"Decayed visits: {decayed_visits}"
+    #return f"{position_info}, Timer: {state.timer:.1f}, {visits_info}"
+    timer_info = f"Timer: {state.timer:.1f}"
+    return f"{position_info}, {timer_info}"
   
 
 #class for the graph the game is based of, loads graph from csv file
