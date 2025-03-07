@@ -87,7 +87,8 @@ class SubmarineHelicopterGame(pyspiel.Game):
     """returnerar ett objekt för observation"""
     return SubmarineHelicopterObserver(
         iig_obs_type or pyspiel.IIGObservationType(perfect_recall=True),
-        params)
+        params,
+        decay_factor=0.9)  # <-- you can pick any factor < 1.0)
 
 
 class SubmarineHelicopterState(pyspiel.State):
@@ -237,18 +238,23 @@ class SubmarineHelicopterObserver:
     - One-hot encoding of the Heli's current node.
     - A normalized timer value.
   """
-  def __init__(self, iig_obs_type, params):
+  def __init__(self, iig_obs_type, params, decay_factor=0.9):
     if params:
       raise ValueError(f"Observation parameters not supported; passed {params}")
 
     # Assume graph has N nodes. We will set N later when observing.
     self.tensor = None
     self.iig_obs_type = iig_obs_type
+    self.decay_factor = decay_factor
 
   def set_from(self, state, player):
     N = len(state.graph.nodes)
-    # Create an observation vector of length 2*N + 1.
-    obs = np.zeros(2 * N + 1, dtype=np.float32)
+    # We'll store:
+    #   2*N for (Sub one-hot + Heli one-hot),
+    #   +1 for the normalized timer,
+    #   +N for the decayed visitation vector
+    obs_size = 2 * N + 1 + N
+    obs = np.zeros(obs_size, dtype=np.float32)
     if player == 0:
       # Player 0 sees its own (Sub's) position.
       obs[state.sub_pos] = 1.0  
@@ -257,17 +263,41 @@ class SubmarineHelicopterObserver:
       # Player 1 sees its own (Heli's) position.
       obs[N + state.heli_pos] = 1.0
     # Public info: the timer.
-    obs[-1] = state.timer/state.budget
+    obs[2*N] = state.timer/state.budget
+
+    decayed_visits = np.zeros(N, dtype=np.float32)
+    for (pl, action) in state.history:
+        # Step A: Decay all existing visits (on *every* move)
+        decayed_visits *= self.decay_factor
+
+        # Step B: If it's the current player's move, increment that position
+        if pl == player:
+            decayed_visits[action] += 1.0
+
+    # Place it at the end of the observation
+    obs[2*N+1 : 2*N+1+N] = decayed_visits
+
     self.tensor = obs
 
+    
+
   def string_from(self, state, player):
-    """Returns a string representation of the observation."""
-    rstring = ""
+    # For demonstration, also show the decayed visits in string form
+    # so you can visually debug.
+    N = len(state.graph.nodes)
+    decayed_visits = np.zeros(N, dtype=np.float32)
+    for (pl, action) in state.history:
+        decayed_visits *= self.decay_factor
+        if pl == player:
+            decayed_visits[action] += 1.0
+
     if player == 0:
-      rstring = f"Sub:{state.sub_pos}, Timer:{state.timer:.1f}"
-    elif player == 1:
-      rstring = f"Heli:{state.heli_pos}, Timer:{state.timer:.1f}"
-    return rstring
+        position_info = f"Sub pos: {state.sub_pos}"
+    else:
+        position_info = f"Heli pos: {state.heli_pos}"
+
+    visits_info = f"Decayed visits: {decayed_visits}"
+    return f"{position_info}, Timer: {state.timer:.1f}, {visits_info}"
   
 
 #class for the graph the game is based of, loads graph from csv file
