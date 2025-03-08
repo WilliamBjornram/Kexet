@@ -59,7 +59,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
       params: (optional) dictionary av parametrar
       graph: en instans av graphClass
     """
-    file = "/content/Kexet/main/MinstaGrafen.csv"
+    file = "/content/Kexet/main/Test0.csv"
     self._graph =  Graph(file) # laddar in grafen
     self._budget = self._graph.calc_shortest_path() * 2
     max_moves = math.ceil(self._budget/5) # tar budget/5 och rundar uppåt för att få max antal drag
