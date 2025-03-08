@@ -24,7 +24,6 @@ Terminal conditions are checked after each move.
 
 import numpy as np
 import pyspiel
-import random
 import math
 import csv
 import heapq
@@ -36,7 +35,8 @@ _GAME_TYPE = pyspiel.GameType(
     short_name="python_submarine_helicopter",
     long_name="Python Submarine Helicopter",
     dynamics=pyspiel.GameType.Dynamics.SEQUENTIAL,
-    chance_mode=pyspiel.GameType.ChanceMode.DETERMINISTIC,
+    #ÄNDRAT FRÅN DETERMINISTIC TILL EXPLICIT_STOCHASTIC
+    chance_mode=pyspiel.GameType.ChanceMode.EXPLICIT_STOCHASTIC,
     information=pyspiel.GameType.Information.IMPERFECT_INFORMATION,
     utility=pyspiel.GameType.Utility.ZERO_SUM,
     reward_model=pyspiel.GameType.RewardModel.TERMINAL,
@@ -113,14 +113,8 @@ class SubmarineHelicopterState(pyspiel.State):
     if not self.graph.start_nodes:
       raise Exception("Inga startnoder definerade i grafen.")
     
-    #Får inte vara random enligt CFR
+    #Får inte vara random enligt CFR så har ändrat så de start i bestämda punkter
     self.sub_pos = 0
-    #self.sub_pos = random.choice(self.graph.start_nodes)
-
-    # Startar i någon av start nodens grannar
-    #min_lista = (self.graph.adjacency[random.choice(self.graph.start_nodes)])
-    #filterad_lista = [x for x in min_lista if x not in self.graph.start_nodes]
-    #self.heli_pos = random.choice(filterad_lista)
     self.heli_pos = 2
 
     self._game_over = False
@@ -130,6 +124,10 @@ class SubmarineHelicopterState(pyspiel.State):
 
     # för att hålla koll på vilka drag som gjorts
     self.history = []
+
+    # Behövs för CFR chance event
+    # Flag to indicate that a chance event (detection) is pending.
+    self._pending_chance_event = False
   
   #Behöver en clone function så att CFR ska fungera
   def clone(self):
@@ -149,11 +147,18 @@ class SubmarineHelicopterState(pyspiel.State):
     """returnerar id av den aktuella spelaren annars om spel slut -> terminal"""
     if self._game_over:
       return pyspiel.PlayerId.TERMINAL
+    # If a chance event is pending, return chance.
+    if self._pending_chance_event:
+      return pyspiel.PlayerId.CHANCE
     return self._current_player
 
   ###### måste ta bort noder för heli där inte ubåt kan hittas så inte förgävesletar
   def _legal_actions(self, player):
     """returnerar en lista på legala drag för aktuell spelare"""
+    if player == pyspiel.PlayerId.CHANCE:
+      # Define chance actions:
+      # 0 means "detection occurs" and 1 means "no detection"
+      return [0,1]
     if player == 0:
       return self.graph.adjacency[self.sub_pos]
     elif player == 1:
@@ -161,8 +166,31 @@ class SubmarineHelicopterState(pyspiel.State):
     else:
       return []
 
+  #Ny funktion för CFR
+  def chance_outcomes(self):
+    # This is called only when current_player is CHANCE.
+    if self.sub_pos == self.heli_pos and self._pending_chance_event:
+      # Compute detection probability.
+      # Original code used: detection if random number <= discovery.
+      # Here we assume probability = discovery / 10.
+      p_detection = self.graph.discovery[self.sub_pos] / 10.0
+      return [(0, p_detection), (1, 1 - p_detection)]
+    return []
+
   def _apply_action(self, action):
     """genomför action"""
+
+    # Handle chance node separately.
+    if self.current_player() == pyspiel.PlayerId.CHANCE:
+      if action == 0:  # detection occurred: terminal state.
+        self._game_over = True
+        self._returns = [-1, 1]
+      elif action == 1:  # not detected: clear chance event and continue.
+        self._pending_chance_event = False
+        # Resume play. Decide which player's turn should follow.
+        # Here we let the sub move next.
+        self._current_player = 0
+      return
 
     # håller koll på vilka drag som gjorts
     self.history.append((self._current_player, action))
@@ -175,6 +203,12 @@ class SubmarineHelicopterState(pyspiel.State):
       if action not in self._legal_actions(self._current_player):
         raise Exception("Illegalt drag från Ubåt.")
       self.sub_pos = action
+
+      # If the sub moves into the heli's position, trigger chance event.
+      if self.sub_pos == self.heli_pos:
+        self._pending_chance_event = True
+        self._current_player = pyspiel.PlayerId.CHANCE
+        return
 
       # kolla om spelet är slut
       terminal, reward = self._check_terminal()
@@ -193,11 +227,18 @@ class SubmarineHelicopterState(pyspiel.State):
         raise Exception("Illegalt drag från Helikopter.")
       self.heli_pos = action
 
+      # If the heli moves into the sub's position, trigger chance event.
+      if self.sub_pos == self.heli_pos:
+        self._pending_chance_event = True
+        self._current_player = pyspiel.PlayerId.CHANCE
+        return
+
       # samma som ovan
       terminal, reward = self._check_terminal()
       if terminal:
         self._game_over = True
         self._returns = [reward, -reward]
+        return
       
       # byter spelare
       self._current_player = 0
@@ -206,14 +247,7 @@ class SubmarineHelicopterState(pyspiel.State):
     """kollar om episoden är slut och returnerar (terminal_flag, belöning).
     belöning är från ubåtens perspektiv (och spelet är zero-sum, så omvända belöningen är helikopterns).
     """
-    # om ubåt.pos == heli.pos spelet kan ta slut
-    if self.sub_pos == self.heli_pos:
-      #num = random.randint(1, 10)
-      num = 1
-      if num > self.graph.discovery[self.sub_pos]:
-        return False, 0
-      else:
-        return True, -1
+   
     # om ubåt vid slutnod -> spelet slut
     if self.sub_pos in self.graph.end_nodes:
       return True, +1
