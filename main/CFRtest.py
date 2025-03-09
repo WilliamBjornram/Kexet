@@ -16,8 +16,15 @@ så man ser hur bra policy man har.
 """
 
 def simulate_episode(game, policy):
+    observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
     state = game.new_initial_state()
     while not state.is_terminal():
+        for p in range(game.num_players()):
+          observer.set_from(state, p)
+          obs_string = observer.string_from(state, p)
+          print(f"Player {p}'s observation: {obs_string}")
+          # If you also want to see the numeric tensor:
+          # print(f"Player {p}'s observation tensor: {observer.tensor}")
         cur_player = state.current_player()
         if cur_player == pyspiel.PlayerId.CHANCE:
             # For chance nodes, use the provided chance outcomes.
@@ -37,8 +44,8 @@ def simulate_episode(game, policy):
 game = pyspiel.load_game("python_submarine_helicopter")
 cfr_solver = cfr.CFRSolver(game)
 # Run CFR iterations...
-eval = 25
-for i in range(50):
+eval = 5
+for i in range(11):
   print("HEJ")
   cfr_solver.evaluate_and_update_policy()
   if i % eval == 0:

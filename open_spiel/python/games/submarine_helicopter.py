@@ -341,23 +341,23 @@ class SubmarineHelicopterObserver:
   def string_from(self, state, player):
     # For demonstration, also show the decayed visits in string form
     # so you can visually debug.
-    """
+    
     N = len(state.graph.nodes)
     decayed_visits = np.zeros(N, dtype=np.float32)
     for (pl, action) in state.history:
         decayed_visits *= self.decay_factor
         if pl == player:
-            decayed_visits[action] += 1.0"""
+            decayed_visits[action] += 1.0
 
     if player == 0:
         position_info = f"Sub pos: {state.sub_pos}"
     else:
         position_info = f"Heli pos: {state.heli_pos}"
 
-    #visits_info = f"Decayed visits: {decayed_visits}"
-    #return f"{position_info}, Timer: {state.timer:.1f}, {visits_info}"
-    timer_info = f"Timer: {state.timer:.1f}"
-    return f"{position_info}, {timer_info}"
+    visits_info = f"Decayed visits: {decayed_visits}"
+    return f"{position_info}, Timer: {state.timer:.1f}, {visits_info}"
+    #timer_info = f"Timer: {state.timer:.1f}"
+    #return f"{position_info}, {timer_info}"
   
 
 #class for the graph the game is based of, loads graph from csv file
