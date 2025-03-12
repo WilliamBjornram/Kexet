@@ -59,11 +59,11 @@ flags.DEFINE_string("meta_strategy_method", "alpharank",
                     "Name of meta strategy computation method.")
 flags.DEFINE_integer("number_policies_selected", 1,
                      "Number of new strategies trained at each PSRO iteration.")
-flags.DEFINE_integer("sims_per_entry", 1000,
+flags.DEFINE_integer("sims_per_entry", 100,
                      ("Number of simulations to run to estimate each element"
                       "of the game outcome matrix."))
 
-flags.DEFINE_integer("gpsro_iterations", 100,
+flags.DEFINE_integer("gpsro_iterations", 20,
                      "Number of training steps for GPSRO.")
 flags.DEFINE_bool("symmetric_game", False, "Whether to consider the current "
                   "game as a symmetric game.")
@@ -295,8 +295,7 @@ def main(argv):
 
   np.random.seed(FLAGS.seed)
 
-  game = pyspiel.load_game_as_turn_based(FLAGS.game_name,
-                                         {"players": FLAGS.n_players})
+  game = pyspiel.load_game_as_turn_based(FLAGS.game_name)
   env = rl_environment.Environment(game)
 
   # Initialize oracle and agents
