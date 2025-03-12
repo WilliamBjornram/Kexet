@@ -174,6 +174,15 @@ class SubmarineHelicopterState(pyspiel.State):
         self._returns = [-1, 1]
       elif action == 1:  # ingen detektion: ta bort chance event och fortsätt
         self._pending_chance_event = False
+
+        # kollar ifall episode slut
+        terminal, reward = self._check_terminal()
+        if terminal:
+          self._game_over = True
+          # om klart så returnerar vi reward
+          self._returns = [reward, -reward]
+          return
+
         # om senaste drag gjordes av ubåt -> helis tur och tvärtom
         if self.history[-1][0] == 0:
           self._current_player = 1

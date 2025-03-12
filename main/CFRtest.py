@@ -39,14 +39,15 @@ def simulate_episode(game, policy):
         state.apply_action(chosen_action)
         print(state)
     print("Final returns:", state.returns())
+    return
 
 # Example usage after CFR training:
 game = pyspiel.load_game("python_submarine_helicopter")
 cfr_solver = cfr.CFRSolver(game)
 # Run CFR iterations...
-eval = 5
+eval = 10
 for i in range(11):
-  #print("HEJ")
+  print("One iteration")
   cfr_solver.evaluate_and_update_policy()
   if i % eval == 0:
     conv = exploitability.exploitability(game, cfr_solver.average_policy())
