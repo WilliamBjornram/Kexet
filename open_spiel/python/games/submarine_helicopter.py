@@ -155,6 +155,10 @@ class SubmarineHelicopterState(pyspiel.State):
   ###### måste ta bort noder för heli där inte ubåt kan hittas så inte förgävesletar
   def _legal_actions(self, player):
     """returnerar en lista på legala drag för aktuell spelare"""
+    """Chat sa: Chans noder behandlas som extra "spelare" alltså när vi har en chans node
+    så måste vi returnera de två legala möjligheterna, alltså hittad eller inte hittad.
+    Det är därför vi returnerar 0 och 1.
+    """  
     if player == pyspiel.PlayerId.CHANCE:
       # Define chance actions:
       # 0 means "detection occurs" and 1 means "no detection"
