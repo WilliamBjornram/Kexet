@@ -48,7 +48,7 @@ cfr_solver = cfr.CFRSolver(game)
 # Run CFR iterations...
 eval = 5
 for i in range(11):
-  #print("HEJ")
+  print("UNO ITER")
   cfr_solver.evaluate_and_update_policy()
   if i % eval == 0:
     conv = exploitability.exploitability(game, cfr_solver.average_policy())
