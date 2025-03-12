@@ -33,19 +33,21 @@ tf.disable_v2_behavior()
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("num_iterations", 400, "Number of iterations")
-flags.DEFINE_integer("num_traversals", 40, "Number of traversals/games")
+flags.DEFINE_integer("num_iterations", 10, "Number of iterations")
+flags.DEFINE_integer("num_traversals", 2, "Number of traversals/games")
 
 def simulate_episode(game, policy):
     observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
     state = game.new_initial_state()
     while not state.is_terminal():
+        """
         for p in range(game.num_players()):
           observer.set_from(state, p)
           obs_string = observer.string_from(state, p)
           print(f"Player {p}'s observation: {obs_string}")
           # If you also want to see the numeric tensor:
           # print(f"Player {p}'s observation tensor: {observer.tensor}")
+        """
         cur_player = state.current_player()
         if cur_player == pyspiel.PlayerId.CHANCE:
             # For chance nodes, use the provided chance outcomes.
@@ -101,9 +103,7 @@ def main(unused_argv):
     average_policy_values = expected_game_score.policy_value(
         game.new_initial_state(), [average_policy] * 2)
     print("Computed player 0 value: {}".format(average_policy_values[0]))
-    print("Expected player 0 value: {}".format(-1 / 18))
     print("Computed player 1 value: {}".format(average_policy_values[1]))
-    print("Expected player 1 value: {}".format(1 / 18))
 
   for i in range(10):
      simulate_episode(game, average_policy)
