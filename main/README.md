@@ -4,30 +4,30 @@
 - Hur mäter vi våra resultat?
 
 Introduktion:
-Ta upp Deepmind Go
-Andra världskriget Storbritannien Ubåt spel
-Aktuellt med ubåtsjakt inomskärs sverige
+- Ta upp Deepmind Go
+- Andra världskriget Storbritannien Ubåt spel
+- Aktuellt med ubåtsjakt inomskärs sverige
 
 Bakgrund:
-Ta upp artikel som Mika skickade i början på arbetet
-Mer?
+- Ta upp artikel som Mika skickade i början på arbetet
+- Mer?
 
 Spelet:
-Förklara spelet
+- Förklara spelet
 
 Teori:
-PSRO
-Annan metod
-Self play
+- PSRO
+- Annan metod
+- Self play
 
 Metod:
-open_spiel
+- open_spiel
 
 Diskussion:
-??
+- ??
 
 Resultat:
-??
+- ??
 
 Slutsatser:
-??
+- ??
