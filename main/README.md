@@ -10,7 +10,7 @@ Introduktion:
 
 Bakgrund:
 - Ta upp artikel som Mika skickade i början på arbetet
-- Mer?
+- Prinsessan och monstret spelet
 
 Spelet:
 - Förklara spelet
