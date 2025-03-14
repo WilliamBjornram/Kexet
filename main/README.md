@@ -2,7 +2,8 @@
 - Vad för figurer och tabeller vill vi ha med?
 - Vad vill ha för statistik?
 - Hur mäter vi våra resultat?
-- Ska vi skriva "choke points" eller "chokepoints"?
+- Ska vi skriva "choke points" eller "chokepoints"? Se över ord så vi skriver samma.
+- Vilka källor vi ska ha? Mer studier, böcker osv i metod, teori?
 
 Introduktion:
 - Ta upp Deepmind Go
