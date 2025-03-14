@@ -5,6 +5,10 @@
 - Ska vi skriva "choke points" eller "chokepoints"? Se över ord så vi skriver samma.
 - Vilka källor vi ska ha? Mer studier, böcker osv i metod, teori?
 
+Tankar kring Davids introduktionen:
+- Skulle vilja lägga till att det är "stelth and concelment" som är ubåtars startergi. Samt att efter andra världskriget så använda man kärnkraft vilket har gjort att man kan vara under ytan praktiskt taget för alltid vilket har lett till att nutida ubåtar nästan är omöjliga att hitta. Tycker detta förklarar varför dagens AWS startegi ser ut som den gör och då varför vårt projekt/spel är bra.
+- När jag har tänkt efter så använder vi väl inte ens Self-play utan MARL, dom är ganska lika men ändå inte samma sak så som jag har förstått det.
+
 Introduktion:
 - Ta upp Deepmind Go
 - Andra världskriget Storbritannien Ubåt spel
