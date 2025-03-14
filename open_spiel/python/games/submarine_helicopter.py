@@ -413,6 +413,7 @@ class Graph:
         if len(self.nodes) != len(self.adjacency) or len(self.nodes) != len(self.discovery):
            raise Exception("Dimensioner för dictionaries stämmer ej.")
         
+        """
         # kollar så att adjacency list motsvarar varandra
         for k in self.adjacency.keys():
            tl = self.adjacency[k]
@@ -420,6 +421,7 @@ class Graph:
               if k not in self.adjacency[i]:
                  print(f"I adjacency list för {i} saknades {k}.")
                  self.adjacency[i].append(k)
+        """
 
     # gör klassen iterable
     def __iter__(self):
