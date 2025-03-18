@@ -11,6 +11,7 @@ import pyspiel
 import math
 import csv
 import heapq
+import copy
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
@@ -389,14 +390,6 @@ class Graph:
     
     if len(self.nodes) != len(self.adjacency) or len(self.nodes) != len(self.discovery):
         raise Exception("Dimensioner för dictionaries stämmer ej.")
-    
-    # kollar så att adjacency list motsvarar varandra
-    for k in self.adjacency.keys():
-        tl = self.adjacency[k]
-        for i in tl:
-          if k not in self.adjacency[i]:
-              print(f"I adjacency list för {i} saknades {k}.")
-              self.adjacency[i].append(k)
 
   # gör klassen iterable
   def __iter__(self):
@@ -410,14 +403,17 @@ class Graph:
     """blir en unik lista med alla neighbors och indirekta neighbors (två steg)
     tar bort noder med discovery rate 0 (transit noder)
     """
+    temp = copy.deepcopy(self)
+    # adderar så att adjacency list för varje nod motsvarar varandra
+    for k in temp.adjacency.keys():
+        tl = temp.adjacency[k]
+        for i in tl:
+          if k not in temp.adjacency[i]:
+              temp.adjacency[i].append(k)
+
+    N = 2 # kan röra sig upp till två noder bort varje tidssteg
     for key in self.nodes.keys():
-      output = set()
-      adj_l = self.adjacency[key]
-      for entry in adj_l:
-        tl = self.adjacency[entry]
-        output.add(entry) if self.discovery[entry] != 0 else None
-        for x in tl:
-          output.add(x) if self.discovery[entry] != 0 else None
+      output = help_heli_act(temp, N, key)
       self.heli_act_space[key] = list(output)
   
   def calc_shortest_path(self):
@@ -465,6 +461,34 @@ class Graph:
         raise Exception("Fann ingen kortaste väg till slutnod.")
 
     return best_cost
+
+def help_heli_act(graph, N, key):
+    """beräknar rekursivt de noder som kan nås från `key` inom N steg.
+    
+    Enbart chokepoint nodes inkluderas
+    
+    Args:
+      graph: grafen (objekt) som det ska beräknas på
+      N: antal steg bort (rekursivt djup)
+      key: startnoden
+    
+    Returns:
+      Ett antal noder som går att nå N steg bort (inklusive startnoden)
+    """
+    result = set()
+    if N == 0:
+        # basfallet, om inte transit node och nått rekursivt djup inkludera noden
+        if graph.discovery[key] != 0:
+            result.add(key)
+        return result
+    else:
+        # om ej nått rekursivt djup, uppdatera då resultatet för varje granne
+        for neighbor in graph.adjacency[key]:
+            result.update(help_heli_act(graph, N-1, neighbor))
+        # addera eventuellt den nuvarande noden också
+        if graph.discovery[key] != 0:
+            result.add(key)
+        return result
 
 # registrera spelet i open_spiel
 pyspiel.register_game(_GAME_TYPE, SubmarineHelicopterGame)
