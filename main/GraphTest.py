@@ -174,7 +174,7 @@ def help_heli_act(graph, N, key):
     
 
 if __name__ == "__main__":
-    obj = Graph("/Users/davidklasa/Documents/GitHub/Kexet/main/Test3.csv")
+    obj = Graph("/Users/davidklasa/Documents/GitHub/Kexet/main/GrafLiten.csv")
     for key in obj.nodes.keys():
         print(f"{key} : {obj.adjacency[key]}\n")
 
