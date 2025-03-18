@@ -139,7 +139,7 @@ class SubmarineHelicopterState(pyspiel.State):
     if player == 0:
       return self.graph.adjacency[self.sub_pos] # rör sig till någon adjecent nod
     elif player == 1:
-      return self.graph.heli_act[self.heli_pos] # dictionary som har alla legal moves som lista i en dictionary över alla noder
+      return self.graph.heli_act_space[self.heli_pos] # dictionary som har alla legal moves som lista i en dictionary över alla noder
     else:
       return []
 
@@ -343,6 +343,8 @@ class Graph:
 
       # laddar in grafen
       self.load_from_csv(csv_file)
+      # kallar funktionen som sätter dictionary för heli's legal moves
+      self.heli_act()
 
   def load_from_csv(self, csv_file):
     """förväntar sig kolumnerna: node_id:prob,x,y,is_start,is_end,neighbors:weights
@@ -378,9 +380,6 @@ class Graph:
 
             self.start_nodes.append(node_id) if bool(is_start) else None
             self.end_nodes.append(node_id) if bool(is_end) else None
-
-    # kallar funktionen som sätter dictionary för heli's legal moves
-    self.heli_act()
 
     # kontrollerar så finns start och slutnoder
     if not self.start_nodes:
