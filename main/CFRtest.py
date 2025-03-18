@@ -6,7 +6,7 @@ from open_spiel.python.algorithms import cfr
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
 import pyspiel
-
+import pickle
 
 """
 Den här filen kör CFR ett visst antal gånger,
@@ -57,5 +57,8 @@ for i in range(11):
 
 # Get the average policy and simulate a game.
 avg_policy = cfr_solver.average_policy()
+
+with open("trained_model.pkl", "wb") as f:
+    pickle.dump(avg_policy, f)
 for i in range(10):
   simulate_episode(game, avg_policy)

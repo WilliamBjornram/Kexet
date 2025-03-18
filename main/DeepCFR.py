@@ -27,6 +27,7 @@ from open_spiel.python.algorithms import expected_game_score
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
 import pyspiel
+import pickle
 
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
@@ -104,7 +105,8 @@ def main(unused_argv):
         game.new_initial_state(), [average_policy] * 2)
     print("Computed player 0 value: {}".format(average_policy_values[0]))
     print("Computed player 1 value: {}".format(average_policy_values[1]))
-
+  with open("DEEP_model.pkl", "wb") as f:
+    pickle.dump(average_policy, f)
   for i in range(10):
      simulate_episode(game, average_policy)
 
