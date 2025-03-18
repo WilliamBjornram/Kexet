@@ -37,3 +37,9 @@ Resultat:
 
 Slutsatser:
 - ??
+
+# Tidigare rapporter
+https://cdn.aaai.org/ojs/10051/10051-13-13579-1-2-20201228.pdf
+
+https://www.politesi.polimi.it/retrieve/a81cb05d-2727-616b-e053-1605fe0a889a/MSc_Thesis-FINALE.pdf
+
