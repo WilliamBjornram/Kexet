@@ -48,7 +48,7 @@ game = pyspiel.load_game("python_submarine_helicopter")
 cfr_solver = cfr.CFRSolver(game)
 # Run CFR iterations...
 eval = 10
-for i in range(11):
+for i in range(101):
   print("One iteration")
   cfr_solver.evaluate_and_update_policy()
   if i % eval == 0:
