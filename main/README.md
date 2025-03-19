@@ -1,5 +1,5 @@
 # Vad William gjorde senast som David kanske vill veta.
-- Började läsa och skriva om CFR, det visade sig vara ganska mycket man behöver förklara, hittade många bra källor och sen skrev jag lite texter som jag lär chat skriva om. Det som ligger i rapporten nu är alltså för det mesta chat skriva saker som jag tycker vi borde ha med för att förklara CFR.
+- Började läsa och skriva om CFR, det visade sig vara ganska mycket man behöver förklara, hittade många bra källor och sen skrev jag lite texter som jag lät chat skriva om. Det som ligger i rapporten nu är alltså för det mesta chat skriva saker som jag tycker vi borde ha med för att förklara CFR.
 - Anledningen till att jag inte började skriva om Deep CFR är för att Deep CFR basserar sig ju på CFR så kände att jag ville ha texten om CFR klar först så jag inte skriver massa saker under Deep CFR som egentligen borde ligga under CFR.
 
 # Anteckningar till rapporten
