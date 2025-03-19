@@ -7,6 +7,7 @@ from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
 import pyspiel
 import pickle
+import time
 
 """
 Den här filen kör CFR ett visst antal gånger,
@@ -43,22 +44,31 @@ def simulate_episode(game, policy):
     print("Final returns:", state.returns())
     return
 
-# Example usage after CFR training:
-game = pyspiel.load_game("python_submarine_helicopter")
-cfr_solver = cfr.CFRSolver(game)
-# Run CFR iterations...
-eval = 10
-for i in range(101):
-  print("One iteration")
-  cfr_solver.evaluate_and_update_policy()
-  if i % eval == 0:
-    conv = exploitability.exploitability(game, cfr_solver.average_policy())
-    print("Iteration {} exploitability {}".format(i, conv))
 
-# Get the average policy and simulate a game.
-avg_policy = cfr_solver.average_policy()
+if __name__ == "__main__":
+    start = time.time()
 
-with open("trained_model.pkl", "wb") as f:
-    pickle.dump(avg_policy, f)
-for i in range(10):
-  simulate_episode(game, avg_policy)
+    # Example usage after CFR training:
+    game = pyspiel.load_game("python_submarine_helicopter")
+    cfr_solver = cfr.CFRSolver(game)
+    
+    # Run CFR iterations...
+    eval = 10
+    for i in range(101):
+        print("One iteration")
+        cfr_solver.evaluate_and_update_policy()
+        if i % eval == 0:
+            conv = exploitability.exploitability(game, cfr_solver.average_policy())
+            print("Iteration {} exploitability {}".format(i, conv))
+
+    # Get the average policy and simulate a game.
+    avg_policy = cfr_solver.average_policy()
+
+    end = time.time()
+    print(f"Total tid tränat: {(end-start)/60} min")
+
+    with open("trained_model.pkl", "wb") as f:
+        pickle.dump(avg_policy, f)
+
+    for i in range(10):
+        simulate_episode(game, avg_policy)

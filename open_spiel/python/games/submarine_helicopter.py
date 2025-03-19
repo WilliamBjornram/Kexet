@@ -41,7 +41,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
     Args:
       params: (optional) dictionary av parametrar
     """
-    file = "/content/Kexet/main/Test2.csv" #filväg till grafen
+    file = "/Users/davidklasa/Documents/GitHub/Kexet/main/GrafStor.csv" #filväg till grafen
     self._graph =  Graph(file) # laddar in grafen
     self._budget = self._graph.calc_shortest_path() * 2
     max_moves = math.ceil(self._budget/10) # tar budget/10 och rundar uppåt för att få max antal drag
