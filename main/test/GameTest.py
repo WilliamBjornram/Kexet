@@ -1,3 +1,7 @@
+"""
+Detta test stegar spelet manuellt för att testa att spelets logik fungerar som tänkt.
+"""
+
 import random
 from open_spiel.python import games
 import pyspiel

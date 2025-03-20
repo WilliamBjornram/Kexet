@@ -1,3 +1,6 @@
+"""
+Detta test beräknar hela spelträdet och tar tid på processen.
+"""
 
 from open_spiel.python import games
 from open_spiel.python.algorithms.get_all_states import get_all_states

@@ -1,8 +1,17 @@
+"""
+Test till för att testa om det går att använda Pickle när vi kör Deep CFR.
+"""
+
 import numpy as np
 from absl import app
 from absl import flags
+from absl import logging
 
-from open_spiel.python.algorithms import cfr
+import tensorflow.compat.v1 as tf
+
+from open_spiel.python import policy
+from open_spiel.python.algorithms import deep_cfr
+from open_spiel.python.algorithms import expected_game_score
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
 import pyspiel
@@ -37,16 +46,18 @@ def simulate_episode(game, policy):
             # Get the probabilities for legal actions from the policy.
             action_probs = policy.action_probabilities(state, cur_player)
             actions, probs = zip(*action_probs.items())
+            probs = np.array(probs)
+            probs = probs / probs.sum()  # Normalize the probabilities
             chosen_action = np.random.choice(actions, p=probs)
         state.apply_action(chosen_action)
         print(state)
     print("Final returns:", state.returns())
-    return
+
 
 # Example usage after CFR training:
 game = pyspiel.load_game("python_submarine_helicopter")
 
-with open("trained_model.pkl", "rb") as f:
+with open("DEEP_model.pkl", "rb") as f:
     model = pickle.load(f)
 
 for i in range(10):
