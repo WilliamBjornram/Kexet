@@ -1,4 +1,16 @@
 
+"""
+Den här filen kör CFR ett visst antal iterationer,
+evaluerar i ett bestämt intervall
+sparar average policy mha pickle
+sparar information om körningen och skriver sen till en csv fil
+information om körningen:
+    - tid att initialisera spelträdet
+    - tid för varje intervall av iterationer
+    - exploitablility
+    - namn på grafen
+"""
+
 from open_spiel.python.algorithms import cfr
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
@@ -8,33 +20,18 @@ import time
 import csv
 import numpy as np
 
-"""
-Den här filen kör CFR ett visst antal gånger,
-skriver ut eval ett visst antal ggr,
-sen kör den spelet ett visst antal gånger
-så man ser hur bra policy man har.
-"""
-
 def simulate_episode(game, policy):
     observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
     state = game.new_initial_state()
     while not state.is_terminal():
-        """
-        for p in range(game.num_players()):
-          observer.set_from(state, p)
-          obs_string = observer.string_from(state, p)
-          print(f"Player {p}'s observation: {obs_string}")
-          # If you also want to see the numeric tensor:
-          # print(f"Player {p}'s observation tensor: {observer.tensor}")
-        """
         cur_player = state.current_player()
         if cur_player == pyspiel.PlayerId.CHANCE:
-            # For chance nodes, use the provided chance outcomes.
+            # för chance nodes, använd chance outcomes
             outcomes = state.chance_outcomes()
             actions, probs = zip(*outcomes)
             chosen_action = np.random.choice(actions, p=probs)
         else:
-            # Get the probabilities for legal actions from the policy.
+            # få sannolikheter för legal actions från policy
             action_probs = policy.action_probabilities(state, cur_player)
             actions, probs = zip(*action_probs.items())
             chosen_action = np.random.choice(actions, p=probs)
@@ -67,9 +64,9 @@ if __name__ == "__main__":
         cfr_solver.evaluate_and_update_policy()
         if i % eval == 0:
             i_time = time.time()
-            conv = exploitability.exploitability(game, cfr_solver.average_policy())
+            expl = exploitability.exploitability(game, cfr_solver.average_policy())
             information["iteration_time"] = i_time - c_time # kollar hur lång tid de senaste 'eval' iterationerna tog
-            information["exploitability"] = conv # sparar exploitability
+            information["exploitability"] = expl # sparar exploitability
             information["iteration"] = i # kollar vilken iteration
             c_time = i_time # uppdaterar
 
