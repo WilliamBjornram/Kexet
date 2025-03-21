@@ -12,9 +12,14 @@ import math
 import csv
 import heapq
 import copy
+from typing import Any, Dict
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
+
+_DEFAULT_PARAMS = {
+    "filename": "/default/path/to/graph.csv"
+}
 
 _GAME_TYPE = pyspiel.GameType(
     short_name="python_submarine_helicopter",
@@ -30,18 +35,18 @@ _GAME_TYPE = pyspiel.GameType(
     provides_information_state_tensor=False,
     provides_observation_string=True,
     provides_observation_tensor=True,
-    provides_factored_observation_string=False)
-
+    provides_factored_observation_string=False,
+    parameter_specification=_DEFAULT_PARAMS)
 
 class SubmarineHelicopterGame(pyspiel.Game):
   """en Python version av spelet Submarine Helicopter mha OpenSpiel."""
 
-  def __init__(self, params=None):
+  def __init__(self, params=_DEFAULT_PARAMS):
     """konstruktor
     Args:
       params: (optional) dictionary av parametrar
     """
-    file = "/Users/davidklasa/Documents/GitHub/Kexet/main/GrafStor.csv" #filväg till grafen
+    file = params["filename"]
     self._graph =  Graph(file) # laddar in grafen
     self._budget = self._graph.calc_shortest_path() * 2
     max_moves = math.ceil(self._budget/10) # tar budget/10 och rundar uppåt för att få max antal drag
@@ -58,8 +63,8 @@ class SubmarineHelicopterGame(pyspiel.Game):
         max_utility=1.0,
         utility_sum=0.0,
         max_game_length=max_moves)
-
-    super().__init__(_GAME_TYPE, _GAME_INFO, dict())
+    
+    super().__init__(_GAME_TYPE, _GAME_INFO, params or dict())
 
   def new_initial_state(self):
     """returnerar ett objekt med återställt state"""
