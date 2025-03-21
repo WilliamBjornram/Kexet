@@ -12,7 +12,6 @@ import math
 import csv
 import heapq
 import copy
-from typing import Any, Dict
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
