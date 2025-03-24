@@ -37,36 +37,8 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer("num_iterations", 10, "Number of iterations")
 flags.DEFINE_integer("num_traversals", 2, "Number of traversals/games")
 
-def simulate_episode(game, policy):
-    observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
-    state = game.new_initial_state()
-    while not state.is_terminal():
-        """
-        for p in range(game.num_players()):
-          observer.set_from(state, p)
-          obs_string = observer.string_from(state, p)
-          print(f"Player {p}'s observation: {obs_string}")
-          # If you also want to see the numeric tensor:
-          # print(f"Player {p}'s observation tensor: {observer.tensor}")
-        """
-        cur_player = state.current_player()
-        if cur_player == pyspiel.PlayerId.CHANCE:
-            # For chance nodes, use the provided chance outcomes.
-            outcomes = state.chance_outcomes()
-            actions, probs = zip(*outcomes)
-            chosen_action = np.random.choice(actions, p=probs)
-        else:
-            # Get the probabilities for legal actions from the policy.
-            action_probs = policy.action_probabilities(state, cur_player)
-            actions, probs = zip(*action_probs.items())
-            probs = np.array(probs)
-            probs = probs / probs.sum()  # Normalize the probabilities
-            chosen_action = np.random.choice(actions, p=probs)
-        state.apply_action(chosen_action)
-        print(state)
-    print("Final returns:", state.returns())
 
-def main(unused_argv):
+def main():
   logging.info("Loading %s", "python_submarine_helicopter")
   game = pyspiel.load_game("python_submarine_helicopter")
   with tf.Session() as sess:
@@ -105,10 +77,11 @@ def main(unused_argv):
         game.new_initial_state(), [average_policy] * 2)
     print("Computed player 0 value: {}".format(average_policy_values[0]))
     print("Computed player 1 value: {}".format(average_policy_values[1]))
-  with open("DEEP_model.pkl", "wb") as f:
+
+  
+  with open("D_CFR_model.pkl", "wb") as f:
     pickle.dump(average_policy, f)
-  for i in range(10):
-     simulate_episode(game, average_policy)
+
 
 if __name__ == "__main__":
   app.run(main)

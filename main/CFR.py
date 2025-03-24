@@ -18,35 +18,16 @@ import pyspiel
 import pickle
 import time
 import csv
-import numpy as np
+from absl import app
 
-def simulate_episode(game, policy):
-    observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
-    state = game.new_initial_state()
-    while not state.is_terminal():
-        cur_player = state.current_player()
-        if cur_player == pyspiel.PlayerId.CHANCE:
-            # för chance nodes, använd chance outcomes
-            outcomes = state.chance_outcomes()
-            actions, probs = zip(*outcomes)
-            chosen_action = np.random.choice(actions, p=probs)
-        else:
-            # få sannolikheter för legal actions från policy
-            action_probs = policy.action_probabilities(state, cur_player)
-            actions, probs = zip(*action_probs.items())
-            chosen_action = np.random.choice(actions, p=probs)
-        state.apply_action(chosen_action)
-        print(state)
-    print("Final returns:", state.returns())
-    return
-
-
-if __name__ == "__main__":
+def main():
     # filväg till filen, inkludera namnet och filändelse
     filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/GrafLiten.csv"
 
     # till för att hålla koll på data under körning
     information = {}
+    ind = filename.find("/", -1, 0) # letar efter sista /
+    information["graph"] = filename[ind:-4] # grafens namn from ind tom -4
     s_time = time.time() # tiden när startar beräkning av spelträdet
 
     # laddar spelet och initialiserar CFR
@@ -61,6 +42,7 @@ if __name__ == "__main__":
     eval = 5 # evaluera varje 10:e iteration
     c_time = time.time() # kollar tiden innan börjar köra iterationer
     for i in range(num_iter):
+        print("One iteration")
         cfr_solver.evaluate_and_update_policy()
         if i % eval == 0:
             i_time = time.time()
@@ -72,7 +54,7 @@ if __name__ == "__main__":
 
     # spara average policy
     avg_policy = cfr_solver.average_policy()
-    with open("trained_model.pkl", "wb") as f:
+    with open("CFR_model.pkl", "wb") as f:
         pickle.dump(avg_policy, f)
 
     csv_file = "training_data.csv"
@@ -81,10 +63,10 @@ if __name__ == "__main__":
         writer.writeheader()
         writer.writerows(information)
 
-    for i in range(10):
-        simulate_episode(game, avg_policy)
+if __name__ == "__main__":
+    app.run(main)
 
 
 ##### anteckningar ######
-# ska vi simulera episoder efter vi har tränat?
 # vad för mer information vill vi spara under iterationerna?
+# fixa DeepCFR och MCCFR filerna
