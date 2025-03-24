@@ -20,9 +20,10 @@ import time
 import csv
 from absl import app
 
-def main():
+def main(argv):
+    del argv
     # filväg till filen, inkludera namnet och filändelse
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/GrafLiten.csv"
+    filename = "/content/Kexet/main/grafer/Test0.csv"
 
     # till för att hålla koll på data under körning
     information = {}
@@ -59,9 +60,9 @@ def main():
 
     csv_file = "training_data.csv"
     with open(csv_file, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=information[0].keys())
+        writer = csv.DictWriter(f, fieldnames=information.keys())
         writer.writeheader()
-        writer.writerows(information)
+        writer.writerow(information)
 
 if __name__ == "__main__":
     app.run(main)
