@@ -1,13 +1,13 @@
-
 """
 Den här filen kör CFR ett visst antal iterationer,
-evaluerar i ett bestämt intervall
-sparar average policy mha pickle
-sparar information om körningen och skriver sen till en csv fil
-information om körningen:
+evaluerar i ett bestämt intervall,
+sparar average policy mha pickle,
+sparar information om körningen och skriver sen till en csv fil.
+Information om körningen:
     - tid att initialisera spelträdet
     - tid för varje intervall av iterationer
-    - exploitablility
+    - exploitability
+    - iteration
     - namn på grafen
 """
 
@@ -22,52 +22,60 @@ from absl import app
 
 def main(argv):
     del argv
-    # filväg till filen, inkludera namnet och filändelse
+    # Filväg till grafen, inkludera namnet och filändelse
     filename = "/content/Kexet/main/grafer/Test0.csv"
 
-    # till för att hålla koll på data under körning
-    information = {}
-    ind = filename.find("/", -1, 0) # letar efter sista /
-    information["graph"] = filename[ind:-4] # grafens namn from ind tom -4
-    s_time = time.time() # tiden när startar beräkning av spelträdet
+    # Håll koll på generell körinformation
+    info_general = {}
+    # Hämta grafnamnet (exempelvis från sista "/" till -4 position för att klippa bort filändelsen)
+    ind = filename.rfind("/")  # rfind returns the last index of "/"
+    info_general["graph"] = filename[ind:-4]  # grafens namn
+    s_time = time.time()  # starttid för initialisering av spelträdet
 
-    # laddar spelet och initialiserar CFR
-    game = pyspiel.load_game("python_submarine_helicopter", dict(filename = filename))
+    # Ladda spelet och initialisera CFR
+    game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
     cfr_solver = cfr.CFRSolver(game)
+    e_time = time.time()  # tid efter initialisering
+    info_general["init_t"] = e_time - s_time
 
-    e_time = time.time() # tiden när avslutat beräkning av spelträdet
-    information["init_t"] = e_time - s_time
-    
+    # Lista för att spara data från varje evalueringssteg
+    run_data = []
+
     # Kör CFR iterationer
-    num_iter = 10 # x antal ggr
-    eval = 5 # evaluera varje 10:e iteration
-    c_time = time.time() # kollar tiden innan börjar köra iterationer
+    num_iter = 101   # antal iterationer
+    eval_interval = 10  # evaluera var tionde iteration
+    c_time = time.time()  # tid före iterationerna
+
     for i in range(num_iter):
         print("One iteration")
         cfr_solver.evaluate_and_update_policy()
-        if i % eval == 0:
+        # När det är dags att utvärdera
+        if i % eval_interval == 0:
             i_time = time.time()
             expl = exploitability.exploitability(game, cfr_solver.average_policy())
-            information["iteration_time"] = i_time - c_time # kollar hur lång tid de senaste 'eval' iterationerna tog
-            information["exploitability"] = expl # sparar exploitability
-            information["iteration"] = i # kollar vilken iteration
-            c_time = i_time # uppdaterar
+            # Samla data för denna evalueringsperiod
+            row = {
+                "iteration": i,
+                "iteration_time": i_time - c_time,
+                "exploitability": expl,
+                "graph": info_general["graph"],
+                "init_t": info_general["init_t"]
+            }
+            run_data.append(row)
+            c_time = i_time  # uppdatera c_time
 
-    # spara average policy
+    # Spara average policy med pickle
     avg_policy = cfr_solver.average_policy()
     with open("CFR_model.pkl", "wb") as f:
         pickle.dump(avg_policy, f)
 
+    # Skriv alla evalueringsdata till CSV-filen
     csv_file = "training_data.csv"
     with open(csv_file, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=information.keys())
+        # Använd fältnamnen från första raden i run_data
+        writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
         writer.writeheader()
-        writer.writerow(information)
+        writer.writerows(run_data)
 
 if __name__ == "__main__":
     app.run(main)
-
-
-##### anteckningar ######
-# vad för mer information vill vi spara under iterationerna?
-# fixa DeepCFR och MCCFR filerna

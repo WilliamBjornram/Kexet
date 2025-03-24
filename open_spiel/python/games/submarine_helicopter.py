@@ -17,7 +17,7 @@ import copy
 _NUM_PLAYERS = 2
 
 _DEFAULT_PARAMS = {
-    "filename": "/content/Kexet/main/grafer/GrafLiten.csv"
+    "filename": "/content/Kexet/main/grafer/Test0.csv"
 }
 
 _GAME_TYPE = pyspiel.GameType(

@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python Deep CFR example."""
+"""Python Deep CFR example with CSV logging for NashConv and run time."""
 
 import numpy as np
 from absl import app
 from absl import flags
 from absl import logging
-
 import tensorflow.compat.v1 as tf
+import csv
+import time
+import pickle
 
 from open_spiel.python import policy
 from open_spiel.python.algorithms import deep_cfr
@@ -27,20 +29,22 @@ from open_spiel.python.algorithms import expected_game_score
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
 import pyspiel
-import pickle
 
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer("num_iterations", 10, "Number of iterations")
-flags.DEFINE_integer("num_traversals", 2, "Number of traversals/games")
+flags.DEFINE_integer("num_iterations", 100, "Number of iterations")
+flags.DEFINE_integer("num_traversals", 20, "Number of traversals/games")
 
 
-def main():
+def main(argv):
+  del argv
+  filename = "/content/Kexet/main/grafer/Test0.csv"
   logging.info("Loading %s", "python_submarine_helicopter")
-  game = pyspiel.load_game("python_submarine_helicopter")
+  game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
+  
   with tf.Session() as sess:
     deep_cfr_solver = deep_cfr.DeepCFRSolver(
         sess,
@@ -57,7 +61,12 @@ def main():
         advantage_network_train_steps=20,
         reinitialize_advantage_networks=False)
     sess.run(tf.global_variables_initializer())
+    
+    # Measure the total run time for deep CFR iterations.
+    start_time = time.time()
     _, advantage_losses, policy_loss = deep_cfr_solver.solve()
+    total_run_time = time.time() - start_time
+
     for player, losses in advantage_losses.items():
       logging.info("Advantage for player %d: %s", player,
                    losses[:2] + ["..."] + losses[-2:])
@@ -66,6 +75,7 @@ def main():
     logging.info("Strategy Buffer Size: '%s'",
                  len(deep_cfr_solver.strategy_buffer))
     logging.info("Final policy loss: '%s'", policy_loss)
+    logging.info("Total run time for iterations: %s seconds", total_run_time)
 
     average_policy = policy.tabular_policy_from_callable(
         game, deep_cfr_solver.action_probabilities)
@@ -78,9 +88,17 @@ def main():
     print("Computed player 0 value: {}".format(average_policy_values[0]))
     print("Computed player 1 value: {}".format(average_policy_values[1]))
 
-  
+  # Save the average policy using pickle.
   with open("D_CFR_model.pkl", "wb") as f:
     pickle.dump(average_policy, f)
+
+  # Save training information (NashConv and total run time) to a CSV file.
+  csv_file = "D_CFR_training_data.csv"
+  with open(csv_file, "w", newline="") as csvfile:
+    fieldnames = ["nash_conv", "total_run_time"]
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerow({"nash_conv": conv, "total_run_time": total_run_time})
 
 
 if __name__ == "__main__":
