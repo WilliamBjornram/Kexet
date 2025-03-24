@@ -36,27 +36,53 @@ flags.DEFINE_enum(
     ["external", "outcome"],
     "Sampling for the MCCFR solver",
 )
-flags.DEFINE_integer("iterations", 100, "Number of iterations")
-flags.DEFINE_string("game", "python_submarine_helicopter", "Name of the game")
-flags.DEFINE_integer("print_freq", 10,
-                     "How often to print the exploitability")
 
 def main(_):
-  filename = "/content/Kexet/main/grafer/Test0.csv"
+  filename = "/content/Kexet/main/grafer/Test1.csv"
+  info_general = {}
+  ind = filename.rfind("/")
+  info_general["graph"] = filename[ind:-4]
+  s_time = time.time()
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename = filename))
   if FLAGS.sampling == "external":
     cfr_solver = external_mccfr.ExternalSamplingSolver(
         game, external_mccfr.AverageType.SIMPLE)
   else:
     cfr_solver = outcome_mccfr.OutcomeSamplingSolver(game)
-  for i in range(FLAGS.iterations):
+  
+  e_time = time.time()
+  info_general["init_t"] = e_time - s_time
+
+  run_data = []
+  num_iter = 101   # antal iterationer
+  eval_interval = 10  # evaluera var tionde iteration
+  c_time = time.time() 
+  for i in range(num_iter):
+    print("One iteration")
     cfr_solver.iteration()
-    if i % FLAGS.print_freq == 0:
+
+    if i % eval_interval == 0:
+      i_time = time.time()
       conv = exploitability.nash_conv(game, cfr_solver.average_policy())
-      print("Iteration {} exploitability {}".format(i, conv))
+      row = {
+                "iteration": i,
+                "iteration_time": i_time - c_time,
+                "exploitability": conv,
+                "graph": info_general["graph"],
+                "init_t": info_general["init_t"]
+            }
+      run_data.append(row)
+      c_time = i_time
   avg_policy = cfr_solver.average_policy()
   with open("MCCFR_model.pkl", "wb") as f:
     pickle.dump(avg_policy, f)
+  
+  csv_file = "MCCFR_training_data.csv"
+  with open(csv_file, "w", newline="") as f:
+      # Använd fältnamnen från första raden i run_data
+      writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
+      writer.writeheader()
+      writer.writerows(run_data)
 
 if __name__ == "__main__":
   app.run(main)
