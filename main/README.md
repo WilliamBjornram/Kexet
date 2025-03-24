@@ -1,4 +1,5 @@
 # Vad William gjorde senast som David kanske vill veta.
+- Ändrade i CFR, MCCFR och DeepCFR så att det vi kanske vill ska sparas faktiskt sparas.
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
 
 # Anteckningar till rapporten i allmänhet
