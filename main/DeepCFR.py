@@ -39,8 +39,7 @@ flags.DEFINE_integer("num_iterations", 100, "Number of iterations")
 flags.DEFINE_integer("num_traversals", 20, "Number of traversals/games")
 
 
-def main(argv):
-  del argv
+def main(_):
   filename = "/content/Kexet/main/grafer/Test0.csv"
   logging.info("Loading %s", "python_submarine_helicopter")
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
@@ -89,11 +88,11 @@ def main(argv):
     print("Computed player 1 value: {}".format(average_policy_values[1]))
 
   # Save the average policy using pickle.
-  with open("D_CFR_model.pkl", "wb") as f:
+  with open("Deep_CFR_model.pkl", "wb") as f:
     pickle.dump(average_policy, f)
 
   # Save training information (NashConv and total run time) to a CSV file.
-  csv_file = "D_CFR_training_data.csv"
+  csv_file = "Deep_CFR_training_data.csv"
   with open(csv_file, "w", newline="") as csvfile:
     fieldnames = ["nash_conv", "total_run_time"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)

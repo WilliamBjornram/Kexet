@@ -38,7 +38,13 @@ flags.DEFINE_enum(
 )
 
 def main(_):
-  filename = "/content/Kexet/main/grafer/Test1.csv"
+  # Filväg till grafen, inkludera namnet och filändelse
+  filename = "/content/Kexet/main/grafer/Test0.csv"
+  num_iter = 101   # antal iterationer
+  eval_interval = 5  # hur ofta vi ska evaluera
+  model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
+  training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
+
   info_general = {}
   ind = filename.rfind("/")
   info_general["graph"] = filename[ind:-4]
@@ -54,8 +60,6 @@ def main(_):
   info_general["init_t"] = e_time - s_time
 
   run_data = []
-  num_iter = 101   # antal iterationer
-  eval_interval = 10  # evaluera var tionde iteration
   c_time = time.time() 
   for i in range(num_iter):
     print("One iteration")
