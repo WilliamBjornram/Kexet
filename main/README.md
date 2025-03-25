@@ -1,7 +1,7 @@
 # Vad William gjorde senast som David kanske vill veta.
 - Ändrade i CFR, MCCFR och DeepCFR så att det vi kanske vill ska sparas faktiskt sparas.
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
-
+- Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
 - Vad vill ha för statistik?
