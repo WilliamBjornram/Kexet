@@ -1,16 +1,3 @@
-# Copyright 2019 DeepMind Technologies Limited
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 """Python Deep CFR example with CSV logging for NashConv and run time."""
 
@@ -40,7 +27,13 @@ flags.DEFINE_integer("num_traversals", 20, "Number of traversals/games")
 
 
 def main(_):
+  # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
+  num_iter = 101   # antal iterationer
+  num_traversals = 5  # hur många traversals per iteration
+  model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
+  training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
+
   logging.info("Loading %s", "python_submarine_helicopter")
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
   
@@ -50,8 +43,8 @@ def main(_):
         game,
         policy_network_layers=(16,),
         advantage_network_layers=(16,),
-        num_iterations=FLAGS.num_iterations,
-        num_traversals=FLAGS.num_traversals,
+        num_iterations=num_iter,
+        num_traversals=num_traversals,
         learning_rate=1e-3,
         batch_size_advantage=128,
         batch_size_strategy=1024,
@@ -88,12 +81,11 @@ def main(_):
     print("Computed player 1 value: {}".format(average_policy_values[1]))
 
   # Save the average policy using pickle.
-  with open("Deep_CFR_model.pkl", "wb") as f:
+  with open(model_data_file, "wb") as f:
     pickle.dump(average_policy, f)
 
   # Save training information (NashConv and total run time) to a CSV file.
-  csv_file = "Deep_CFR_training_data.csv"
-  with open(csv_file, "w", newline="") as csvfile:
+  with open(training_data_file, "w", newline="") as csvfile:
     fieldnames = ["nash_conv", "total_run_time"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
