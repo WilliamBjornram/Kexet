@@ -20,21 +20,19 @@ import pyspiel
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
 
-FLAGS = flags.FLAGS
-
-flags.DEFINE_integer("num_iterations", 100, "Number of iterations")
-flags.DEFINE_integer("num_traversals", 20, "Number of traversals/games")
-
 
 def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
-  num_iter = 101   # antal iterationer
+  num_iter = 10   # antal iterationer
   num_traversals = 5  # hur många traversals per iteration
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
 
   logging.info("Loading %s", "python_submarine_helicopter")
+
+  start_time = time.time()
+
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
   
   with tf.Session() as sess:
@@ -54,26 +52,13 @@ def main(_):
         reinitialize_advantage_networks=False)
     sess.run(tf.global_variables_initializer())
     
-    # Measure the total run time for deep CFR iterations.
-    start_time = time.time()
     _, advantage_losses, policy_loss = deep_cfr_solver.solve()
     total_run_time = time.time() - start_time
-
-    for player, losses in advantage_losses.items():
-      logging.info("Advantage for player %d: %s", player,
-                   losses[:2] + ["..."] + losses[-2:])
-      logging.info("Advantage Buffer Size for player %s: '%s'", player,
-                   len(deep_cfr_solver.advantage_buffers[player]))
-    logging.info("Strategy Buffer Size: '%s'",
-                 len(deep_cfr_solver.strategy_buffer))
-    logging.info("Final policy loss: '%s'", policy_loss)
-    logging.info("Total run time for iterations: %s seconds", total_run_time)
 
     average_policy = policy.tabular_policy_from_callable(
         game, deep_cfr_solver.action_probabilities)
 
     conv = exploitability.nash_conv(game, average_policy)
-    logging.info("Deep CFR in '%s' - NashConv: %s", "python_submarine_helicopter", conv)
 
     average_policy_values = expected_game_score.policy_value(
         game.new_initial_state(), [average_policy] * 2)
@@ -81,7 +66,8 @@ def main(_):
     print("Computed player 1 value: {}".format(average_policy_values[1]))
 
   # Save the average policy using pickle.
-  with open(model_data_file, "wb") as f:
+  with open(model_data_file, "wb") 
+  
     pickle.dump(average_policy, f)
 
   # Save training information (NashConv and total run time) to a CSV file.

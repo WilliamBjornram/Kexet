@@ -27,8 +27,8 @@ flags.DEFINE_enum(
 def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
-  num_iter = 101   # antal iterationer
-  eval_interval = 50  # hur ofta vi ska evaluera
+  num_iter = 1001   # antal iterationer
+  eval_interval = 5  # hur ofta vi ska evaluera
   model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
 
@@ -36,6 +36,7 @@ def main(_):
   ind = filename.rfind("/")
   info_general["graph"] = filename[ind:-4]
   s_time = time.time()
+
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename = filename))
   if FLAGS.sampling == "external":
     cfr_solver = external_mccfr.ExternalSamplingSolver(
@@ -47,24 +48,28 @@ def main(_):
   info_general["init_t"] = e_time - s_time
 
   run_data = []
+
   c_time = time.time() 
   for i in range(num_iter):
     print(str(i + 1) + " iterations")
     cfr_solver.iteration()
 
     if i % eval_interval == 0:
-      print("Evaluation for iteration: " + str(i))
+      print("Evaluation for iteration: " + str(i+1))
       i_time = time.time()
       conv = exploitability.nash_conv(game, cfr_solver.average_policy())
+      e_time = time.time()
       row = {
-                "iteration": i,
+                "iteration": i+1,
                 "iteration_time": i_time - c_time,
                 "exploitability": conv,
                 "graph": info_general["graph"],
-                "init_t": info_general["init_t"]
+                "init_t": info_general["init_t"],
+                "tot_t": e_time - s_time
             }
       run_data.append(row)
       c_time = i_time
+
   avg_policy = cfr_solver.average_policy()
   with open(model_data_file, "wb") as f:
     pickle.dump(avg_policy, f)
