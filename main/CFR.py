@@ -49,20 +49,22 @@ def main(_):
     c_time = time.time()  # tid före iterationerna
 
     for i in range(num_iter):
-        print(str(i + 1) + " iterations")
+        print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         # När det är dags att utvärdera
         if i % eval_interval == 0:
-            print("Evaluation for iteration: " + str(i))
+            print("Evaluation for iteration: " + str(i+1))
             i_time = time.time()
-            expl = exploitability.exploitability(game, cfr_solver.average_policy())
+            expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             # Samla data för denna evalueringsperiod
+            e_time = time.time()
             row = {
-                "iteration": i,
+                "iteration": i+1,
                 "iteration_time": i_time - c_time,
                 "exploitability": expl,
                 "graph": info_general["graph"],
-                "init_t": info_general["init_t"]
+                "init_t": info_general["init_t"],
+                "tot_t": e_time - s_time
             }
             run_data.append(row)
             c_time = i_time  # uppdatera c_time
