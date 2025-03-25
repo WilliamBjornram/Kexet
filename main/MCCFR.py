@@ -1,16 +1,3 @@
-# Copyright 2019 DeepMind Technologies Limited
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 """Example use of the MCCFR algorithm on Kuhn Poker."""
 
@@ -41,9 +28,9 @@ def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
   num_iter = 101   # antal iterationer
-  eval_interval = 5  # hur ofta vi ska evaluera
-  model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
-  training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
+  eval_interval = 50  # hur ofta vi ska evaluera
+  model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
+  training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
 
   info_general = {}
   ind = filename.rfind("/")
@@ -62,10 +49,11 @@ def main(_):
   run_data = []
   c_time = time.time() 
   for i in range(num_iter):
-    print("One iteration")
+    print(str(i + 1) + " iterations")
     cfr_solver.iteration()
 
     if i % eval_interval == 0:
+      print("Evaluation for iteration: " + str(i))
       i_time = time.time()
       conv = exploitability.nash_conv(game, cfr_solver.average_policy())
       row = {
@@ -78,11 +66,10 @@ def main(_):
       run_data.append(row)
       c_time = i_time
   avg_policy = cfr_solver.average_policy()
-  with open("MCCFR_model.pkl", "wb") as f:
+  with open(model_data_file, "wb") as f:
     pickle.dump(avg_policy, f)
   
-  csv_file = "MCCFR_training_data.csv"
-  with open(csv_file, "w", newline="") as f:
+  with open(training_data_file, "w", newline="") as f:
       # Använd fältnamnen från första raden i run_data
       writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
       writer.writeheader()
