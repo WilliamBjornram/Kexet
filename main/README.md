@@ -1,4 +1,5 @@
 # Vad William gjorde senast som David kanske vill veta.
+- Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
 - Så här skriver dom i en studie om MCCFR: Figure 1 shows the results of all four algorithms on all four domains, plotting approximation quality
 as a function of the number of nodes of the game tree the algorithm touched while computing.
 Nodes touched is an implementation-independent measure of computation; however, the results are
