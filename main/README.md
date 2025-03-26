@@ -1,4 +1,4 @@
-# Vad William gjorde senast som David kanske vill veta.
+# Williams anteckningar till David
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
 - Så här skriver dom i en studie om MCCFR: Figure 1 shows the results of all four algorithms on all four domains, plotting approximation quality
 as a function of the number of nodes of the game tree the algorithm touched while computing.
@@ -23,6 +23,10 @@ requires greater neural network training time but requires
 fewer CFR steps." Källa: https://arxiv.org/pdf/1811.00164
 - Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
+
+# Davids anteckningar till William
+- Jag är nöjd med sektionerna för RL och MARL som de ser ut nu, du kanske kan kolla om du vill lägga till något? Jag har i stort sett inte tagit bort något, utan endast omformulerat.
+
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
 - Vad vill ha för statistik?
