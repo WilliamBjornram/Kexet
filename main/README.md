@@ -10,7 +10,17 @@ is falling at the same rate, O(1/
 √
 T), meaning that only their short-term rather than asymptotic
 performance will differ. Källa: https://mlanctot.info/files/papers/nips09mccfr.pdf
-Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
+- I en annan studie som upptäckte Deep CFR så jämför dom CFR och Deep med "nodes touches" men eftersom att datorn måste göra beräkningar för neurala nätverket så kan Deep CFR ta längre tid men ha en lägre "nodes touched" alltså tycker jag att nodes touhed blir lite värdelös, eller åtminstone missar att ta med en dimension. Citat: "The figure shows that Deep CFR asymptotically reaches a
+similar level of exploitability as the abstraction that uses 3.6
+million clusters, but converges substantially faster. Although
+Deep CFR is more efficient in terms of nodes touched, neural network inference and training requires considerable
+overhead that tabular CFR avoids. However, Deep CFR
+does not require advanced domain knowledge. We show
+Deep CFR performance for 10,000 CFR traversals per step.
+Using more traversals per step is less sample efficient and
+requires greater neural network training time but requires
+fewer CFR steps." Källa: https://arxiv.org/pdf/1811.00164
+- Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
