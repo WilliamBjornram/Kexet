@@ -1,5 +1,16 @@
 # Vad William gjorde senast som David kanske vill veta.
-- Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
+- Så här skriver dom i en studie om MCCFR: Figure 1 shows the results of all four algorithms on all four domains, plotting approximation quality
+as a function of the number of nodes of the game tree the algorithm touched while computing.
+Nodes touched is an implementation-independent measure of computation; however, the results are
+nearly identical if total wall-clock time is used instead. Since the algorithms take radically different
+amounts of time per iteration, this comparison directly answers if the sampling variants’ lower cost
+per iteration outweighs the required increase in the number of iterations. Furthermore, for any
+fixed game (and degree of confidence that the bound holds), the algorithms’ average overall regret
+is falling at the same rate, O(1/
+√
+T), meaning that only their short-term rather than asymptotic
+performance will differ. Källa: https://mlanctot.info/files/papers/nips09mccfr.pdf
+Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
