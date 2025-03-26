@@ -29,8 +29,6 @@ def main(_):
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
 
-  logging.info("Loading %s", "python_submarine_helicopter")
-
   start_time = time.time()
 
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
