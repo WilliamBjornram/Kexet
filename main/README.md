@@ -26,6 +26,7 @@ fewer CFR steps." Källa: https://arxiv.org/pdf/1811.00164
 
 # Davids anteckningar till William
 - Jag är nöjd med sektionerna för RL och MARL som de ser ut nu, du kanske kan kolla om du vill lägga till något? Jag har i stort sett inte tagit bort något, utan endast omformulerat.
+- Jag tycker att vi ska använda kursivt i stället för fetstilt när vi vill betona något ord. Vad tycker du?
 
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
