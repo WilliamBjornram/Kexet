@@ -27,6 +27,7 @@ fewer CFR steps." Källa: https://arxiv.org/pdf/1811.00164
 # Davids anteckningar till William
 - Jag är nöjd med sektionerna för RL och MARL som de ser ut nu, du kanske kan kolla om du vill lägga till något? Jag har i stort sett inte tagit bort något, utan endast omformulerat.
 - Jag tycker att vi ska använda kursivt i stället för fetstilt när vi vill betona något ord. Vad tycker du?
+- Just nu har vi följande uppställning i rapporten: avsnitt visas med romerska siffror, ex IV. THEORY, sen med stor bokstav C. Counterfactual regret minimization, sen med numrering 2) Regret matching, och sen med numrering igen 1) Accumulate Regrets. Det tror jag blir dåligt, då det lätt blandas ihop på slutet, även fast vi skriver 2) Regret matching med kursivt och 1) Accumulate Regrets med fetstilt, bland annat då de har samma indrag. Ska vi numrera sista punkterna med små bokstäver i stället? eller små romerska siffror? ex a, b, c eller i, ii, iii. Vet inte vad som är bäst. Men tycker vi ska byta från det vi har nu.
 
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
