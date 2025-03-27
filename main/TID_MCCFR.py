@@ -28,7 +28,6 @@ def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
   num_iter = 1001   # antal iterationer
-  eval_interval = 5  # hur ofta vi ska evaluera
   model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
 
