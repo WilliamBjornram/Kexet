@@ -6,10 +6,7 @@
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
 
 # Davids anteckningar till William
-- Jag är nöjd med sektionerna för RL och MARL som de ser ut nu, du kanske kan kolla om du vill lägga till något? Jag har i stort sett inte tagit bort något, utan endast omformulerat. RL = BRA, DOCK BEHÖVER VI BILDEN DÄR SÅ DET BLIR LÄTTARE ATT FÖRSTÅ. MARL
-- Har för mig att IEEE standarden säger att man enbart borde börja ordet med stor bokstav när man vill betona något istället för att använda fetstilt eller kursivt. Vi skrev tidigare Rock, Paper och Scissors med fetstilt, så tog bort det. BRA! JAG TOG BORT FETSTIL/KURSIV PÅ NÅGRA FLER STÄLLEN.
-- Tidigare skrev vi enumerate med 1) fetstilt[rubrik]: och sen texten på ett ställe, ordnade om så att det följde de som vi gör senare, och som det borde vara dvs: 1) Text... och sen punkt. BRA!
-- En tanke: ska vi byta plats på ASW GAME och THEORY? Jag tänker att vi kanske kan bättre beskriva spelet om vi i teorin introducerar begrepp som state, observation och imperfect information? Vad tror du? DET ÄR ABSOLUT EN BRA IDÉ, VI KANSKE MÅSTE ÄNDRA NÅGOT I HUR VI SKRIVER TEORI OCH SÅ MEN JAG GILLAR IDÉN. MARL = BRA.
+- ??
 
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
