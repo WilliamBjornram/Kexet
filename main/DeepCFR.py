@@ -29,6 +29,7 @@ def main(_):
   info_general = {}
   ind = filename.rfind("/")
   info_general["graph"] = filename[ind:-4]
+  total_run_time = 0 
 
   for i in range(10):
       # Filväg till grafen, inkludera namnet och filändelse
@@ -36,7 +37,7 @@ def main(_):
     num_iter = 10 * (i +1) # antal iterationer
     num_traversals = 5  # hur många traversals per iteration
     
-
+    
     start_time = time.time()
 
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
@@ -59,7 +60,7 @@ def main(_):
       sess.run(tf.global_variables_initializer())
       
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()
-      total_run_time = time.time() - start_time
+      total_run_time += time.time() - start_time
 
       average_policy = policy.tabular_policy_from_callable(
           game, deep_cfr_solver.action_probabilities)

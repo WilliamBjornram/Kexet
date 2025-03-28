@@ -1,39 +1,36 @@
-
+#!/usr/bin/env python3
 
 import pandas as pd
 import matplotlib.pyplot as plt
 
 def main():
-    # 1. Read CSV file
-    # Change 'data.csv' to your actual CSV filename or path
-    df = pd.read_csv('data.csv')
+    # Read CSV file
+    df = pd.read_csv('CFR_training_data.csv')
     
-    # 2. Inspect the data
+    # Print out basic info for debugging
+    print("First five rows:")
     print(df.head())
+    print("\nColumns:", df.columns)
+    print("\nShape:", df.shape)
     
-    # 3. Plot the data
-    plt.figure(figsize=(8, 6))
+    # Create a figure and axis for a consistent plot
+    fig, ax = plt.subplots(figsize=(8, 6))
     
-    # Plot 'iteration' vs. 'explainability'
-    plt.plot(df['iteration'], df['explainability'], marker='o', label='Explainability')
+    # Plot 'iteration' vs. 'exploitability'
+    df.plot(x='iteration', y='exploitability', kind='line', marker='o', ax=ax)
     
-    # Plot 'iteration' vs. 'tot_t'
-    plt.plot(df['iteration'], df['tot_t'], marker='s', label='tot_t')
+    # Set labels and title
+    ax.set_xlabel('Iteration')
+    ax.set_ylabel('Exploitability')
+    ax.set_title('Exploitability vs Iteration')
     
-    # Label axes and title
-    plt.xlabel('Iteration')
-    plt.ylabel('Value')
-    plt.title('Explainability & tot_t vs. Iteration')
+    # Save the plot to a file so you can check it later
+    fig.savefig('plot.png', dpi=300)
+    print("Plot saved to plot.png")
     
-    # Add legend and grid
-    plt.legend()
-    plt.grid(True)
-    
-    # 4. Show the plot
+    # Display the plot interactively (if supported in your environment)
     plt.show()
-    
-    # 5. (Optional) Save the plot as a file:
-    # plt.savefig('my_plot.png', dpi=300)
 
 if __name__ == "__main__":
     main()
+

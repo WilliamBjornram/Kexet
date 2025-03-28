@@ -35,25 +35,31 @@ def main(_):
     info_general["graph"] = filename[ind:-4]  # grafens namn
     s_time = time.time()  # starttid för initialisering av spelträdet
 
+    start_tid = time.time()
+
     # Ladda spelet och initialisera CFR
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
     cfr_solver = cfr.CFRSolver(game)
-    e_time = time.time()  # tid efter initialisering
-    info_general["init_t"] = e_time - s_time
+    
 
     # Lista för att spara data från varje evalueringssteg
     run_data = []
 
     # Kör CFR iterationer
-    
-    c_time = time.time()  # tid före iterationerna
+    e_time = time.time()  # tid efter initialisering
+    init_tid = e_time - s_time
+    info_general["init_t"] = init_tid
 
+    iter = 
     for i in range(num_iter):
+        c_time = time.time()  # tid före iterationerna
         print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         # När det är dags att utvärdera
         if i % eval_interval == 0:
             print("Evaluation for iteration: " + str(i+1))
+            tid_innan_exploit = time.time()
+            körningstid = tid_innan_exploit - start_tid
             i_time = time.time()
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             # Samla data för denna evalueringsperiod
