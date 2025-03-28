@@ -61,10 +61,10 @@ def main(_):
       e_time = time.time()
       row = {
                 "iteration": i+1,
-                "iteration_time": i_time - c_time,
                 "exploitability": conv,
                 "graph": info_general["graph"],
                 "init_t": info_general["init_t"],
+                "iteration_time": i_time - c_time,
                 "tot_t": e_time - s_time
             }
       run_data.append(row)

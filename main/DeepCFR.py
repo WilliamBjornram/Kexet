@@ -33,7 +33,7 @@ def main(_):
   for i in range(10):
       # Filväg till grafen, inkludera namnet och filändelse
     
-    num_iter = 10 * i  # antal iterationer
+    num_iter = 10 * (i +1) # antal iterationer
     num_traversals = 5  # hur många traversals per iteration
     
 
@@ -72,6 +72,7 @@ def main(_):
       print("Computed player 1 value: {}".format(average_policy_values[1]))
       info_general["tot_time"] = total_run_time
       row = {
+                "iteration": num_iter,
                 "exploitability": conv,
                 "graph": info_general["graph"],
                 "tot_t": info_general["tot_time"]
@@ -84,7 +85,7 @@ def main(_):
 
   # Save training information (NashConv and total run time) to a CSV file.
   with open(training_data_file, "w", newline="") as csvfile:
-      writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
+      writer = csv.DictWriter(csvfile, fieldnames=run_data[0].keys())
       writer.writeheader()
       writer.writerows(run_data)
 
