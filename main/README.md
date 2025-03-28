@@ -7,6 +7,7 @@
 
 # Davids anteckningar till William
 - Jag har gjort en bild för spelträdet för RPS som heter "Game_Tree.jpeg" i overleaf. Dock tror jag att jag har ändrat mig om att vilja ta med den. Jag tycker inte längre att den tillför något, och jag vill nog inte att beskrivningen av CFR ska bli längre. Sen är jag också osäker på vart man ska baka in den i texten och hur man ska referera till den då. Vad tycker du haha?
+- OBS. när jag läst i IEEE standard förstår jag det som att vi nästan alltid ska använda {enumerate} i LaTex inte {itemize}.
 
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
