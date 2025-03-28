@@ -8,7 +8,7 @@
 # Davids anteckningar till William
 - Jag har gjort en bild för spelträdet för RPS som heter "Game_Tree.jpeg" i overleaf. Dock tror jag att jag har ändrat mig om att vilja ta med den. Jag tycker inte längre att den tillför något, och jag vill nog inte att beskrivningen av CFR ska bli längre. Sen är jag också osäker på vart man ska baka in den i texten och hur man ska referera till den då. Vad tycker du haha?
 - OBS. när jag läst i IEEE standard förstår jag det som att vi nästan alltid ska använda {enumerate} i LaTex inte {itemize}.
-- Jag har lagt till så att vi förklara vad vi menar när vi säger tabular eller vanilla CFR, innan vi gör det första gången. Som jag förstår det står vanilla CFR för standard CFR, dvs utan modifikationer som deep CFR eller MCCFR. Medan tabular CFR berättar om hur man faktiskt implementerar CFR, det vill säga genom tabeller. Så vanilla CFR är tabular CFR, men tvärtom behöver inte nödvändigtvis gälla.
+- Jag har lagt till så att vi förklara vad vi menar när vi säger tabular eller vanilla CFR, innan vi gör det första gången. Som jag förstår det står vanilla CFR för standard CFR, dvs utan modifikationer som deep CFR eller MCCFR. Medan tabular CFR berättar om hur man faktiskt implementerar CFR, det vill säga genom tabeller. Så vanilla CFR är tabular CFR, men tvärtom behöver inte nödvändigtvis gälla. Jag tycker inte att vi ska skriva standard CFR, utan tycker att vi ska skriva vanilla CFR.
 
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
