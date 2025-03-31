@@ -35,7 +35,6 @@ def main(_):
     info_general["graph"] = filename[ind:-4]  # grafens namn
     s_time = time.time()  # starttid för initialisering av spelträdet
 
-    start_tid = time.time()
 
     # Ladda spelet och initialisera CFR
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))

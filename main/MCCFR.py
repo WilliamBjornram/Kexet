@@ -27,8 +27,8 @@ flags.DEFINE_enum(
 def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
-  num_iter = 1001   # antal iterationer
-  eval_interval = 5  # hur ofta vi ska evaluera
+  num_iter = 101   # antal iterationer
+  eval_interval = 10  # hur ofta vi ska evaluera
   model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
 
@@ -45,30 +45,29 @@ def main(_):
     cfr_solver = outcome_mccfr.OutcomeSamplingSolver(game)
   
   e_time = time.time()
-  info_general["init_t"] = e_time - s_time
+  init_tid = e_time - s_time
+  info_general["init_t"] = init_tid
 
   run_data = []
 
-  c_time = time.time() 
+  iter = 0 + init_tid
   for i in range(num_iter):
+    c_time = time.time() 
     print(str(i + 1) + " iterations")
     cfr_solver.iteration()
+    iter += time.time() - c_time
 
     if i % eval_interval == 0:
       print("Evaluation for iteration: " + str(i+1))
-      i_time = time.time()
       conv = exploitability.nash_conv(game, cfr_solver.average_policy())
-      e_time = time.time()
       row = {
                 "iteration": i+1,
                 "exploitability": conv,
                 "graph": info_general["graph"],
                 "init_t": info_general["init_t"],
-                "iteration_time": i_time - c_time,
-                "tot_t": e_time - s_time
+                "tot_t": iter
             }
       run_data.append(row)
-      c_time = i_time
 
   avg_policy = cfr_solver.average_policy()
   with open(model_data_file, "wb") as f:
