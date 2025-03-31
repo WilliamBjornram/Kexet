@@ -29,7 +29,7 @@ def main(_):
   info_general = {}
   ind = filename.rfind("/")
   info_general["graph"] = filename[ind:-4]
-  total_run_time = 0 
+
 
   for i in range(10):
       # Filväg till grafen, inkludera namnet och filändelse
@@ -60,7 +60,7 @@ def main(_):
       sess.run(tf.global_variables_initializer())
       
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()
-      total_run_time += time.time() - start_time
+      Iter_run_time = time.time() - start_time
 
       average_policy = policy.tabular_policy_from_callable(
           game, deep_cfr_solver.action_probabilities)
@@ -71,7 +71,7 @@ def main(_):
           game.new_initial_state(), [average_policy] * 2)
       print("Computed player 0 value: {}".format(average_policy_values[0]))
       print("Computed player 1 value: {}".format(average_policy_values[1]))
-      info_general["tot_time"] = total_run_time
+      info_general["tot_time"] = Iter_run_time
       row = {
                 "iteration": num_iter,
                 "exploitability": conv,
