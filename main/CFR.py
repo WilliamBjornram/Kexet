@@ -24,7 +24,7 @@ def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
     filename = "/content/Kexet/main/grafer/Test0.csv"
     num_iter = 101   # antal iterationer
-    eval_interval = 5  # hur ofta vi ska evaluera
+    eval_interval = 10  # hur ofta vi ska evaluera
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
     training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
 
@@ -50,30 +50,25 @@ def main(_):
     init_tid = e_time - s_time
     info_general["init_t"] = init_tid
 
-    iter = 
+    iter = 0 + init_tid
     for i in range(num_iter):
         c_time = time.time()  # tid före iterationerna
         print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
+        iter += time.time() - c_time
         # När det är dags att utvärdera
         if i % eval_interval == 0:
             print("Evaluation for iteration: " + str(i+1))
-            tid_innan_exploit = time.time()
-            körningstid = tid_innan_exploit - start_tid
-            i_time = time.time()
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             # Samla data för denna evalueringsperiod
-            e_time = time.time()
             row = {
                 "iteration": i+1,
                 "exploitability": expl,
                 "graph": info_general["graph"],
                 "init_t": info_general["init_t"],
-                "iteration_time": i_time - c_time,
-                "tot_t": e_time - s_time
+                "tot_t": iter
             }
             run_data.append(row)
-            c_time = i_time  # uppdatera c_time
 
     # Spara average policy med pickle
     avg_policy = cfr_solver.average_policy()

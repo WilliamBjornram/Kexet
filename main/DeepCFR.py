@@ -35,7 +35,7 @@ def main(_):
       # Filväg till grafen, inkludera namnet och filändelse
     
     num_iter = 10 * (i +1) # antal iterationer
-    num_traversals = 5  # hur många traversals per iteration
+    num_traversals = 20  # hur många traversals per iteration
     
     
     start_time = time.time()
