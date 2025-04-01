@@ -15,20 +15,13 @@ from open_spiel.python.algorithms import outcome_sampling_mccfr as outcome_mccfr
 from open_spiel.python import games
 import pyspiel
 
-FLAGS = flags.FLAGS
-
-flags.DEFINE_enum(
-    "sampling",
-    "outcome",
-    ["external", "outcome"],
-    "Sampling for the MCCFR solver",
-)
 
 def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
-  num_iter = 101   # antal iterationer
-  eval_interval = 10  # hur ofta vi ska evaluera
+  num_iter = 3001   # antal iterationer
+  eval_interval = 100  # hur ofta vi ska evaluera
+  sampling = "external"
   model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
 
@@ -38,7 +31,7 @@ def main(_):
   s_time = time.time()
 
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename = filename))
-  if FLAGS.sampling == "external":
+  if sampling == "external":
     cfr_solver = external_mccfr.ExternalSamplingSolver(
         game, external_mccfr.AverageType.SIMPLE)
   else:
@@ -53,7 +46,7 @@ def main(_):
   iter = 0 + init_tid
   for i in range(num_iter):
     c_time = time.time() 
-    print(str(i + 1) + " iterations")
+    #print(str(i + 1) + " iterations")
     cfr_solver.iteration()
     iter += time.time() - c_time
 

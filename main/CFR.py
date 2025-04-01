@@ -22,9 +22,9 @@ from absl import app
 
 def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
-    filename = "/content/Kexet/main/grafer/Test0.csv"
-    num_iter = 101   # antal iterationer
-    eval_interval = 10  # hur ofta vi ska evaluera
+    filename = "/content/Kexet/main/grafer/Test1.csv"
+    num_iter = 1001   # antal iterationer
+    eval_interval = 50  # hur ofta vi ska evaluera
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
     training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
 
@@ -52,7 +52,7 @@ def main(_):
     iter = 0 + init_tid
     for i in range(num_iter):
         c_time = time.time()  # tid före iterationerna
-        print(str(i+1) + " iterations")
+        #print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         iter += time.time() - c_time
         # När det är dags att utvärdera
