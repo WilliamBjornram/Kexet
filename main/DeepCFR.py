@@ -22,19 +22,17 @@ tf.disable_v2_behavior()
 
 
 def main(_):
-  filename = "/content/Kexet/main/grafer/Test1.csv"
+  filepath = "/content/Kexet/main/grafer/Test1.csv"
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
   run_data = []
-  info_general = {}
-  ind = filename.rfind("/")
-  info_general["graph"] = filename[ind:-4]
-
+  ind = filepath.rfind("/")
+  filename = filepath[ind+1:-4]
 
   for i in range(15):
       # Filväg till grafen, inkludera namnet och filändelse
     
-    num_iter = 10 * (i +1) # antal iterationer
+    num_iter = 10 * (i+1) # antal iterationer
     num_traversals = 25  # hur många traversals per iteration
     
     
