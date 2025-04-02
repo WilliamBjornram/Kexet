@@ -27,7 +27,7 @@ def main(_):
     eval_interval = 50  # hur ofta vi ska evaluera
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
     training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
-
+ 
     # Håll koll på generell körinformation
     info_general = {}
     # Hämta grafnamnet (exempelvis från sista "/" till -4 position för att klippa bort filändelsen)

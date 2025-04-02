@@ -20,7 +20,6 @@ import pyspiel
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
 
-
 def main(_):
   filepath = "/content/Kexet/main/grafer/Test1.csv"
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
@@ -34,7 +33,6 @@ def main(_):
     
     num_iter = 10 * (i+1) # antal iterationer
     num_traversals = 25  # hur många traversals per iteration
-    
     
     start_time = time.time()
 
@@ -65,12 +63,11 @@ def main(_):
 
       conv = exploitability.nash_conv(game, average_policy)
       print("Iterations done: " + str(num_iter))
-      info_general["tot_time"] = Iter_run_time
       row = {
                 "iteration": num_iter,
                 "exploitability": conv,
-                "graph": info_general["graph"],
-                "tot_t": info_general["tot_time"]
+                "graph": filename,
+                "tot_t": Iter_run_time
       }
       
       run_data.append(row)
