@@ -1,5 +1,4 @@
 # Williams anteckningar till David
-- Jag ändrade i koden så det finns en fil för varje metod avsedd för att ta tid sedan finns det dom vanliga filerna som är avsedda att ta fram exploitability.
 - Jag har citerat lite under metod, vet inte det korrekta sättet att göra detta på dock.
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
 - Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
