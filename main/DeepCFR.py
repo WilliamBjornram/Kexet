@@ -51,10 +51,10 @@ def main(_):
           learning_rate=1e-4,
           batch_size_advantage=1024,
           batch_size_strategy=2048,
-          memory_capacity=1e7,
-          policy_network_train_steps=400,
-          advantage_network_train_steps=40,
-          reinitialize_advantage_networks=False)
+          memory_capacity=1e6,
+          policy_network_train_steps=512,
+          advantage_network_train_steps=256,
+          reinitialize_advantage_networks=True)
       sess.run(tf.global_variables_initializer())
       
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()

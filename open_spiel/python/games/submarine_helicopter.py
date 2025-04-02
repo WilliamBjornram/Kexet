@@ -143,6 +143,8 @@ class SubmarineHelicopterState(pyspiel.State):
     så har ingen information om motspelaren. Se information_state_string för vidare info, samma upplägg.
     Implementerar samma funktionalitet som funktionen set_from i observer.
     """
+    if player is None:
+      player = self.current_player()
 
     N = len(self.graph)
     obs_size = 4 * N + 1
