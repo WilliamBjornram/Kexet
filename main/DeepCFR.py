@@ -21,7 +21,7 @@ import pyspiel
 tf.disable_v2_behavior()
 
 def main(_):
-  filepath = "/content/Kexet/main/grafer/Graf0.csv"
+  filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv"
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
   run_data = []
@@ -34,7 +34,7 @@ def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
     
     num_iter = 10 * (i) # antal iterationer
-    num_traversals = 100  # hur många traversals per iteration
+    num_traversals = 1000  # hur många traversals per iteration
     
     start_time = time.time()
 
@@ -44,13 +44,13 @@ def main(_):
       deep_cfr_solver = deep_cfr.DeepCFRSolver(
           sess,
           game,
-          policy_network_layers=(32,32),
-          advantage_network_layers=(32,32),
+          policy_network_layers=(128,128),
+          advantage_network_layers=(128,128),
           num_iterations=num_iter,
           num_traversals=num_traversals,
           learning_rate=1e-4,
-          batch_size_advantage=256,
-          batch_size_strategy=1024,
+          batch_size_advantage=1024,
+          batch_size_strategy=2048,
           memory_capacity=1e7,
           policy_network_train_steps=400,
           advantage_network_train_steps=40,
