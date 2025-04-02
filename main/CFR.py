@@ -32,7 +32,7 @@ def main(_):
     info_general = {}
     # Hämta grafnamnet (exempelvis från sista "/" till -4 position för att klippa bort filändelsen)
     ind = filename.rfind("/")  # rfind returns the last index of "/"
-    info_general["graph"] = filename[ind:-4]  # grafens namn
+    info_general["graph"] = filename[ind+1:-4]  # grafens namn
     s_time = time.time()  # starttid för initialisering av spelträdet
 
 

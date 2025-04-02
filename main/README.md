@@ -1,15 +1,15 @@
 # Williams anteckningar till David
-- Jag ändrade i koden så det finns en fil för varje metod avsedd för att ta tid sedan finns det dom vanliga filerna som är avsedda att ta fram exploitability.
 - Jag har citerat lite under metod, vet inte det korrekta sättet att göra detta på dock.
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
 - Om vi skulle kunna typ låsa eller kontrollera exakt hur mycket datorkraft programmen får så skulle tiden vara mer relevant att jämföra, om vi kör varje programm typ tre gånger under olika tillfällen så kanske våra resultat skulle kunna bli bättre? Hur ska vi jämföra CFR varianterna? 1. Jämföra deras NashConv efter en viss tid eller tiden det tar att nå en viss NashConv (Beskrivning av NashConv: https://arxiv.org/pdf/1711.00832). 2. Hur mycket datorkraft som används. 3. För MCCFR och Deep CFR så finns det flera olika inställningar, dessa kan vi exprimentera med alternativt så bestämmer vi oss för en specifik inställning.
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
 
 # Davids anteckningar till William
-- Jag har gjort en bild för spelträdet för RPS som heter "Game_Tree.jpeg" i overleaf. Dock tror jag att jag har ändrat mig om att vilja ta med den. Jag tycker inte längre att den tillför något, och jag vill nog inte att beskrivningen av CFR ska bli längre. Sen är jag också osäker på vart man ska baka in den i texten och hur man ska referera till den då. Vad tycker du haha?
-- OBS. när jag läst i IEEE standard förstår jag det som att vi nästan alltid ska använda {enumerate} i LaTex inte {itemize}.
-- Jag har lagt till så att vi förklara vad vi menar när vi säger tabular eller vanilla CFR, innan vi gör det första gången. Som jag förstår det står vanilla CFR för standard CFR, dvs utan modifikationer som deep CFR eller MCCFR. Medan tabular CFR berättar om hur man faktiskt implementerar CFR, det vill säga genom tabeller. Så vanilla CFR är tabular CFR, men tvärtom behöver inte nödvändigtvis gälla. Jag tycker inte att vi ska skriva standard CFR, utan tycker att vi ska skriva vanilla CFR.
 
+# Frågor
+- Motivera spelets design? Vart?
+- Upplägg spel förklaring före eller efter teori?
+- Utvärderingssätt för cfr, tid eller nodes touched?
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
 - Vad vill ha för statistik?
