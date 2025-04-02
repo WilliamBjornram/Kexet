@@ -23,8 +23,6 @@ from absl import app
 def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
     filename = "/content/Kexet/main/grafer/Graf0.csv"
-    num_iter = 1001   # antal iterationer
-    eval_interval = 50  # hur ofta vi ska evaluera
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
     training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
  
@@ -50,13 +48,14 @@ def main(_):
     info_general["init_t"] = init_tid
 
     iter = 0 + init_tid
-    for i in range(num_iter):
+    i = 0
+    while expl >= 0.05:
         c_time = time.time()  # tid före iterationerna
         #print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         iter += time.time() - c_time
         # När det är dags att utvärdera
-        if i % eval_interval == 0:
+        if i % 200 == 0:
             print("Evaluation for iteration: " + str(i+1))
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             # Samla data för denna evalueringsperiod
@@ -68,6 +67,16 @@ def main(_):
                 "tot_t": iter
             }
             run_data.append(row)
+            if i == 0:
+                with open(training_data_file, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
+                    writer.writeheader()
+        if i > 1 and i % 1000 == 0:
+            with open(training_data_file, "a", newline="") as f:
+                # Använd fältnamnen från första raden i run_data
+                writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
+                writer.writerows(run_data)
+        i += 1
 
     # Spara average policy med pickle
     avg_policy = cfr_solver.average_policy()

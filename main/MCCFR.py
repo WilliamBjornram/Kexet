@@ -19,8 +19,6 @@ import pyspiel
 def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
   filename = "/content/Kexet/main/grafer/Test0.csv"
-  num_iter = 3001   # antal iterationer
-  eval_interval = 100  # hur ofta vi ska evaluera
   sampling = "external"
   model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
@@ -44,7 +42,8 @@ def main(_):
   run_data = []
 
   iter = 0 + init_tid
-  for i in range(num_iter):
+  i = 0
+  while conv >= 0.05:
     c_time = time.time() 
     #print(str(i + 1) + " iterations")
     cfr_solver.iteration()
