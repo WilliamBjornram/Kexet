@@ -6,6 +6,10 @@ Player 0 (Sub) rör sig längs grann-noder och har en budget för antalet drag.
 Player 1 (Heli) rör sig en eller två grannar bort.
 """
 
+############## anteckningar ##############
+# - lägg till information_state_tensor
+# - ändra hur vi beräknar max action space? fråga chat om viktigt?
+
 import numpy as np
 import pyspiel
 import math
@@ -31,7 +35,7 @@ _GAME_TYPE = pyspiel.GameType(
     max_num_players=_NUM_PLAYERS,
     min_num_players=_NUM_PLAYERS,
     provides_information_state_string=True,
-    provides_information_state_tensor=False,
+    provides_information_state_tensor=True,
     provides_observation_string=True,
     provides_observation_tensor=True,
     provides_factored_observation_string=False,
@@ -110,34 +114,66 @@ class SubmarineHelicopterState(pyspiel.State):
     # behövs flagga för CFR chance event
     self._pending_chance_event = False
 
-
-
   def information_state_string(self, player=None):
-        """
-        Returns a string representation of the information state for the given player.
-        This string should only include information available to that player.
-        """
-        if player is None:
-          player = self.current_player()
-        # Normalize the timer value for consistency.
-        normalized_timer = self.timer / self.budget
-        
-        # For Player 0 (Submarine), include the submarine's position, normalized timer,
-        # and a summary of its own moves from the history.
-        if player == 0:
-            # Filter history to only include player 0's moves.
-            sub_history = [action for pl, action in self.history if pl == 0]
-            return f"SubPos:{self.sub_pos}|Timer:{normalized_timer:.2f}|SubHist:{sub_history}"
-        
-        # For Player 1 (Helicopter), include the helicopter's position, normalized timer,
-        # and a summary of its own moves from the history.
-        elif player == 1:
-            heli_history = [action for pl, action in self.history if pl == 1]
-            return f"HeliPos:{self.heli_pos}|Timer:{normalized_timer:.2f}|HeliHist:{heli_history}"
-        
-        # If player is neither (should not happen), return a default history string.
-        else:
-            return str(self.history)
+      """
+      Returnerar en string representation av information state för den givna spelaren.
+      String inkluderar enbart information som finns tillgänglig till den spelaren,
+      bland annat dess historik av information, avräknat för när den var där.
+      """
+      if player is None:
+        player = self.current_player()
+      # Normaliserar timer värde
+      normalized_timer = self.timer / self.budget
+      decay_factor = 0.9  # Decay factor för historik
+      
+      # Beräknar decayed besök för historiken, ger: [pos1*0,9^2, pos2*0,9, pos3], vid tredje noden
+      decayed_visits = np.zeros(len(self.graph.nodes), dtype=np.float32)
+      for (pl, action) in self.history:
+          decayed_visits *= decay_factor
+          if pl == player:
+              decayed_visits[action] += 1.0
+      
+      if player == 0:
+          return f"SubPos:{self.sub_pos}|Timer:{normalized_timer:.2f}|SubDecayedVisits:{decayed_visits.tolist()}"
+      elif player == 1:
+          return f"HeliPos:{self.heli_pos}|Timer:{normalized_timer:.2f}|HeliDecayedVisits:{decayed_visits.tolist()}"
+      else:
+          return str(self.history)
+      
+  
+  def information_state_tensor(self, player=None):
+    """
+    Returnerar en tensor som beskriver state för aktuell spelare, imperfect information
+    så har ingen information om motspelaren. Se information_state_string för vidare info, samma upplägg.
+    Implementerar samma funktionalitet som funktionen set_from i observer.
+    """
+
+    N = len(self.graph)
+    obs_size = 4 * N + 1
+    tensor = np.zeros(obs_size, dtype=np.float32)
+    # player ser bara sin egna position
+    if player == 0:
+      tensor[self.sub_pos] = 1.0 
+    elif player == 1:
+      tensor[N + self.heli_pos] = 1.0
+    # normaliserat värde för timer
+    tensor[-1] = self.timer/self.budget
+
+    decayed_visits = np.zeros(N, dtype=np.float32)
+    for (pl, action) in self.history:
+        # gångra vectorn med decay_factor
+        decayed_visits *= self.decay_factor
+        # inkrementera positionen där den varit
+        if pl == player:
+            decayed_visits[action] += 1.0
+
+    # placera in vectorn där den ska vara
+    if player == 0:
+      tensor[2*N : 3*N] = decayed_visits
+    elif player == 1:
+      tensor[3*N : 4*N] = decayed_visits
+    
+    return tensor
   
   # CFR behöver clone function
   def clone(self):
