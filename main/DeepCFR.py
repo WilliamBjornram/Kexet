@@ -21,7 +21,7 @@ import pyspiel
 tf.disable_v2_behavior()
 
 def main(_):
-  filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv"
+  filepath = "/content/Kexet/main/grafer/Graf0.csv"
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
   run_data = []
@@ -30,7 +30,7 @@ def main(_):
 
   conv = 1
   i = 1
-  while conv >= 0.05:
+  while conv >= 0.1:
     # Filväg till grafen, inkludera namnet och filändelse
     
     num_iter = 10 * (i) # antal iterationer
@@ -64,6 +64,7 @@ def main(_):
           game, deep_cfr_solver.action_probabilities)
 
       conv = exploitability.nash_conv(game, average_policy)
+      print(conv)
       print("Iterations done: " + str(num_iter))
       row = {
                 "iteration": num_iter,
