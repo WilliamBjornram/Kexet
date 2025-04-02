@@ -50,7 +50,7 @@ def main(_):
     iter = 0 + init_tid
     i = 0
     expl = 1
-    while expl >= 0.005:
+    while expl >= 0.1:
         c_time = time.time()  # tid före iterationerna
         print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
@@ -88,10 +88,9 @@ def main(_):
 
     # Skriv alla evalueringsdata till CSV-filen
     
-    with open(training_data_file, "w", newline="") as f:
+    with open(training_data_file, "a", newline="") as f:
         # Använd fältnamnen från första raden i run_data
         writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
-        writer.writeheader()
         writer.writerows(run_data)
 
 if __name__ == "__main__":
