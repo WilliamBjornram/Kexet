@@ -25,7 +25,7 @@ def main(_):
 
   info_general = {}
   ind = filename.rfind("/")
-  info_general["graph"] = filename[ind:-4]
+  info_general["graph"] = filename[ind+1:-4]
   s_time = time.time()
 
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename = filename))

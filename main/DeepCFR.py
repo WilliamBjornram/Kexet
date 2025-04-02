@@ -44,17 +44,17 @@ def main(_):
       deep_cfr_solver = deep_cfr.DeepCFRSolver(
           sess,
           game,
-          policy_network_layers=(128,128),
-          advantage_network_layers=(128,128),
+          policy_network_layers=(64,64,64),
+          advantage_network_layers=(64,64,64),
           num_iterations=num_iter,
           num_traversals=num_traversals,
-          learning_rate=1e-4,
+          learning_rate=5e-5,
           batch_size_advantage=1024,
           batch_size_strategy=2048,
           memory_capacity=1e6,
           policy_network_train_steps=512,
           advantage_network_train_steps=256,
-          reinitialize_advantage_networks=True)
+          reinitialize_advantage_networks=False)
       sess.run(tf.global_variables_initializer())
       
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()

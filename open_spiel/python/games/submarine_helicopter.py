@@ -148,7 +148,7 @@ class SubmarineHelicopterState(pyspiel.State):
 
     N = len(self.graph)
     obs_size = 4 * N + 1
-    decay_factor = 1.0
+    decay_factor = 0.9
     tensor = np.zeros(obs_size, dtype=np.float32)
     # player ser bara sin egna position
     if player == 0:
