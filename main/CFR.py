@@ -49,15 +49,17 @@ def main(_):
 
     iter = 0 + init_tid
     i = 0
-    while expl >= 0.05:
+    expl = 1
+    while expl >= 0.1:
         c_time = time.time()  # tid före iterationerna
-        #print(str(i+1) + " iterations")
+        print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         iter += time.time() - c_time
         # När det är dags att utvärdera
-        if i % 200 == 0:
+        if i % 10 == 0:
             print("Evaluation for iteration: " + str(i+1))
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
+            print(expl)
             # Samla data för denna evalueringsperiod
             row = {
                 "iteration": i+1,
@@ -71,11 +73,12 @@ def main(_):
                 with open(training_data_file, "w", newline="") as f:
                     writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
                     writer.writeheader()
-        if i > 1 and i % 1000 == 0:
+        if i > 1 and i % 100 == 0:
             with open(training_data_file, "a", newline="") as f:
                 # Använd fältnamnen från första raden i run_data
                 writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
                 writer.writerows(run_data)
+            run_data = []
         i += 1
 
     # Spara average policy med pickle
@@ -85,10 +88,9 @@ def main(_):
 
     # Skriv alla evalueringsdata till CSV-filen
     
-    with open(training_data_file, "w", newline="") as f:
+    with open(training_data_file, "a", newline="") as f:
         # Använd fältnamnen från första raden i run_data
         writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
-        writer.writeheader()
         writer.writerows(run_data)
 
 if __name__ == "__main__":

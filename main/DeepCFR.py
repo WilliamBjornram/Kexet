@@ -21,7 +21,7 @@ import pyspiel
 tf.disable_v2_behavior()
 
 def main(_):
-  filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv"
+  filepath = "/content/Kexet/main/grafer/Graf0.csv"
   model_data_file = "Deep_CFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "Deep_CFR_training_data.csv" # filen där träningsdatan ska sparas
   run_data = []

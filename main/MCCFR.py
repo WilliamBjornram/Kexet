@@ -18,7 +18,7 @@ import pyspiel
 
 def main(_):
   # Filväg till grafen, inkludera namnet och filändelse
-  filename = "/content/Kexet/main/grafer/Test0.csv"
+  filename = "/content/Kexet/main/grafer/Graf0.csv"
   sampling = "external"
   model_data_file = "MCCFR_model.pkl" # filen där den tränade modelen ska sparas
   training_data_file = "MCCFR_training_data.csv" # filen där träningsdatan ska sparas
@@ -35,23 +35,25 @@ def main(_):
   else:
     cfr_solver = outcome_mccfr.OutcomeSamplingSolver(game)
   
+  run_data = []
+
   e_time = time.time()
   init_tid = e_time - s_time
   info_general["init_t"] = init_tid
 
-  run_data = []
-
   iter = 0 + init_tid
   i = 0
-  while conv >= 0.05:
+  conv = 1
+  while conv >= 0.1:
     c_time = time.time() 
-    #print(str(i + 1) + " iterations")
+    print(str(i + 1) + " iterations")
     cfr_solver.iteration()
     iter += time.time() - c_time
 
-    if i % eval_interval == 0:
+    if i % 75 == 0:
       print("Evaluation for iteration: " + str(i+1))
       conv = exploitability.nash_conv(game, cfr_solver.average_policy())
+      print(conv)
       row = {
                 "iteration": i+1,
                 "exploitability": conv,
@@ -60,15 +62,25 @@ def main(_):
                 "tot_t": iter
             }
       run_data.append(row)
+      if i == 0:
+         with open(training_data_file, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
+            writer.writeheader()
+    if i > 1 and i % 100 == 0:
+      with open(training_data_file, "a", newline="") as f:
+        # Använd fältnamnen från första raden i run_data
+        writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
+        writer.writerows(run_data)
+      run_data = []
+    i += 1
 
   avg_policy = cfr_solver.average_policy()
   with open(model_data_file, "wb") as f:
     pickle.dump(avg_policy, f)
   
-  with open(training_data_file, "w", newline="") as f:
+  with open(training_data_file, "a", newline="") as f:
       # Använd fältnamnen från första raden i run_data
       writer = csv.DictWriter(f, fieldnames=run_data[0].keys())
-      writer.writeheader()
       writer.writerows(run_data)
 
 if __name__ == "__main__":
