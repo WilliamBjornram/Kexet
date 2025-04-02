@@ -110,8 +110,34 @@ class SubmarineHelicopterState(pyspiel.State):
     # behövs flagga för CFR chance event
     self._pending_chance_event = False
 
-  def history_str(self):
-     return str(self.history)
+
+
+  def information_state_string(self, player=None):
+        """
+        Returns a string representation of the information state for the given player.
+        This string should only include information available to that player.
+        """
+        if player is None:
+          player = self.current_player()
+        # Normalize the timer value for consistency.
+        normalized_timer = self.timer / self.budget
+        
+        # For Player 0 (Submarine), include the submarine's position, normalized timer,
+        # and a summary of its own moves from the history.
+        if player == 0:
+            # Filter history to only include player 0's moves.
+            sub_history = [action for pl, action in self.history if pl == 0]
+            return f"SubPos:{self.sub_pos}|Timer:{normalized_timer:.2f}|SubHist:{sub_history}"
+        
+        # For Player 1 (Helicopter), include the helicopter's position, normalized timer,
+        # and a summary of its own moves from the history.
+        elif player == 1:
+            heli_history = [action for pl, action in self.history if pl == 1]
+            return f"HeliPos:{self.heli_pos}|Timer:{normalized_timer:.2f}|HeliHist:{heli_history}"
+        
+        # If player is neither (should not happen), return a default history string.
+        else:
+            return str(self.history)
   
   # CFR behöver clone function
   def clone(self):
