@@ -146,6 +146,7 @@ class SubmarineHelicopterState(pyspiel.State):
 
     N = len(self.graph)
     obs_size = 4 * N + 1
+    decay_factor = 0.9
     tensor = np.zeros(obs_size, dtype=np.float32)
     # player ser bara sin egna position
     if player == 0:
@@ -158,7 +159,7 @@ class SubmarineHelicopterState(pyspiel.State):
     decayed_visits = np.zeros(N, dtype=np.float32)
     for (pl, action) in self.history:
         # gångra vectorn med decay_factor
-        decayed_visits *= self.decay_factor
+        decayed_visits *= decay_factor
         # inkrementera positionen där den varit
         if pl == player:
             decayed_visits[action] += 1.0
