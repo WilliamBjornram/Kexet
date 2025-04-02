@@ -6,10 +6,6 @@ Player 0 (Sub) rör sig längs grann-noder och har en budget för antalet drag.
 Player 1 (Heli) rör sig en eller två grannar bort.
 """
 
-############## anteckningar ##############
-# - lägg till information_state_tensor
-# - ändra hur vi beräknar max action space? fråga chat om viktigt?
-
 import numpy as np
 import pyspiel
 import math
