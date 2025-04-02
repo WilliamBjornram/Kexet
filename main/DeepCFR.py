@@ -28,10 +28,12 @@ def main(_):
   ind = filepath.rfind("/")
   filename = filepath[ind+1:-4]
 
-  for i in range(15):
+  conv = 1
+  i = 1
+  while conv >= 0.05:
     # Filväg till grafen, inkludera namnet och filändelse
     
-    num_iter = 10 * (i+1) # antal iterationer
+    num_iter = 10 * (i) # antal iterationer
     num_traversals = 100  # hur många traversals per iteration
     
     start_time = time.time()
@@ -71,16 +73,23 @@ def main(_):
       }
       
       run_data.append(row)
+      if i == 1:
+        with open(training_data_file, "w", newline="") as csvfile:
+          writer = csv.DictWriter(csvfile, fieldnames=run_data[0].keys())
+          writer.writeheader()
+          writer.writerows(run_data)
+          run_data = []
+      else:
+        with open(training_data_file, "a", newline="") as csvfile:
+          writer = csv.DictWriter(csvfile, fieldnames=run_data[0].keys())
+          writer.writerows(run_data)
+          run_data = []
+      i += 1
+
 
   # Save the average policy using pickle.
   with open(model_data_file, "wb") as f:
     pickle.dump(average_policy, f)
-
-  # Save training information (NashConv and total run time) to a CSV file.
-  with open(training_data_file, "w", newline="") as csvfile:
-      writer = csv.DictWriter(csvfile, fieldnames=run_data[0].keys())
-      writer.writeheader()
-      writer.writerows(run_data)
 
 
 if __name__ == "__main__":
