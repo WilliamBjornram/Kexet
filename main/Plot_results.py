@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 
 def main():
     # Read CSV file
-    df = pd.read_csv('CFR_training_data.csv')
+    csv_file = 'MCCFR_average_results'
+    df = pd.read_csv(csv_file+".csv")
     
     # Print out basic info for debugging
     print("First five rows:")
@@ -17,15 +18,16 @@ def main():
     fig, ax = plt.subplots(figsize=(8, 6))
     
     # Plot 'iteration' vs. 'exploitability'
-    df.plot(x='iteration', y='exploitability', kind='line', marker='o', ax=ax)
+    df.plot(x='average_total_time', y='average_exploitability', kind='line', marker='o', ax=ax)
     
     # Set labels and title
-    ax.set_xlabel('Iteration')
+    ax.set_xlabel('Time')
     ax.set_ylabel('Exploitability')
-    ax.set_title('Exploitability vs Iteration')
+    ax.set_title('MCCFR on Graph small')
     
     # Save the plot to a file so you can check it later
-    fig.savefig('plot.png', dpi=300)
+    plot_file = str("Plot_"+ csv_file)
+    fig.savefig(plot_file, dpi=300)
     print("Plot saved to plot.png")
     
     # Display the plot interactively (if supported in your environment)

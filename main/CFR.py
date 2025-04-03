@@ -24,7 +24,7 @@ def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
     filename = "/content/Kexet/main/grafer/Graf0.csv"
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
-    training_data_file = "CFR_training_data.csv" # filen där träningsdatan ska sparas
+    training_data_file = "CFR_average_results.csv" # filen där träningsdatan ska sparas
  
     # Håll koll på generell körinformation
     info_general = {}
@@ -56,17 +56,17 @@ def main(_):
         cfr_solver.evaluate_and_update_policy()
         iter += time.time() - c_time
         # När det är dags att utvärdera
-        if i % 10 == 0:
+        if i % 3 == 0:
             print("Evaluation for iteration: " + str(i+1))
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             print(expl)
             # Samla data för denna evalueringsperiod
             row = {
                 "iteration": i+1,
-                "exploitability": expl,
+                "average_exploitability": expl,
                 "graph": info_general["graph"],
                 "init_t": info_general["init_t"],
-                "tot_t": iter
+                "average_total_time": iter
             }
             run_data.append(row)
             if i == 0:
