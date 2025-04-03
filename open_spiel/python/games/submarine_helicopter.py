@@ -120,7 +120,7 @@ class SubmarineHelicopterState(pyspiel.State):
         player = self.current_player()
       # Normaliserar timer värde
       normalized_timer = self.timer / self.budget
-      decay_factor = 1.0  # Decay factor för historik
+      decay_factor = 0.9  # Decay factor för historik
       
       # Beräknar decayed besök för historiken, ger: [pos1*0,9^2, pos2*0,9, pos3], vid tredje noden
       decayed_visits = np.zeros(len(self.graph.nodes), dtype=np.float32)

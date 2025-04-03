@@ -48,7 +48,7 @@ def main(_):
           advantage_network_layers=(64,64,64),
           num_iterations=num_iter,
           num_traversals=num_traversals,
-          learning_rate=5e-5,
+          learning_rate=1e-4,
           batch_size_advantage=1024,
           batch_size_strategy=2048,
           memory_capacity=1e6,
