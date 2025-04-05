@@ -7,9 +7,10 @@
 # Davids anteckningar till William
 
 # Frågor
-- Motivera spelets design? Vart?
-- Upplägg spel förklaring före eller efter teori?
 - Utvärderingssätt för cfr, tid eller nodes touched?
+- Olika parametrar gör DeepCFR helt olika snabb och bra, hur ska vi förhålla oss till detta? Mycket arbete kommer behöva läggas ner om optimala förhållanden ska fås för den aktuella grafen.
+- Skippa transit nodes, köra på två grafer?
+- När ska vi förklara varför vi har desginat spelet som vi gjort?
 # Anteckningar till rapporten i allmänhet
 - Vad för figurer och tabeller vill vi ha med?
 - Vad vill ha för statistik?
