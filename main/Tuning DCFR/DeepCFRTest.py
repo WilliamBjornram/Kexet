@@ -1,8 +1,6 @@
 """Python Deep CFR example with CSV logging for NashConv and run time."""
 
-import numpy as np
 from absl import app
-from absl import flags
 from absl import logging
 import tensorflow.compat.v1 as tf
 import csv
@@ -19,7 +17,7 @@ import pyspiel
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
 
-def main(_):
+def main():
   filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv"
   model_data_file = "Deep_CFR_model.pkl"  # file to save the trained model
   training_data_file = "Deep_CFR_training_data.csv"  # file to save training data
