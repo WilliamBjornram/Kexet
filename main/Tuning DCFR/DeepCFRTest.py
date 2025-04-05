@@ -45,14 +45,14 @@ def main(_):
         policy_network_layers=(128, 128),
         advantage_network_layers=(128, 128),
         num_iterations=0,  # start with zero iterations
-        num_traversals=1000,
-        learning_rate=1e-4,
+        num_traversals=500,
+        learning_rate=1e-3,
         batch_size_advantage=2048,
         batch_size_strategy=2048,
-        memory_capacity=1e7,
+        memory_capacity=1e6,
         policy_network_train_steps=4096,
         advantage_network_train_steps=768,
-        reinitialize_advantage_networks=True)
+        reinitialize_advantage_networks=False)
     
     sess.run(tf.global_variables_initializer())
 
