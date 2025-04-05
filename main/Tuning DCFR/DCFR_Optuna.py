@@ -1,6 +1,5 @@
 import optuna
 import csv
-import time
 import tensorflow.compat.v1 as tf
 from absl import logging
 from open_spiel.python import policy
@@ -11,17 +10,19 @@ import pyspiel
 # Temporarily disable TF2 behavior.
 tf.disable_v2_behavior()
 
+# Help function
 def parse_network(network_str):
-    # Convert a string like "64,64,64" into a tuple of ints: (64, 64, 64)
+    # Converts a string like "64,64,64" into a tuple of ints: (64, 64, 64), optuna doesn't handle tuples
     return tuple(int(x.strip()) for x in network_str.split(','))
 
 def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps):
-    filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv"
-    chunk_iter = 10
-    total_iter = 0
+    filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv" # needs to be changed
+    chunk_iter = 10 # amount of iterations between each evaluation
 
+    # loading the game
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filepath))
     
+    # staring a tensor flow session and initializing DCFR solver
     with tf.Session() as sess:
         deep_cfr_solver = deep_cfr.DeepCFRSolver(
             sess,
@@ -39,13 +40,12 @@ def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_
             reinitialize_advantage_networks=False)
         sess.run(tf.global_variables_initializer())
 
-        # Run for a fixed number of chunks (e.g. 6 chunks for 60 iterations)
+        # Run for a fixed number of iterations
         for _ in range(6):
-            start_time = time.time()
-            total_iter += chunk_iter
             deep_cfr_solver._num_iterations += chunk_iter 
-            _, _, policy_loss = deep_cfr_solver.solve()
+            _, _, _ = deep_cfr_solver.solve()
         
+        # Calculate exploitability
         average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
         conv = exploitability.nash_conv(game, average_policy)
     
@@ -75,12 +75,12 @@ def objective(trial):
     params = [network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps]
     logging.info(f"Trial parameters: {params}")
 
-    # Run the tuning procedure (which runs for a total of 60 iterations)
+    # Run the tuning procedure
     exploitability_value = tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps)
     logging.info(f"Trial finished with exploitability: {exploitability_value}")
 
-    # Write parameters and result to CSV (appending a blank row between entries)
-    csv_file = "/Users/davidklasa/Documents/GitHub/Kexet/main/Tuning DCFR/DCFR_tune_optuna.csv"
+    # Write parameters and results to CSV
+    csv_file = "/Users/davidklasa/Documents/GitHub/Kexet/main/Tuning DCFR/DCFR_optuna_Graf1.csv" # needs to be changed
     row = {
         "network": network_str,
         "l_rate": l_rate,
@@ -101,9 +101,11 @@ def objective(trial):
     return exploitability_value
 
 def main():
+    # Creating optuna study with directions to minimize exploitability
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=100)
+    study.optimize(objective, n_trials=10) # feeding it the helper function, no more than 10 trials
     
+    # printing best trial at end (with hyperparams)
     print("Best trial:")
     trial = study.best_trial
     print(f"  Exploitability: {trial.value}")
