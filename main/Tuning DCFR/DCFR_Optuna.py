@@ -2,6 +2,9 @@ import optuna
 import csv
 import tensorflow.compat.v1 as tf
 from absl import logging
+from absl import app
+import os
+
 from open_spiel.python import policy
 from open_spiel.python.algorithms import deep_cfr
 from open_spiel.python.algorithms import exploitability
@@ -15,8 +18,7 @@ def parse_network(network_str):
     # Converts a string like "64,64,64" into a tuple of ints: (64, 64, 64), optuna doesn't handle tuples
     return tuple(int(x.strip()) for x in network_str.split(','))
 
-def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps):
-    filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv" # needs to be changed
+def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps, filepath):
     chunk_iter = 10 # amount of iterations between each evaluation
 
     # loading the game
@@ -75,12 +77,19 @@ def objective(trial):
     params = [network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps]
     logging.info(f"Trial parameters: {params}")
 
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_file = os.path.join(current_dir, "DCFR_optuna_Graf2.csv")
+
+    main_dir = os.path.dirname(current_dir)
+    filepath = os.path.join(main_dir, "grafer", "Graf2.csv")
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"The file at {filepath} does not exist.")
+
     # Run the tuning procedure
-    exploitability_value = tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps)
+    exploitability_value = tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps, filepath)
     logging.info(f"Trial finished with exploitability: {exploitability_value}")
 
     # Write parameters and results to CSV
-    csv_file = "/Users/davidklasa/Documents/GitHub/Kexet/main/Tuning DCFR/DCFR_optuna_Graf1.csv" # needs to be changed
     row = {
         "network": network_str,
         "l_rate": l_rate,
@@ -100,7 +109,7 @@ def objective(trial):
 
     return exploitability_value
 
-def main():
+def main(_):
     # Creating optuna study with directions to minimize exploitability
     study = optuna.create_study(direction="minimize")
     study.optimize(objective, n_trials=10) # feeding it the helper function, no more than 10 trials
@@ -114,4 +123,4 @@ def main():
         print(f"    {key}: {value}")
 
 if __name__ == "__main__":
-    main()
+    app.run(main)

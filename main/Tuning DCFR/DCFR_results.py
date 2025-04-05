@@ -6,6 +6,7 @@ import os
 import argparse
 from absl import app
 from absl import logging
+import pickle
 
 from open_spiel.python import policy
 from open_spiel.python.algorithms import deep_cfr
@@ -16,6 +17,7 @@ import pyspiel
 
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
+
 
 def results(filepath, network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps):
   run_data = []
@@ -76,8 +78,9 @@ def results(filepath, network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_ste
           "avg_game_score_h": average_policy_values[1]
       }
       run_data.append(row)
-  
-  return run_data
+
+  return run_data, average_policy
+
 
 def help_func(filepath, graph_num):
   
@@ -131,8 +134,14 @@ def main(_):
   logging.info(f"Using Graph: {filename}")
 
   for i in range(5):
-    logging.info(f"Solving {i+1} time")
-    data = help_func(filepath=filepath, graph_num=graph_num)
+    logging.info(f"Solving {i+1} time....")
+    data, average_policy = help_func(filepath=filepath, graph_num=graph_num)
+
+    # Save the average policy using pickle
+    logging.info("Saving the pickle model....")
+    model_data_file = os.path.join(current_dir, f"DCFR_PKL_models/DCFR_model_{filename}_{i}.pkl")
+    with open(model_data_file, "wb") as f:
+      pickle.dump(average_policy, f)
 
     logging.info("Writing data to CSV file....")
     # Append to CSV file (write header if first time, else append)
