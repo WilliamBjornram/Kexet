@@ -97,7 +97,7 @@ class SubmarineHelicopterState(pyspiel.State):
     
     # startpositioner != random enligt CFR, därav start i bestämda punkter
     self.sub_pos = 0
-    self.heli_pos = 2
+    self.heli_pos = self.graph.end_nodes[0]
 
     self._game_over = False
 
@@ -185,7 +185,6 @@ class SubmarineHelicopterState(pyspiel.State):
     new_state._current_player = self._current_player
     new_state.history = list(self.history)
     return new_state
-
 
   def current_player(self):
     """returnerar id av den aktuella spelaren annars om spel slut -> terminal"""
