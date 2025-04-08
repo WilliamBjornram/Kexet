@@ -39,17 +39,19 @@ def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_
             memory_capacity=mem_cap,
             policy_network_train_steps=pn_train_steps,
             advantage_network_train_steps=an_train_steps,
-            reinitialize_advantage_networks=False)
+            reinitialize_advantage_networks=True)
         sess.run(tf.global_variables_initializer())
 
         # Run for a fixed number of iterations
-        for _ in range(6):
+        conv = float('inf')
+        i = 0
+        while conv > 2e-2 and i <= 6:
             deep_cfr_solver._num_iterations += chunk_iter 
             _, _, _ = deep_cfr_solver.solve()
-        
-        # Calculate exploitability
-        average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
-        conv = exploitability.nash_conv(game, average_policy)
+            # Calculate exploitability
+            average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
+            conv = exploitability.nash_conv(game, average_policy)
+            i += 1
     
     # Return the final exploitability as the objective (lower is better)
     return conv
@@ -79,11 +81,11 @@ def objective(trial):
 
     # getting current dir and name for logging csv file
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_file = os.path.join(current_dir, "DCFR_optuna_Graf2.csv")
-    
-    # finding/creating graph directory
     main_dir = os.path.dirname(current_dir)
-    filepath = os.path.join(main_dir, "grafer", "Graf2.csv")
+    csv_file = os.path.join(main_dir, "CSV", "DCFR_optuna_Graf0.csv")
+    
+    # creating graph directory
+    filepath = os.path.join(main_dir, "grafer", "Graf0.csv")
     if not os.path.isfile(filepath):
         raise FileNotFoundError(f"The file at {filepath} does not exist.")
 
@@ -102,6 +104,7 @@ def objective(trial):
         "an_train_steps": an_train_steps,
         "exploitability": exploitability_value
     }
+
     with open(csv_file, "a", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=row.keys())
         if csvfile.tell() == 0:
@@ -114,7 +117,7 @@ def objective(trial):
 def main(_):
     # Creating optuna study with directions to minimize exploitability
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=10) # feeding it the helper function, no more than 10 trials
+    study.optimize(objective, n_trials=5) # feeding it the helper function, no more than 10 trials
     
     # printing best trial at end (with hyperparams)
     print("Best trial:")
