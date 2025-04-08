@@ -50,13 +50,16 @@ def run_experiment(filename, sampling="external"):
 
     i = 0
     conv = 1.0  # initial exploitability value (must be >= 0.1 to start)
-    while conv >= 0.1:
+    
+    max_tid = 10
+
+    while conv >= 0.05 and total_iter_time <= max_tid:
         iter_start = time.time()
         cfr_solver.iteration()
         total_iter_time += time.time() - iter_start
         i += 1
 
-        if i % 50 == 0:
+        if i % 100 == 0 or total_iter_time >= max_tid:
             conv = exploitability.nash_conv(game, cfr_solver.average_policy())
             print(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
             row = {

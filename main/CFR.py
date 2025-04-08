@@ -50,13 +50,17 @@ def main(_):
     iter = 0 + init_tid
     i = 0
     expl = 1
-    while expl >= 0.1:
+
+
+    max_tid = 10
+
+    while expl >= 0.05 and iter <= max_tid:
         c_time = time.time()  # tid före iterationerna
         print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         iter += time.time() - c_time
         # När det är dags att utvärdera
-        if i % 3 == 0:
+        if i % 6 == 0 or iter >= max_tid:
             print("Evaluation for iteration: " + str(i+1))
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             print(expl)
