@@ -126,7 +126,7 @@ def main(_):
   ind = filepath.rfind("/")
   filename = filepath[ind+1:-4]
   graph_num = int(filename[-1])
-  csv_filename = "DCFR_data_" + filename
+  csv_filename = "DCFR_data_" + filename + ".csv"
 
   current_dir = os.path.dirname(os.path.abspath(__file__))
   training_data_file = os.path.join(current_dir, csv_filename)
