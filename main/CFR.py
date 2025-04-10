@@ -22,7 +22,7 @@ from absl import app
 
 def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
-    filename = "/content/Kexet/main/grafer/Graf0.csv"
+    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
     training_data_file = "CFR_average_results.csv" # filen där träningsdatan ska sparas
  
@@ -33,12 +33,10 @@ def main(_):
     info_general["graph"] = filename[ind+1:-4]  # grafens namn
     s_time = time.time()  # starttid för initialisering av spelträdet
 
-
     # Ladda spelet och initialisera CFR
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
     cfr_solver = cfr.CFRSolver(game)
     
-
     # Lista för att spara data från varje evalueringssteg
     run_data = []
 
@@ -51,16 +49,13 @@ def main(_):
     i = 0
     expl = 1
 
-
-    max_tid = 10
-
-    while expl >= 0.05 and iter <= max_tid:
+    while expl >= 0.02:
         c_time = time.time()  # tid före iterationerna
         print(str(i+1) + " iterations")
         cfr_solver.evaluate_and_update_policy()
         iter += time.time() - c_time
         # När det är dags att utvärdera
-        if i % 6 == 0 or iter >= max_tid:
+        if i % 3 == 0:
             print("Evaluation for iteration: " + str(i+1))
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             print(expl)
