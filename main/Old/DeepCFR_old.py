@@ -33,6 +33,8 @@ def main(_):
 
   # Load the game once
   logging.info("Loading %s", "submarine_helicopter")
+
+  init_tid = time.time()
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filepath))
 
   # Create a single TensorFlow session and initialize the solver once
@@ -54,6 +56,9 @@ def main(_):
     
     sess.run(tf.global_variables_initializer())
 
+    init_tid = time.time() - init_tid
+    chunk_run_time = 0
+
     # Continuous training loop without reinitializing the solver
     while conv >= threshold:
       start_time = time.time()
@@ -65,7 +70,7 @@ def main(_):
       # Run additional training iterations
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()
       
-      chunk_run_time = time.time() - start_time
+      chunk_run_time = time.time() - start_time - chunk_run_time + init_tid
 
       for player, losses in advantage_losses.items():
         logging.info("Advantage for player %d: %s", player,
