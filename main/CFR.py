@@ -56,7 +56,7 @@ def main(_):
         iter += time.time() - c_time
         # När det är dags att utvärdera
         if i % 3 == 0:
-            print("Evaluation for iteration: " + str(i+1) + "and total iteration time: " + str(iter))
+            print("Evaluation for iteration: " + str(i+1) + " and total iteration time: " + str(iter))
             expl = exploitability.nash_conv(game, cfr_solver.average_policy())
             print(expl)
             # Samla data för denna evalueringsperiod
