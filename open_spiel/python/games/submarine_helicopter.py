@@ -153,8 +153,12 @@ class SubmarineHelicopterState(pyspiel.State):
     # player ser bara sin egna position
     if player == 0:
       tensor[self.sub_pos] = 1.0 
+      tensor[N:2*N] = -1
+      tensor[3*N:4*N] = -1
     elif player == 1:
       tensor[N + self.heli_pos] = 1.0
+      tensor[0:N] = -1
+      tensor[2*N:3*N] = -1
     # normaliserat värde för timer
     tensor[-1] = self.timer/self.budget
 
@@ -364,9 +368,13 @@ class SubmarineHelicopterObserver:
 
     # placera in vectorn där den ska vara
     if player == 0:
-      obs[2*N : 3*N] = decayed_visits
+      obs[self.sub_pos] = 1.0 
+      obs[N:2*N] = -1
+      obs[3*N:4*N] = -1
     elif player == 1:
-      obs[3*N : 4*N] = decayed_visits
+      obs[N + self.heli_pos] = 1.0
+      obs[0:N] = -1
+      obs[2*N:3*N] = -1
 
     self.tensor = obs
     self.dict = {"observation": obs.tolist()}
