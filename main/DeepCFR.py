@@ -47,8 +47,8 @@ def main(_):
         learning_rate=8.657179006139824e-05,
         batch_size_advantage=1024,
         batch_size_strategy=256,
-        memory_capacity=4e6,
-        policy_network_train_steps=8192,
+        memory_capacity=1e6,
+        policy_network_train_steps=2048,
         advantage_network_train_steps=1024,
         reinitialize_advantage_networks=True)
     
