@@ -13,6 +13,7 @@ import pickle
 from absl import app
 from absl import flags
 from numpy import average
+import os
 
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python.algorithms import external_sampling_mccfr as external_mccfr
@@ -20,7 +21,7 @@ from open_spiel.python.algorithms import outcome_sampling_mccfr as outcome_mccfr
 from open_spiel.python import games
 import pyspiel
 
-def run_experiment(filename, sampling="external"):
+def run_experiment(filename, iter, sampling="external"):
     """
     Run one instance of the MCCFR experiment until exploitability drops below 0.1.
     
@@ -39,10 +40,10 @@ def run_experiment(filename, sampling="external"):
 
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
     if sampling == "external":
-        cfr_solver = external_mccfr.ExternalSamplingSolver(
+        mccfr_solver = external_mccfr.ExternalSamplingSolver(
             game, external_mccfr.AverageType.SIMPLE)
     else:
-        cfr_solver = outcome_mccfr.OutcomeSamplingSolver(game)
+        mccfr_solver = outcome_mccfr.OutcomeSamplingSolver(game)
 
     run_data = []
     init_time = time.time() - start_time
@@ -53,13 +54,13 @@ def run_experiment(filename, sampling="external"):
     
     max_tid = 1000000000000000
 
-    while conv >= 0.05 and total_iter_time <= max_tid:
+    while conv >= 0.02 and total_iter_time <= max_tid:
         iter_start = time.time()
-        cfr_solver.iteration()
+        mccfr_solver.iteration()
         total_iter_time += time.time() - iter_start
         print(i)
-        if i % 100 == 0 or total_iter_time >= max_tid:
-            conv = exploitability.nash_conv(game, cfr_solver.average_policy())
+        if i % 8 == 0 or total_iter_time >= max_tid:
+            conv = exploitability.nash_conv(game, mccfr_solver.average_policy())
             print(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
             row = {
                 "iteration": i,
@@ -71,11 +72,19 @@ def run_experiment(filename, sampling="external"):
 
     total_run_time = time.time() - start_time
     print(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
+
+    # Spara average policy med pickle
+    main_dir = os.path.dirname(os.path.abspath(__file__))
+    pkl_file = os.path.join(main_dir, "PKL_models", f"MCCFR_model_{info_general["graph"]}_{iter}")
+
+    avg_policy = mccfr_solver.average_policy()
+    with open(pkl_file, "wb") as f:
+        pickle.dump(avg_policy, f)
     
     return run_data, total_run_time
 
 def main(_):
-    filename = "/content/Kexet/main/grafer/Graf3.csv"
+    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
     sampling = "external"
     num_runs = 5
     all_run_data = []  # List to store evaluation data for each run
@@ -83,7 +92,7 @@ def main(_):
     # Run the experiment multiple times.
     for run in range(num_runs):
         print(f"\n=== Starting run {run + 1} ===")
-        run_data, run_time = run_experiment(filename, sampling)
+        run_data, run_time = run_experiment(filename, run, sampling,)
         all_run_data.append(run_data)
         print(f"Run {run + 1} complete: Run Time = {run_time:.2f} seconds")
     
