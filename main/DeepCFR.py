@@ -18,7 +18,7 @@ import pyspiel
 tf.disable_v2_behavior()
 
 def main(_):
-  filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf1.csv"
+  filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
   model_data_file = "Deep_CFR_model.pkl"  # file to save the trained model
   training_data_file = "Deep_CFR_training_data.csv"  # file to save training data
   run_data = []
@@ -47,8 +47,8 @@ def main(_):
         learning_rate=8.657179006139824e-05,
         batch_size_advantage=1024,
         batch_size_strategy=256,
-        memory_capacity=1e6,
-        policy_network_train_steps=2048,
+        memory_capacity=4e6,
+        policy_network_train_steps=8192,
         advantage_network_train_steps=1024,
         reinitialize_advantage_networks=True)
     
