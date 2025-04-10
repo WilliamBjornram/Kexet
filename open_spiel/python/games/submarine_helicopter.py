@@ -204,7 +204,7 @@ class SubmarineHelicopterState(pyspiel.State):
     if player == 0:
       return self.graph.adjacency[self.sub_pos] # rör sig till någon adjecent nod
     elif player == 1:
-      return self.graph.heli_act_space[self.heli_pos] # dictionary som har alla legal moves som lista i en dictionary över alla noder
+      return self.graph.adjacency[self.heli_pos]
     else:
       return []
 

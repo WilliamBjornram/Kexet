@@ -4,6 +4,7 @@ import tensorflow.compat.v1 as tf
 from absl import logging
 from absl import app
 import os
+import time
 
 from open_spiel.python import policy
 from open_spiel.python.algorithms import deep_cfr
@@ -18,13 +19,17 @@ def parse_network(network_str):
     # Converts a string like "64,64,64" into a tuple of ints: (64, 64, 64), optuna doesn't handle tuples
     return tuple(int(x.strip()) for x in network_str.split(','))
 
-def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps, filepath):
-    chunk_iter = 10 # amount of iterations between each evaluation
+def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps, filepath, trial):
+    chunk_iter = 10   # iterations per chunk
+    total_chunks = 10  # total iterations will be 60
+    total_iter = 0
 
-    # loading the game
+    # Track total training time.
+    start_time_total = time.time()
+
+    # Load the game.
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filepath))
     
-    # staring a tensor flow session and initializing DCFR solver
     with tf.Session() as sess:
         deep_cfr_solver = deep_cfr.DeepCFRSolver(
             sess,
@@ -32,7 +37,7 @@ def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_
             policy_network_layers=network,
             advantage_network_layers=network,
             num_iterations=0,
-            num_traversals=500,
+            num_traversals=100,
             learning_rate=l_rate,
             batch_size_advantage=b_size_a,
             batch_size_strategy=b_size_p,
@@ -42,19 +47,35 @@ def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_
             reinitialize_advantage_networks=True)
         sess.run(tf.global_variables_initializer())
 
-        # Run for a fixed number of iterations
-        conv = float('inf')
-        i = 0
-        while conv > 2e-2 and i <= 6:
+        # Iterate in chunks, reporting intermediate results.
+        for chunk in range(total_chunks):
+            chunk_start = time.time()
+            total_iter += chunk_iter
             deep_cfr_solver._num_iterations += chunk_iter 
             _, _, _ = deep_cfr_solver.solve()
-            # Calculate exploitability
+            # Calculate intermediate exploitability.
             average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
             conv = exploitability.nash_conv(game, average_policy)
-            i += 1
+            
+            # Report intermediate result to optuna.
+            trial.report(conv, total_iter)
+            # Optionally, we prune if no sufficient improvement is seen.
+            if trial.should_prune():
+                raise optuna.exceptions.TrialPruned()
+
+            chunk_time = time.time() - chunk_start
+            logging.info(f"Iteration {total_iter}: Exploitability = {conv:.6f}, Chunk time = {chunk_time:.2f} sec")
+        
+        total_time = time.time() - start_time_total
+        # Final exploitability after all chunks.
+        average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
+        final_exploitability = exploitability.nash_conv(game, average_policy)
+        logging.info(f"Final exploitability after {total_iter} iterations: {final_exploitability:.6f}")
+        logging.info(f"Total training time: {total_time:.2f} sec")
     
-    # Return the final exploitability as the objective (lower is better)
-    return conv
+    # Composite score: you could modify this if you prefer multi-objective.
+    # Here we simply return the final exploitability.
+    return final_exploitability
 
 def objective(trial):
     # Define the search space:
@@ -90,7 +111,7 @@ def objective(trial):
         raise FileNotFoundError(f"The file at {filepath} does not exist.")
 
     # Run the tuning procedure
-    exploitability_value = tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps, filepath)
+    exploitability_value = tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps, filepath, trial)
     logging.info(f"Trial finished with exploitability: {exploitability_value}")
 
     # Write parameters and results to CSV
@@ -116,8 +137,8 @@ def objective(trial):
 
 def main(_):
     # Creating optuna study with directions to minimize exploitability
-    study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=5) # feeding it the helper function, no more than 10 trials
+    study = optuna.create_study(direction='minimize')
+    study.optimize(objective, n_trials=20) # feeding it the helper function, no more than 10 trials
     
     # printing best trial at end (with hyperparams)
     print("Best trial:")

@@ -49,7 +49,7 @@ def run_experiment(filename, sampling="external"):
     total_iter_time = init_time
 
     i = 0
-    conv = 1.0  # initial exploitability value (must be >= 0.1 to start)
+    conv = 1.0  # initial exploitability value (must be >= 0.05 to start)
     
     max_tid = 10
 

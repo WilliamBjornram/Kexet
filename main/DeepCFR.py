@@ -17,7 +17,7 @@ import pyspiel
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
 
-def main():
+def main(_):
   filepath = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv"
   model_data_file = "Deep_CFR_model.pkl"  # file to save the trained model
   training_data_file = "Deep_CFR_training_data.csv"  # file to save training data
@@ -26,9 +26,9 @@ def main():
   filename = filepath[ind+1:-4]
 
   # Define training parameters
-  chunk_iter = 10  # number of iterations per training chunk
+  chunk_iter = 1  # number of iterations per training chunk
   total_iter = 0
-  threshold = 0.01  # target exploitability threshold
+  threshold = 1e-12  # target exploitability threshold
   conv = float('inf')
 
   # Load the game once
@@ -40,17 +40,17 @@ def main():
     deep_cfr_solver = deep_cfr.DeepCFRSolver(
         sess,
         game,
-        policy_network_layers=(128, 128),
-        advantage_network_layers=(128, 128),
+        policy_network_layers=(64, 64, 64, 64),
+        advantage_network_layers=(64, 64, 64, 64),
         num_iterations=0,  # start with zero iterations
         num_traversals=500,
-        learning_rate=1e-3,
-        batch_size_advantage=2048,
-        batch_size_strategy=2048,
-        memory_capacity=1e6,
-        policy_network_train_steps=4096,
-        advantage_network_train_steps=768,
-        reinitialize_advantage_networks=False)
+        learning_rate=8.657179006139824e-05,
+        batch_size_advantage=1024,
+        batch_size_strategy=256,
+        memory_capacity=4e6,
+        policy_network_train_steps=8192,
+        advantage_network_train_steps=1024,
+        reinitialize_advantage_networks=True)
     
     sess.run(tf.global_variables_initializer())
 
@@ -116,3 +116,37 @@ def main():
 
 if __name__ == "__main__":
   app.run(main)
+
+"""
+    deep_cfr_solver = deep_cfr.DeepCFRSolver(
+        sess,
+        game,
+        policy_network_layers=(128, 128),
+        advantage_network_layers=(128, 128),
+        num_iterations=0,  # start with zero iterations
+        num_traversals=500,
+        learning_rate=1e-3,
+        batch_size_advantage=2048,
+        batch_size_strategy=2048,
+        memory_capacity=1e6,
+        policy_network_train_steps=4096,
+        advantage_network_train_steps=768,
+        reinitialize_advantage_networks=False)
+"""
+
+"""
+    deep_cfr_solver = deep_cfr.DeepCFRSolver(
+        sess,
+        game,
+        policy_network_layers=(128, 128, 128),
+        advantage_network_layers=(128, 128, 128),
+        num_iterations=0,  # start with zero iterations
+        num_traversals=500,
+        learning_rate=0.0003832510498849376,
+        batch_size_advantage=2048,
+        batch_size_strategy=2048,
+        memory_capacity=1e6,
+        policy_network_train_steps=1024,
+        advantage_network_train_steps=1024,
+        reinitialize_advantage_networks=True)
+"""

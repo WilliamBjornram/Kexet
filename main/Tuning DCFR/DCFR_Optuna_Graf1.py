@@ -41,10 +41,16 @@ def tune(network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_
             reinitialize_advantage_networks=False)
         sess.run(tf.global_variables_initializer())
 
-        # Run for a fixed number of chunks (6 chunks for 60 iterations)
-        for _ in range(6):
+        # Run for a fixed number of iterations
+        conv = float('inf')
+        i = 0
+        while conv > 2e-2 and i <= 6:
             deep_cfr_solver._num_iterations += chunk_iter 
             _, _, _ = deep_cfr_solver.solve()
+            # Calculate exploitability
+            average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
+            conv = exploitability.nash_conv(game, average_policy)
+            i += 1
         
         average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
         conv = exploitability.nash_conv(game, average_policy)
