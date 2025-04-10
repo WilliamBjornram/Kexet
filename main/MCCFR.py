@@ -51,14 +51,13 @@ def run_experiment(filename, sampling="external"):
     i = 0
     conv = 1.0  # initial exploitability value (must be >= 0.05 to start)
     
-    max_tid = 10
+    max_tid = 1000000000000000
 
     while conv >= 0.05 and total_iter_time <= max_tid:
         iter_start = time.time()
         cfr_solver.iteration()
         total_iter_time += time.time() - iter_start
-        i += 1
-
+        print(i)
         if i % 100 == 0 or total_iter_time >= max_tid:
             conv = exploitability.nash_conv(game, cfr_solver.average_policy())
             print(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
@@ -68,6 +67,7 @@ def run_experiment(filename, sampling="external"):
                 "total_time": total_iter_time
             }
             run_data.append(row)
+        i += 1
 
     total_run_time = time.time() - start_time
     print(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
@@ -75,7 +75,7 @@ def run_experiment(filename, sampling="external"):
     return run_data, total_run_time
 
 def main(_):
-    filename = "/content/Kexet/main/grafer/Graf0.csv"
+    filename = "/content/Kexet/main/grafer/Graf3.csv"
     sampling = "external"
     num_runs = 5
     all_run_data = []  # List to store evaluation data for each run
