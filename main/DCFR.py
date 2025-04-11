@@ -1,12 +1,12 @@
+"""Python Deep CFR example with CSV logging for NashConv and run time."""
 
+from absl import app
+from absl import logging
 import tensorflow.compat.v1 as tf
 import csv
 import time
-import os
-import argparse
-from absl import app
-from absl import logging
 import pickle
+import os
 
 from open_spiel.python import policy
 from open_spiel.python.algorithms import deep_cfr
@@ -18,144 +18,146 @@ import pyspiel
 # Temporarily disable TF2 behavior until we update the code.
 tf.disable_v2_behavior()
 
-
-def results(filepath, network, l_rate, b_size_a, b_size_p, mem_cap, pn_train_steps, an_train_steps):
+def run_experiment(filename, iter):
+  info_general = {}
+  ind = filename.rfind("/")
+  info_general["graph"] = filename[ind+1:-4]
   run_data = []
-  chunk_iter = 10
+
+
+  # Define training parameters
+  chunk_iter = 5 # number of iterations per training chunk
   total_iter = 0
+  threshold = 0.2  # target exploitability threshold
+  conv = float('inf')
 
-  # Loading the game
-  game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filepath))
+  # Load the game once
+  logging.info("Loading %s", "submarine_helicopter")
 
-  # Starting tensor flow session and initializing DCFR solver
+  init_tid = time.time()
+  game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
+
+  # Create a single TensorFlow session and initialize the solver once
   with tf.Session() as sess:
     deep_cfr_solver = deep_cfr.DeepCFRSolver(
         sess,
         game,
-        policy_network_layers=network,
-        advantage_network_layers=network,
-        num_iterations=0,
-        num_traversals=500,
-        learning_rate=l_rate,
-        batch_size_advantage=b_size_a,
-        batch_size_strategy=b_size_p,
-        memory_capacity=mem_cap,
-        policy_network_train_steps=pn_train_steps,
-        advantage_network_train_steps=an_train_steps,
-        reinitialize_advantage_networks=False)
+        policy_network_layers=(64, 64, 64, 64),
+        advantage_network_layers=(64, 64, 64, 64),
+        num_iterations=0,  # start with zero iterations
+        num_traversals=10,
+        learning_rate=8.657179006139824e-05,
+        batch_size_advantage=1024,
+        batch_size_strategy=256,
+        memory_capacity=4e6,
+        policy_network_train_steps=8192,
+        advantage_network_train_steps=1024,
+        reinitialize_advantage_networks=True)
     
     sess.run(tf.global_variables_initializer())
 
-    for _ in range(6):
-      start_time = time.time()
-      
-      # changing number of iterations, then solving
-      deep_cfr_solver._num_iterations += chunk_iter 
-      _, _, policy_loss = deep_cfr_solver.solve()
-      
-      # time for the iterations
-      chunk_run_time = time.time() - start_time
+    init_tid = time.time() - init_tid
+    tot_run_time = 0
+    print("Init tid: " + str(init_tid))
 
-      # calculating exploitability
+    # Continuous training loop without reinitializing the solver
+    while conv >= threshold:
+      start_time = time.time()
+      # Increment the total iterations by the chunk size
+      total_iter += chunk_iter
+      # Update the solver's iteration count to run additional iterations
+      deep_cfr_solver._num_iterations += chunk_iter
+      
+      # Run additional training iterations
+      _, advantage_losses, policy_loss = deep_cfr_solver.solve()
+      
+      tot_run_time = time.time() - start_time + init_tid
+
+      for player, losses in advantage_losses.items():
+        logging.info("Advantage for player %d: %s", player,
+                    losses[:2] + ["..."] + losses[-2:])
+        logging.info("Advantage Buffer Size for player %s: '%s'", player,
+                    len(deep_cfr_solver.advantage_buffers[player]))
+      
+      logging.info("Strategy Buffer Size: '%s'",
+                len(deep_cfr_solver.strategy_buffer))
+      logging.info("Policy loss: '%s'", policy_loss)
+
+      # Compute the average policy from the current solver
       average_policy = policy.tabular_policy_from_callable(
           game, deep_cfr_solver.action_probabilities)
       conv = exploitability.nash_conv(game, average_policy)
+      logging.info(f"Total Iterations: {total_iter}, Exploitability: {conv}, Total Run Time: {tot_run_time} seconds")
       
-      # calculating average values
       average_policy_values = expected_game_score.policy_value(
       game.new_initial_state(), [average_policy] * 2)
+      logging.info("Computed sub value: {}".format(average_policy_values[0]))
+      logging.info("Computed helicopter value: {}".format(average_policy_values[1]))
 
-      # save data for the iteration
+      # Log the data
+      
       row = {
-          "iteration": total_iter,
-          "exploitability": conv,
-          "it_t": chunk_run_time,
-          "pl0_buff": len(deep_cfr_solver.advantage_buffers[0]),
-          "pl1_buff": len(deep_cfr_solver.advantage_buffers[1]),
-          "str_buff": len(deep_cfr_solver.strategy_buffer),
-          "policy_loss": policy_loss,
-          "avg_game_score_s": average_policy_values[0],
-          "avg_game_score_h": average_policy_values[1]
-      }
+        "iteration": total_iter,
+        "exploitability": conv,
+        "graph": filename,
+        "total_time": tot_run_time
+        }
       run_data.append(row)
 
-  return run_data, average_policy
 
-
-def help_func(filepath, graph_num):
+      # Spara average policy med pickle
+    main_dir = os.path.dirname(os.path.abspath(__file__))
+    pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graph']}_{iter}")
   
-  # Hyperparameters for the solver, first index of the list is for 'Graf0', then 'Graf1' and so on
-  hyperparams = {
-    "network": [(128, 128, 128), (128, 128, 128), (128, 128, 128)],
-    "l_rate": [2.4064031872979925e-05, 2.4064031872979925e-05, 2.4064031872979925e-05],
-    "b_size_a": [256, 256, 256],
-    "b_size_p": [2048, 2048, 2048],
-    "mem_cap": [1e7, 1e7, 1e7],
-    "pn_train_steps": [8192, 8192, 8192],
-    "an_train_steps": [4096, 4096, 4096] 
-  }
-
-  # Call results and give them to main
-  return results(network=hyperparams["network"][graph_num],
-              l_rate=hyperparams["l_rate"][graph_num],
-              b_size_a=hyperparams["b_size_a"][graph_num],
-              b_size_p=hyperparams["b_size_p"][graph_num],
-              mem_cap=hyperparams["mem_cap"][graph_num],
-              pn_train_steps=hyperparams["pn_train_steps"][graph_num],
-              an_train_steps=hyperparams["an_train_steps"][graph_num],
-              filepath=filepath)
-  
+    with open(pkl_file, "wb") as f:
+        pickle.dump(average_policy, f)
+      
+    return run_data
 
 def main(_):
+    filename = "/content/Kexet/main/grafer/Graf0.csv"
+    num_runs = 5
+    all_run_data = []  # List to store evaluation data for each run
 
-  # Set up the argument parser
-  parser = argparse.ArgumentParser(description="Filepath input")
-  parser.add_argument(
-      '--filepath',
-      type=str,
-      default="/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv",
-      help="Full path to the CSV file containing the game Graph"
-  )
+    # Run the experiment multiple times.
+    for run in range(num_runs):
+        print(f"\n=== Starting run {run + 1} ===")
+        run_data = run_experiment(filename, run)
+        all_run_data.append(run_data)
+    
+    # Aggregate evaluation data by iteration.
+    # We'll assume that all runs record data at the same iteration checkpoints.
+    aggregated = {}
+    for run_data in all_run_data:
+        for row in run_data:
+            iter_val = row["iteration"]
+            if iter_val not in aggregated:
+                aggregated[iter_val] = {"exploitability": [], "total_time": []}
+            aggregated[iter_val]["exploitability"].append(row["exploitability"])
+            aggregated[iter_val]["total_time"].append(row["total_time"])
 
-  # Parse the arguments
-  args = parser.parse_args()
+    # Compute averages for each evaluation checkpoint.
+    avg_results = []
+    for iter_val in sorted(aggregated.keys()):
+        avg_exploit = sum(aggregated[iter_val]["exploitability"]) / len(aggregated[iter_val]["exploitability"])
+        avg_time = sum(aggregated[iter_val]["total_time"]) / len(aggregated[iter_val]["total_time"])
+        avg_results.append({
+            "iteration": iter_val,
+            "average_exploitability": avg_exploit,
+            "average_total_time": avg_time
+        })
 
-  # Use the provided or default filepath
-  filepath = args.filepath
-
-  ind = filepath.rfind("/")
-  filename = filepath[ind+1:-4]
-  graph_num = int(filename[-1])
-  csv_filename = "DCFR_data_" + filename + ".csv"
-
-  current_dir = os.path.dirname(os.path.abspath(__file__))
-  training_data_file = os.path.join(current_dir, csv_filename)
-
-  logging.info(f"Using Graph: {filename}")
-
-  for i in range(5):
-    logging.info(f"Solving {i+1} time....")
-    data, average_policy = help_func(filepath=filepath, graph_num=graph_num)
-
-    # Save the average policy using pickle
-    logging.info("Saving the pickle model....")
-    model_data_file = os.path.join(current_dir, f"DCFR_PKL_models/DCFR_model_{filename}_{i}.pkl")
-    with open(model_data_file, "wb") as f:
-      pickle.dump(average_policy, f)
-
-    logging.info("Writing data to CSV file....")
-    # Append to CSV file (write header if first time, else append)
-    if i == 0:
-      with open(training_data_file, "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=data[0].keys())
+    # Write the averaged results to a CSV file.
+    csv_filename = "DeepCFR_average_results.csv"
+    with open(csv_filename, "w", newline="") as f:
+        fieldnames = ["iteration", "average_exploitability", "average_total_time"]
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data)
-        writer.writerow({})
-    else:
-      with open(training_data_file, "a", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=data[0].keys())
-        writer.writerows(data)
-        writer.writerow({})
+        writer.writerows(avg_results)
+    
+    print(f"\n=== Average evaluation data written to {csv_filename} ===")
+    for row in avg_results:
+        print(row)
 
 if __name__ == "__main__":
-  app.run(main)
+    app.run(main)
