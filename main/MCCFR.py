@@ -84,7 +84,7 @@ def run_experiment(filename, iter, sampling="external"):
     return run_data, total_run_time
 
 def main(_):
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf3.csv"
     sampling = "external"
     num_runs = 5
     all_run_data = []  # List to store evaluation data for each run
