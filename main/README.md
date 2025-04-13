@@ -4,10 +4,7 @@
 # Davids anteckningar till William
 
 # Frågor
-- Utvärderingssätt för cfr, tid eller nodes touched?
-- Olika parametrar gör DeepCFR helt olika snabb och bra, hur ska vi förhålla oss till detta? Mycket arbete kommer behöva läggas ner om optimala förhållanden ska fås för den aktuella grafen.
-- Skippa transit nodes, köra på två grafer?
-- När ska vi förklara varför vi har desginat spelet som vi gjort?
+- Hur teknisk beskrivning av spelet ska vi ha? Ska vi beskriva hur spelet har kodats för att fungera i openspiel?
 # Anteckningar till rapporten i allmänhet
 - ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 

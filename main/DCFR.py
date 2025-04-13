@@ -28,7 +28,7 @@ def run_experiment(filename, iter):
   # Define training parameters
   chunk_iter = 5 # number of iterations per training chunk
   total_iter = 0
-  threshold = 0.2  # target exploitability threshold
+  threshold = 0.02  # target exploitability threshold
   conv = float('inf')
 
   # Load the game once
@@ -63,8 +63,11 @@ def run_experiment(filename, iter):
     # Continuous training loop without reinitializing the solver
     while conv >= threshold:
       start_time = time.time()
-      # Increment the total iterations by the chunk size
-      total_iter += chunk_iter
+      # Increment the total iterations by the chunk size'
+      if tot_run_time == 0:
+        total_iter = 1
+      else: 
+        total_iter += chunk_iter
       # Update the solver's iteration count to run additional iterations
       deep_cfr_solver._num_iterations += chunk_iter
       
