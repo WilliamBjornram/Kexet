@@ -26,9 +26,9 @@ def run_experiment(filename, iter):
 
 
   # Define training parameters
-  chunk_iter = 5 # number of iterations per training chunk
+  chunk_iter = 1 # number of iterations per training chunk
   total_iter = 0
-  threshold = 0.02  # target exploitability threshold
+  threshold = 0.00  # target exploitability threshold
   conv = float('inf')
 
   # Load the game once
@@ -45,7 +45,7 @@ def run_experiment(filename, iter):
         policy_network_layers=(64, 64, 64, 64),
         advantage_network_layers=(64, 64, 64, 64),
         num_iterations=0,  # start with zero iterations
-        num_traversals=10,
+        num_traversals=1,
         learning_rate=8.657179006139824e-05,
         batch_size_advantage=1024,
         batch_size_strategy=256,
@@ -118,8 +118,8 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/content/Kexet/main/grafer/Graf0.csv"
-    num_runs = 5
+    filename = "/content/Kexet/main/grafer/Grafer old/BADATRANDOM.csv"
+    num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
     # Run the experiment multiple times.
