@@ -22,7 +22,7 @@ from absl import app
 
 def main(_):
     # Filväg till grafen, inkludera namnet och filändelse
-    filename = "/content/Kexet/main/grafer/Graf1.csv"
+    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf3.csv"
     model_data_file = "CFR_model.pkl" # filen där den tränade modelen ska sparas
     training_data_file = "CFR_average_results.csv" # filen där träningsdatan ska sparas
  
