@@ -45,7 +45,7 @@ def run_experiment(filename, iter):
         policy_network_layers=(64, 64, 64, 64),
         advantage_network_layers=(64, 64, 64, 64),
         num_iterations=0,  # start with zero iterations
-        num_traversals=1,
+        num_traversals=10,
         learning_rate=8.657179006139824e-05,
         batch_size_advantage=1024,
         batch_size_strategy=256,
@@ -106,6 +106,21 @@ def run_experiment(filename, iter):
         "total_time": tot_run_time
         }
       run_data.append(row)
+      solo_data = []
+      solo_data.append(row)
+      
+      training_data_file = "DeepCFR_results.csv"
+      if total_iter == 1:
+        with open(training_data_file, "w", newline="") as f:
+          writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
+          writer.writeheader()
+
+      with open(training_data_file, "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
+        writer.writerows(solo_data)
+      
+
+      
 
 
       # Spara average policy med pickle
