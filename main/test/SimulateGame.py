@@ -32,8 +32,8 @@ def simulate_episode(game, policy, model):
 def main():
     
     # filväg till filen, inkludera namnet och filändelse && filnamnet till pickle model att använda
-    graph_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/GrafLiten.csv"
-    model_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/trained_model.pkl"
+    graph_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    model_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/PKL_models/Graf2/CFR_model.pkl"
     model = "CFR" # CFR | D_CFR | MCCFR
 
     # laddar in spelet
