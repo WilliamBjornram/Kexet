@@ -26,9 +26,9 @@ def run_experiment(filename, iter):
 
 
   # Define training parameters
-  chunk_iter = 5 # number of iterations per training chunk
+  chunk_iter = 1 # number of iterations per training chunk
   total_iter = 0
-  threshold = 0.02  # target exploitability threshold
+  threshold = 0.00  # target exploitability threshold
   conv = float('inf')
 
   # Load the game once
@@ -106,6 +106,21 @@ def run_experiment(filename, iter):
         "total_time": tot_run_time
         }
       run_data.append(row)
+      solo_data = []
+      solo_data.append(row)
+      
+      training_data_file = "DeepCFR_results.csv"
+      if total_iter == 1:
+        with open(training_data_file, "w", newline="") as f:
+          writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
+          writer.writeheader()
+
+      with open(training_data_file, "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
+        writer.writerows(solo_data)
+      
+
+      
 
 
       # Spara average policy med pickle
@@ -118,8 +133,8 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/content/Kexet/main/grafer/Graf0.csv"
-    num_runs = 5
+    filename = "/content/Kexet/main/grafer/Grafer old/BADATRANDOM.csv"
+    num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
     # Run the experiment multiple times.
