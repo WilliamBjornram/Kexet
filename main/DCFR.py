@@ -26,7 +26,7 @@ def run_experiment(filename, iter):
 
 
   # Define training parameters
-  chunk_iter = 1 # number of iterations per training chunk
+  chunk_iter = 3 # number of iterations per training chunk
   total_iter = 0
   threshold = 0.00  # target exploitability threshold
   conv = float('inf')
@@ -61,7 +61,7 @@ def run_experiment(filename, iter):
     print("Init tid: " + str(init_tid))
 
     # Continuous training loop without reinitializing the solver
-    while conv >= threshold:
+    while conv >= threshold or total_iter < chunk_iter*2 + 1:
       start_time = time.time()
       # Increment the total iterations by the chunk size
       # Update the solver's iteration count to run additional iterations
@@ -119,12 +119,8 @@ def run_experiment(filename, iter):
       with open(training_data_file, "a", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
         writer.writerows(solo_data)
-      
 
-      
-
-
-      # Spara average policy med pickle
+    # Spara average policy med pickle
     main_dir = os.path.dirname(os.path.abspath(__file__))
     pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graph']}_{iter}")
   
@@ -134,7 +130,7 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/content/Kexet/main/grafer/Grafer old/BADATRANDOM.csv"
+    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
     num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
