@@ -42,16 +42,16 @@ def run_experiment(filename, iter):
     deep_cfr_solver = deep_cfr.DeepCFRSolver(
         sess,
         game,
-        policy_network_layers=(64, 64, 64, 64),
-        advantage_network_layers=(64, 64, 64, 64),
+        policy_network_layers=(32, 32),
+        advantage_network_layers=(16, 16),
         num_iterations=0,  # start with zero iterations
-        num_traversals=10,
-        learning_rate=8.657179006139824e-05,
+        num_traversals=150,
+        learning_rate=1e-4,
         batch_size_advantage=1024,
         batch_size_strategy=256,
         memory_capacity=4e6,
-        policy_network_train_steps=8192,
-        advantage_network_train_steps=1024,
+        policy_network_train_steps=512,
+        advantage_network_train_steps=256,
         reinitialize_advantage_networks=True)
     
     sess.run(tf.global_variables_initializer())
@@ -63,13 +63,14 @@ def run_experiment(filename, iter):
     # Continuous training loop without reinitializing the solver
     while conv >= threshold:
       start_time = time.time()
-      # Increment the total iterations by the chunk size'
+      # Increment the total iterations by the chunk size
+      # Update the solver's iteration count to run additional iterations
       if tot_run_time == 0:
         total_iter = 1
+        deep_cfr_solver._num_iterations = 1
       else: 
         total_iter += chunk_iter
-      # Update the solver's iteration count to run additional iterations
-      deep_cfr_solver._num_iterations += chunk_iter
+        deep_cfr_solver._num_iterations += chunk_iter      
       
       # Run additional training iterations
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()
