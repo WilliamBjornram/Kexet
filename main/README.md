@@ -5,6 +5,7 @@
 - Hittar inte tillräckligt med info för den här källan: https://api.semanticscholar.org/CorpusID:17509330
 - Osäker hur jag ska göra med källar märkta med "inproceedings"
 - För "Deep Counterfactual Regret Minimization" hittade jag inte "number"
+- För "OpenSpiel: A Framework for Reinforcement Learning in Games" hittar jag inte "number"
 # Davids anteckningar till William
 
 # Frågor
