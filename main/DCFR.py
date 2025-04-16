@@ -26,7 +26,7 @@ def run_experiment(filename, iter):
 
 
   # Define training parameters
-  chunk_iter = 3 # number of iterations per training chunk
+  chunk_iter = 10 # number of iterations per training chunk
   total_iter = 0
   threshold = 0.00  # target exploitability threshold
   conv = float('inf')
@@ -42,17 +42,17 @@ def run_experiment(filename, iter):
     deep_cfr_solver = deep_cfr.DeepCFRSolver(
         sess,
         game,
-        policy_network_layers=(32, 32),
-        advantage_network_layers=(16, 16),
+        policy_network_layers=(64, 64, 64, 64),
+        advantage_network_layers=(64, 64, 64, 64),
         num_iterations=0,  # start with zero iterations
-        num_traversals=150,
-        learning_rate=1e-4,
+        num_traversals=250,
+        learning_rate=8.657179006139824e-05,
         batch_size_advantage=1024,
         batch_size_strategy=256,
         memory_capacity=4e6,
-        policy_network_train_steps=512,
-        advantage_network_train_steps=256,
-        reinitialize_advantage_networks=True)
+        policy_network_train_steps=8192,
+        advantage_network_train_steps=1024,
+        reinitialize_advantage_networks=False)
     
     sess.run(tf.global_variables_initializer())
 
@@ -65,12 +65,9 @@ def run_experiment(filename, iter):
       start_time = time.time()
       # Increment the total iterations by the chunk size
       # Update the solver's iteration count to run additional iterations
-      if tot_run_time == 0:
-        total_iter = 1
-        deep_cfr_solver._num_iterations = 1
-      else: 
-        total_iter += chunk_iter
-        deep_cfr_solver._num_iterations += chunk_iter      
+      
+      total_iter += chunk_iter
+      deep_cfr_solver._num_iterations += chunk_iter      
       
       # Run additional training iterations
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()
@@ -130,7 +127,7 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    filename = "/content/Kexet/main/grafer/LEFTGGraf2.csv"
     num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
