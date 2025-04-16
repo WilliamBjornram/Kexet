@@ -2,6 +2,7 @@
 - Skrev om slutet i introt, läs gärna.
 - Läs gärna design choices.
 - Det saknas vem som skrivit vissa källor, hur bör man göra då?
+- Hittar inte tillräckligt med info för den här källan: https://api.semanticscholar.org/CorpusID:17509330
 # Davids anteckningar till William
 
 # Frågor
