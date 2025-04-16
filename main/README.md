@@ -1,9 +1,11 @@
 # Williams anteckningar till David
 - Skrev om slutet i introt, läs gärna.
-- Att göra 30 iter med 1 traversal är inte samma som 1 iter 30 traversels eftersom efter varje iteration så uppdateras advantage och policy networks samt att exploitability är ett medeltal av medel stategin.
-- Med låg traversals och reinitialize_advantage_networks=True så blir början en låg exploitability oftast om en "jämn" statergi är bra, alltså att ha en statergi som är 50% höger 50 % vänster.
-- Ändrade så att vänster är det bättre valet för graf 2 och 3 så att den får hög exploitability i början. Detta måste återställas.
-
+- Läs gärna design choices.
+- Det saknas vem som skrivit vissa källor, hur bör man göra då?
+- Hittar inte tillräckligt med info för den här källan: https://api.semanticscholar.org/CorpusID:17509330
+- Osäker hur jag ska göra med källar märkta med "inproceedings"
+- För "Deep Counterfactual Regret Minimization" hittade jag inte "number"
+- För "OpenSpiel: A Framework for Reinforcement Learning in Games" hittar jag inte "number"
 # Davids anteckningar till William
 
 # Frågor
