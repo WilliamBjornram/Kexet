@@ -1,6 +1,7 @@
 # Williams anteckningar till David
 - Skrev om slutet i introt, läs gärna.
 - Läs gärna design choices.
+- Det saknas vem som skrivit vissa källor, hur bör man göra då?
 # Davids anteckningar till William
 
 # Frågor
