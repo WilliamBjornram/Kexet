@@ -3,6 +3,7 @@
 - Läs gärna design choices.
 - Det saknas vem som skrivit vissa källor, hur bör man göra då?
 - Hittar inte tillräckligt med info för den här källan: https://api.semanticscholar.org/CorpusID:17509330
+- Osäker hur jag ska göra med källar märkta med "inproceedings"
 # Davids anteckningar till William
 
 # Frågor
