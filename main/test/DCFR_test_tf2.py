@@ -2,21 +2,27 @@
 
 from absl import app
 from absl import logging
-import tensorflow.compat.v1 as tf
+import tensorflow as tf2
+from tensorflow.python.client import device_lib
+tf2.config.experimental.set_visible_devices([], 'GPU')  # Ensure no legacy conflict
+
+try:
+    tf2.config.experimental.set_memory_growth(tf2.config.list_physical_devices('GPU')[0], True)
+    print("Using GPU:", tf2.config.experimental.list_physical_devices('GPU'))
+except:
+    print("No compatible GPU found or memory growth not supported.")
+
 import csv
 import time
 import pickle
 import os
 
 from open_spiel.python import policy
-from open_spiel.python.algorithms import deep_cfr
+from open_spiel.python.algorithms import deep_cfr_tf2
 from open_spiel.python.algorithms import expected_game_score
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python import games
 import pyspiel
-
-# Temporarily disable TF2 behavior until we update the code.
-tf.disable_v2_behavior()
 
 def run_experiment(filename, iter):
   info_general = {}
@@ -38,23 +44,25 @@ def run_experiment(filename, iter):
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
 
   # Create a single TensorFlow session and initialize the solver once
-  with tf.Session() as sess:
-    deep_cfr_solver = deep_cfr.DeepCFRSolver(
+  config = tf2.ConfigProto()
+  config.gpu_options.allow_growth = True
+  with tf2.Session(config=config) as sess:
+    deep_cfr_solver = deep_cfr_tf2.DeepCFRSolver(
         sess,
         game,
         policy_network_layers=(64, 64, 64, 64),
         advantage_network_layers=(64, 64, 64, 64),
         num_iterations=0,  # start with zero iterations
         num_traversals=200,
-        learning_rate=1e-3,
+        learning_rate=1e-4,
         batch_size_advantage=1024,
         batch_size_strategy=256,
         memory_capacity=4e6,
         policy_network_train_steps=8192,
         advantage_network_train_steps=1024,
-        reinitialize_advantage_networks=False)
+        reinitialize_advantage_networks=True)
     
-    sess.run(tf.global_variables_initializer())
+    sess.run(tf2.global_variables_initializer())
 
     init_tid = time.time() - init_tid
     tot_run_time = 0

@@ -150,15 +150,6 @@ class SubmarineHelicopterState(pyspiel.State):
     obs_size = 4 * N + 1
     decay_factor = 0.9
     tensor = np.zeros(obs_size, dtype=np.float32)
-    # player ser bara sin egna position
-    if player == 0:
-      tensor[self.sub_pos] = 1.0 
-      tensor[N:2*N] = -1
-      tensor[3*N:4*N] = -1
-    elif player == 1:
-      tensor[N + self.heli_pos] = 1.0
-      tensor[0:N] = -1
-      tensor[2*N:3*N] = -1
     # normaliserat värde för timer
     tensor[-1] = self.timer/self.budget
 
@@ -170,10 +161,16 @@ class SubmarineHelicopterState(pyspiel.State):
         if pl == player:
             decayed_visits[action] += 1.0
 
-    # placera in vectorn där den ska vara
+    # player ser bara sin egna position
     if player == 0:
+      tensor[self.sub_pos] = 1.0 
+      tensor[N:2*N] = -1
       tensor[2*N : 3*N] = decayed_visits
+      tensor[3*N:4*N] = -1
     elif player == 1:
+      tensor[N + self.heli_pos] = 1.0
+      tensor[0:N] = -1
+      tensor[2*N:3*N] = -1
       tensor[3*N : 4*N] = decayed_visits
     
     return tensor
@@ -346,15 +343,14 @@ class SubmarineHelicopterObserver:
     self.iig_obs_type = iig_obs_type
     self.decay_factor = decay_factor
 
-  def set_from(self, state, player):
+  def set_from(self, state, player=None):
+
+    if player == None:
+      player = state.current_player()
+
     N = len(state.graph)
     obs_size = 4 * N + 1
     obs = np.zeros(obs_size, dtype=np.float32)
-    # player ser bara sin egna position
-    if player == 0:
-      obs[state.sub_pos] = 1.0 
-    elif player == 1:
-      obs[N + state.heli_pos] = 1.0
     # normaliserat värde för timer
     obs[-1] = state.timer/state.budget
 
@@ -368,14 +364,16 @@ class SubmarineHelicopterObserver:
 
     # placera in vectorn där den ska vara
     if player == 0:
-      obs[self.sub_pos] = 1.0 
+      obs[state.sub_pos] = 1.0 
       obs[N:2*N] = -1
+      obs[2*N:3*N] = decayed_visits
       obs[3*N:4*N] = -1
     elif player == 1:
-      obs[N + self.heli_pos] = 1.0
       obs[0:N] = -1
+      obs[N + state.heli_pos] = 1.0
       obs[2*N:3*N] = -1
-
+      obs[3*N:4*N] = decayed_visits
+    
     self.tensor = obs
     self.dict = {"observation": obs.tolist()}
 

@@ -1,0 +1,6 @@
+iteration,exploitability,graph,total_time
+1,1.756128495629793,/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv,944.5122878551483
+6,0.3712539164564676,/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv,7773.819568872452
+11,0.626682898578717,/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv,10690.74005484581
+16,0.2747865309094568,/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv,15452.574002027512
+21,0.4488358924444999,/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv,20230.364372015
