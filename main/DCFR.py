@@ -127,7 +127,7 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    filename = "/content/Kexet/main/grafer/LEFTGGraf2.csv"
     num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
