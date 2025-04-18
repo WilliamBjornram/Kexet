@@ -26,8 +26,8 @@ def run_experiment(filename, iter):
 
 
   # Define training parameters
-  chunk_iter = 10 # number of iterations per training chunk
-  total_iter = 0
+  chunk_iter = 5 # number of iterations per training chunk
+  total_iter = 1
   threshold = 0.02  # target exploitability threshold
   conv = float('inf')
 
@@ -42,17 +42,17 @@ def run_experiment(filename, iter):
     deep_cfr_solver = deep_cfr.DeepCFRSolver(
         sess,
         game,
-        policy_network_layers=(64, 64, 64, 64),
-        advantage_network_layers=(64, 64, 64, 64),
-        num_iterations=0,  # start with zero iterations
-        num_traversals=150,
-        learning_rate=1e-4,
-        batch_size_advantage=1024,
-        batch_size_strategy=256,
+        policy_network_layers=(64, 64, 64),
+        advantage_network_layers=(32, 32, 32),
+        num_iterations=1,  # start with zero iterations
+        num_traversals=int(15e3),
+        learning_rate=1e-3,
+        batch_size_advantage=2048,
+        batch_size_strategy=2048,
         memory_capacity=4e6,
-        policy_network_train_steps=8192,
-        advantage_network_train_steps=1024,
-        reinitialize_advantage_networks=False)
+        policy_network_train_steps=5000,
+        advantage_network_train_steps=750,
+        reinitialize_advantage_networks=True)
     
     sess.run(tf.global_variables_initializer())
 
@@ -66,11 +66,8 @@ def run_experiment(filename, iter):
       # Increment the total iterations by the chunk size
       # Update the solver's iteration count to run additional iterations
       
-      total_iter += chunk_iter
-      deep_cfr_solver._num_iterations += chunk_iter      
-      
       # Run additional training iterations
-      _, advantage_losses, policy_loss = deep_cfr_solver.solve()
+      _, advantage_losses, policy_loss = deep_cfr_solver.solve()    
       
       tot_run_time = time.time() - start_time + init_tid
 
@@ -117,6 +114,9 @@ def run_experiment(filename, iter):
         writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
         writer.writerows(solo_data)
 
+      total_iter += chunk_iter
+      deep_cfr_solver._num_iterations += chunk_iter  
+
     # Spara average policy med pickle
     main_dir = os.path.dirname(os.path.abspath(__file__))
     pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graph']}_{iter}")
@@ -127,7 +127,7 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv"
     num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
