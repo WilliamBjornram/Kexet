@@ -45,7 +45,7 @@ def run_experiment(filename, iter):
         policy_network_layers=(64, 64, 64),
         advantage_network_layers=(32, 32, 32),
         num_iterations=1,  # start with zero iterations
-        num_traversals=int(15e3),
+        num_traversals=int(2e3),
         learning_rate=1e-3,
         batch_size_advantage=2048,
         batch_size_strategy=2048,
@@ -119,7 +119,7 @@ def run_experiment(filename, iter):
 
     # Spara average policy med pickle
     main_dir = os.path.dirname(os.path.abspath(__file__))
-    pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graph']}_{iter}")
+    pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graphX']}_{iter}")
   
     with open(pkl_file, "wb") as f:
         pickle.dump(average_policy, f)
@@ -127,7 +127,8 @@ def run_experiment(filename, iter):
     return run_data
 
 def main(_):
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/LEFTGGraf2.csv"
+    main_dir = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(main_dir, "grafer", "LEFTGGraf2.csv")
     num_runs = 1
     all_run_data = []  # List to store evaluation data for each run
 
@@ -160,7 +161,7 @@ def main(_):
         })
 
     # Write the averaged results to a CSV file.
-    csv_filename = "DeepCFR_average_results.csv"
+    csv_filename = "DeepCFR_average_resultsX.csv"
     with open(csv_filename, "w", newline="") as f:
         fieldnames = ["iteration", "average_exploitability", "average_total_time"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
