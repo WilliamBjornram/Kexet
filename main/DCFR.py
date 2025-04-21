@@ -24,17 +24,15 @@ def run_experiment(filename, iter):
   info_general["graph"] = filename[ind+1:-4]
   run_data = []
 
-
   # Define training parameters
-  chunk_iter = 5 # number of iterations per training chunk
-  total_iter = 1
-  threshold = 0.02  # target exploitability threshold
+  chunk_iter = 1 # number of iterations per training chunk
+  total_iter = 0
   conv = float('inf')
 
   # Load the game once
   logging.info("Loading %s", "submarine_helicopter")
 
-  init_tid = time.time()
+  start_tid = time.time()
   game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
 
   # Create a single TensorFlow session and initialize the solver once
@@ -44,7 +42,7 @@ def run_experiment(filename, iter):
         game,
         policy_network_layers=(64, 64, 64),
         advantage_network_layers=(32, 32, 32),
-        num_iterations=1,  # start with zero iterations
+        num_iterations=1,
         num_traversals=int(2e3),
         learning_rate=1e-3,
         batch_size_advantage=2048,
@@ -56,15 +54,13 @@ def run_experiment(filename, iter):
     
     sess.run(tf.global_variables_initializer())
 
-    init_tid = time.time() - init_tid
+    init_tid = time.time() - start_tid
     tot_run_time = 0
     print("Init tid: " + str(init_tid))
 
     # Continuous training loop without reinitializing the solver
-    while conv >= threshold or total_iter < chunk_iter*2 + 1:
+    while time.time()-start_tid < float(86400):
       start_time = time.time()
-      # Increment the total iterations by the chunk size
-      # Update the solver's iteration count to run additional iterations
       
       # Run additional training iterations
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()    
@@ -114,12 +110,11 @@ def run_experiment(filename, iter):
         writer = csv.DictWriter(f, fieldnames=solo_data[0].keys())
         writer.writerows(solo_data)
 
-      total_iter += chunk_iter
-      deep_cfr_solver._num_iterations += chunk_iter  
+      total_iter += chunk_iter  
 
     # Spara average policy med pickle
     main_dir = os.path.dirname(os.path.abspath(__file__))
-    pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graphX']}_{iter}")
+    pkl_file = os.path.join(main_dir, "PKL_models", f"DeepCFR_model_{info_general['graph']}_{iter}")
   
     with open(pkl_file, "wb") as f:
         pickle.dump(average_policy, f)
@@ -161,7 +156,7 @@ def main(_):
         })
 
     # Write the averaged results to a CSV file.
-    csv_filename = "DeepCFR_average_resultsX.csv"
+    csv_filename = "DeepCFR_average_results.csv"
     with open(csv_filename, "w", newline="") as f:
         fieldnames = ["iteration", "average_exploitability", "average_total_time"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
