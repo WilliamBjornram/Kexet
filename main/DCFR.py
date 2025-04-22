@@ -23,7 +23,6 @@ def run_experiment(filename, graph_short_name, iter):
 
   chunk_iter = 10 # number of iterations per training chunk
   total_iter = 1 # to keep track of total iterations
-  start_time = time.time() # start time tracking
   tot_run_time = 0
 
   # load the game
@@ -51,11 +50,13 @@ def run_experiment(filename, graph_short_name, iter):
 
     # loop to train and record results
     for _ in range(11):
+
+      iter_time = time.time()
       
       # run training iterations
       _, advantage_losses, policy_loss = deep_cfr_solver.solve()    
       
-      tot_run_time = time.time() - start_time # how long time did the iterations take
+      tot_run_time += time.time() - iter_time # how long time did the iterations take
 
       # logging info for debugging purposes
       for player, losses in advantage_losses.items():
@@ -117,7 +118,7 @@ def run_experiment(filename, graph_short_name, iter):
 
 def main(_):
     # finds graph and specifies on which graph to run game
-    graph_short_name = "L_Graf2.csv"
+    graph_short_name = "L_Graf3.csv"
     main_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(main_dir, "grafer", graph_short_name)
     num_runs = 1 # number of runs
