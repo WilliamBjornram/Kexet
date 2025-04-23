@@ -1,4 +1,7 @@
 # Williams anteckningar till David
+- Skrev Discussion nästan klart.
+- Skrev typ klart conclusion.
+- Skrev snabbt Future work, abstract, sammanfattning men dessa är ej klara.
 - Skrev om slutet i introt, läs gärna.
 - Läs gärna design choices.
 - Det saknas vem som skrivit vissa källor, hur bör man göra då?
