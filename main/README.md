@@ -6,6 +6,7 @@
 - Osäker hur jag ska göra med källar märkta med "inproceedings"
 - För "Deep Counterfactual Regret Minimization" hittade jag inte "number"
 - För "OpenSpiel: A Framework for Reinforcement Learning in Games" hittar jag inte "number"
+- När källor endast är upplagda på arxiv så finns inte number för det betyder "issue number" på journalen den var publicerad i, alltså vet jag inte vad vi ska göra på dem källorna. jag skriver number = arxiv så länge
 # Davids anteckningar till William
 
 # Frågor
