@@ -23,6 +23,7 @@ def run_experiment(filename, graph_short_name, iter):
 
   chunk_iter = 10 # number of iterations per training chunk
   total_iter = 1 # to keep track of total iterations
+  start_time = time.time()
   tot_run_time = 0
 
   # load the game
@@ -37,7 +38,7 @@ def run_experiment(filename, graph_short_name, iter):
         policy_network_layers=(64, 64, 64),
         advantage_network_layers=(64, 64, 64),
         num_iterations=1,
-        num_traversals=int(25e2),
+        num_traversals=int(15e2),
         learning_rate=1e-3,
         batch_size_advantage=2048,
         batch_size_strategy=2048,
@@ -54,7 +55,7 @@ def run_experiment(filename, graph_short_name, iter):
       iter_time = time.time()
       
       # run training iterations
-      _, advantage_losses, policy_loss = deep_cfr_solver.solve()    
+      _, advantage_losses, policy_loss = deep_cfr_solver.solve()  
       
       tot_run_time += time.time() - iter_time # how long time did the iterations take
 
@@ -70,14 +71,13 @@ def run_experiment(filename, graph_short_name, iter):
       logging.info("Policy loss: '%s'", policy_loss)
 
       # logging expected game scores
+      average_policy = policy.tabular_policy_from_callable(game, deep_cfr_solver.action_probabilities)
       average_policy_values = expected_game_score.policy_value(
       game.new_initial_state(), [average_policy] * 2)
       logging.info("Computed game score player 0: {}".format(average_policy_values[0]))
       logging.info("Computed game score player 1: {}".format(average_policy_values[1]))
 
       # compute average policy from the current solver and exploitability
-      average_policy = policy.tabular_policy_from_callable(
-          game, deep_cfr_solver.action_probabilities)
       conv = exploitability.nash_conv(game, average_policy)
       logging.info(f"Total Iterations: {total_iter}, Exploitability: {conv}, Total Run Time: {tot_run_time} seconds")
 
