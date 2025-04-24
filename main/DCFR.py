@@ -39,7 +39,7 @@ def run_experiment(filename, graph_short_name, iter):
         policy_network_layers=(64, 64, 64),
         advantage_network_layers=(64, 64, 64),
         num_iterations=1,
-        num_traversals=int(5),
+        num_traversals=int(15e2),
         learning_rate=1e-3,
         batch_size_advantage=2048,
         batch_size_strategy=2048,
