@@ -26,6 +26,7 @@ train the networks.
 import collections
 import random
 import numpy as np
+import time # added by user
 import tensorflow.compat.v1 as tf
 
 from open_spiel.python import policy
@@ -262,6 +263,7 @@ class DeepCFRSolver(policy.Policy):
 
   def solve(self):
     """Solution logic for Deep CFR."""
+    tot_learn_time = 0.0 # added by user
     advantage_losses = collections.defaultdict(list)
     for _ in range(self._num_iterations):
       for p in range(self._num_players):
@@ -270,11 +272,13 @@ class DeepCFRSolver(policy.Policy):
         if self._reinitialize_advantage_networks:
           # Re-initialize advantage network for player and train from scratch.
           self.reinitialize_advantage_network(p)
+        learn_time = time.time() # added by user
         advantage_losses[p].append(self._learn_advantage_network(p))
+        tot_learn_time += time.time() - learn_time # added by user
       self._iteration += 1
     # Train policy network.
     policy_loss = self._learn_strategy_network()
-    return self._policy_network, advantage_losses, policy_loss
+    return self._policy_network, advantage_losses, policy_loss, tot_learn_time # added by user
 
   def get_environment_steps(self):
     return self._environment_steps
@@ -360,9 +364,8 @@ class DeepCFRSolver(policy.Policy):
 
     return advantages, matched_regrets
 
-  def action_probabilities(self, state, player_id=None):
+  def action_probabilities(self, state):
     """Returns action probabilities dict for a single batch."""
-    del player_id  # unused
     cur_player = state.current_player()
     legal_actions = state.legal_actions(cur_player)
     info_state_vector = np.array(state.information_state_tensor())

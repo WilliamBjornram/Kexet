@@ -21,10 +21,11 @@ def run_experiment(filename, graph_short_name, iter):
 
   run_data = [] # to record data during run
 
-  chunk_iter = 10 # number of iterations per training chunk
+  chunk_iter = 1 # number of iterations per training chunk
   total_iter = 1 # to keep track of total iterations
   start_time = time.time()
-  tot_run_time = 0
+  tot_run_time = 0.0
+  tot_learn_time = 0.0
 
   # load the game
   logging.info("Loading %s", "submarine_helicopter")
@@ -38,7 +39,7 @@ def run_experiment(filename, graph_short_name, iter):
         policy_network_layers=(64, 64, 64),
         advantage_network_layers=(64, 64, 64),
         num_iterations=1,
-        num_traversals=int(15e2),
+        num_traversals=int(5),
         learning_rate=1e-3,
         batch_size_advantage=2048,
         batch_size_strategy=2048,
@@ -50,14 +51,16 @@ def run_experiment(filename, graph_short_name, iter):
     sess.run(tf.global_variables_initializer())
 
     # loop to train and record results
-    for _ in range(11):
+    #for _ in range(11):
+    while time.time() - start_time < float(86400):
 
       iter_time = time.time()
       
       # run training iterations
-      _, advantage_losses, policy_loss = deep_cfr_solver.solve()  
+      _, advantage_losses, policy_loss, learn_time = deep_cfr_solver.solve()  
       
       tot_run_time += time.time() - iter_time # how long time did the iterations take
+      tot_learn_time += learn_time
 
       # logging info for debugging purposes
       for player, losses in advantage_losses.items():
@@ -86,7 +89,8 @@ def run_experiment(filename, graph_short_name, iter):
         "iteration": total_iter,
         "exploitability": conv,
         "graph": graph_short_name,
-        "total_time": tot_run_time
+        "total_time": tot_run_time,
+        "total learn time": tot_learn_time
         }
       run_data.append(row)
       solo_data = []
