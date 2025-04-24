@@ -21,7 +21,7 @@ def run_experiment(filename, graph_short_name, iter):
 
   run_data = [] # to record data during run
 
-  chunk_iter = 1 # number of iterations per training chunk
+  chunk_iter = 10 # number of iterations per training chunk
   total_iter = 1 # to keep track of total iterations
   start_time = time.time()
   tot_run_time = 0.0
@@ -51,8 +51,8 @@ def run_experiment(filename, graph_short_name, iter):
     sess.run(tf.global_variables_initializer())
 
     # loop to train and record results
-    #for _ in range(11):
-    while time.time() - start_time < float(86400):
+    for _ in range(11):
+    #while time.time() - start_time < float(86400):
 
       iter_time = time.time()
       
