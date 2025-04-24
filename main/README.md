@@ -32,26 +32,53 @@ Lägga till vad hyperparameterna är, kan läggas i apendix och sen reffera till
 
 # Davids anteckningar till William
 
-# Frågor
-- Hur teknisk beskrivning av spelet ska vi ha? Ska vi beskriva hur spelet har kodats för att fungera i openspiel?
-# Anteckningar till rapporten i allmänhet
-- ASW game är en bra beskrivning men vi tar inte upp motivering till designen på spelet, detta känns relevant att göra men kanske inte under denna rubrik, men vart borde detta göras?
+Allmänna anteckningar:
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
-- Vad för figurer och tabeller vill vi ha med?
-- Vad vill ha för statistik?
-- Hur mäter vi våra resultat?
 - Ska vi skriva "choke points" eller "chokepoints"? Se över ord så vi skriver samma.
-- Vilka källor vi ska ha? Mer studier, böcker osv i metod, teori?
-# Anteckningar till rapporten - Introduction
-- Intro till hur ubåtar använts i krig, hur tatiken har varit/utvecklas, varför det är relvant för Sverige idag, hur AI har utvecklas så det kan användas för tatiken, hur projektet binder samma all dessa.
-# Anteckningar till rapporten - Background
-- Här tar vi avstamp i literaturen, skriver hur andra har gjort liknade saker tidigare.
-# Anteckningar till rapporten - ASW Game
-- Hur spelet fungerar, endast.
-# Anteckningar till rapporten - Theory
-- Beskriver: RL, MARL, CFR, MCCFR, DeepCFR. Borde kanske beskriva olika utvärdering sätt och hur dessa fungerar?
-# Anteckningar till rapporten - Method
-- Under metod skulle vi kunna beskriva: Varför spelet ser ut som det gör, hur vi ställde in CFR, MCCFR, Deep CFR, alltså hur många iterationer och sådär. Hur vi utvärderar dom olika och varför vi gör på detta viset.
+
+# Davids mötesanteckningar angående rapporten
+
+Introduktion:
+Sida 1: byt ”strategic” till ”tactical decision”
+
+Introduktionen inte för lång
+
+Ställa frågan tydligare: ”vi har det här problemet och vilken algoritm är bäst för det?”
+
+Background:
+Förklara hur vårat spel skiljer sig mot deras
+- Här hade man att ASW placerar ut sig först och sen gör ubåt drag (ej sekventiellt)
+ Bastion har perfect information
+
+Sista stycket inte relevant?
+
+Teori:
+Ta bort RL och/eller MARL? Eller koppla ihop tydligare att CFR kan ses som RL?
+
+#### Angående CFR har William anteckningar ####
+
+Någon mer lekmannamässig förklaring av CFR?
+
+Sigma har vi inte förklarat innan? Nash equilibrium blir lite för teoretisk? Förklara vad det är bättre
+
+Säg att chokepoints i skärgård är noder i grafer
+
+ASW rör sig bara en nod men har ingen budget, förtydliga
+
+Design choices flyttas till diskussionen?
+
+Metod:
+En del av metoden flyttas till diskussionen
+
+Resultat:
+Förklara varför CFR är snabbare än MCCFR, teorin säger tvärtemot (future work)
+
+GENERELLT:
+Ha en ingress vid varje kapitel så att man förklarar vad varje kapitel kommer att gå igenom
+
+APPENDIX:
+- Hyperparametrar för DCFR
+- Vad är observationen för DCFR
 
 # Tidigare rapporter
 https://cdn.aaai.org/ojs/10051/10051-13-13579-1-2-20201228.pdf
