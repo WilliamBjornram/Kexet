@@ -53,7 +53,7 @@ Förklara hur vårat spel skiljer sig mot deras - KLAR
 Sista stycket inte relevant? - KLAR, JAG TOG BORT
 
 Teori:
-Ta bort RL och/eller MARL? Eller koppla ihop tydligare att CFR kan ses som RL?
+Ta bort RL och/eller MARL? Eller koppla ihop tydligare att CFR kan ses som RL? - KLAR, jag tog skrev ihop RL och MARL och sedan försökte jag koppla att CFR kan ses som en typ av MARL, eller jag tycker det iaf
 
 #### Angående CFR har William anteckningar ####
 
@@ -74,7 +74,7 @@ Resultat:
 Förklara varför CFR är snabbare än MCCFR, teorin säger tvärtemot (future work)
 
 GENERELLT:
-Ha en ingress vid varje kapitel så att man förklarar vad varje kapitel kommer att gå igenom
+Ha en ingress vid varje kapitel så att man förklarar vad varje kapitel kommer att gå igenom - KLAR
 
 APPENDIX:
 - Hyperparametrar för DCFR
