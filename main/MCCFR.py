@@ -11,8 +11,7 @@ import time
 import csv
 import pickle
 from absl import app
-from absl import flags
-from numpy import average
+from absl import logging
 import os
 
 from open_spiel.python.algorithms import exploitability
@@ -21,7 +20,7 @@ from open_spiel.python.algorithms import outcome_sampling_mccfr as outcome_mccfr
 from open_spiel.python import games
 import pyspiel
 
-def run_experiment(filename, iter, sampling="external"):
+def run_experiment(filename, graph_short_name, iter, sampling="external"):
     """
     Run one instance of the MCCFR experiment until exploitability drops below 0.1.
     
@@ -33,9 +32,7 @@ def run_experiment(filename, iter, sampling="external"):
                                  "exploitability", and "total_time".
         total_run_time (float): Total time taken for the run.
     """
-    info_general = {}
-    ind = filename.rfind("/")
-    info_general["graph"] = filename[ind+1:-4]
+
     start_time = time.time()
 
     game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
@@ -45,26 +42,25 @@ def run_experiment(filename, iter, sampling="external"):
     else:
         mccfr_solver = outcome_mccfr.OutcomeSamplingSolver(game)
 
-    run_data = []
     init_time = time.time() - start_time
     total_iter_time = init_time
+    run_data = []
 
     i = 0
-    conv = 1.0  # initial exploitability value (must be >= 0.05 to start)
-    
-    max_tid = 1000000000000000
+    conv = 1.0
 
-    while conv >= 0.02 and total_iter_time <= max_tid:
+    while conv >= 0.02:
         iter_start = time.time()
         mccfr_solver.iteration()
         total_iter_time += time.time() - iter_start
-        print(i)
-        if i % 8 == 0 or total_iter_time >= max_tid:
+        logging.info(str(i+1) + " iterations")
+        if i % 8 == 0:
             conv = exploitability.nash_conv(game, mccfr_solver.average_policy())
-            print(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
+            logging.info(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
             row = {
                 "iteration": i,
                 "exploitability": conv,
+                "init_tid": init_time,
                 "total_time": total_iter_time
             }
             run_data.append(row)
@@ -75,16 +71,20 @@ def run_experiment(filename, iter, sampling="external"):
 
     # Spara average policy med pickle
     main_dir = os.path.dirname(os.path.abspath(__file__))
-    pkl_file = os.path.join(main_dir, "PKL_models", f"MCCFR_model_{info_general["graph"]}_{iter}")
+    pkl_file = os.path.join(main_dir, "PKL_models", f"MCCFR_model_{graph_short_name}_{iter}")
 
     avg_policy = mccfr_solver.average_policy()
     with open(pkl_file, "wb") as f:
         pickle.dump(avg_policy, f)
     
-    return run_data, total_run_time
+    return run_data
 
 def main(_):
-    filename = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    
+    graph_short_name = "L_Graf3"
+    main_dir = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(main_dir, "grafer", f"{graph_short_name}.csv")
+
     sampling = "external"
     num_runs = 5
     all_run_data = []  # List to store evaluation data for each run
@@ -92,9 +92,8 @@ def main(_):
     # Run the experiment multiple times.
     for run in range(num_runs):
         print(f"\n=== Starting run {run + 1} ===")
-        run_data, run_time = run_experiment(filename, run, sampling,)
+        run_data = run_experiment(filename, graph_short_name, run, sampling)
         all_run_data.append(run_data)
-        print(f"Run {run + 1} complete: Run Time = {run_time:.2f} seconds")
     
     # Aggregate evaluation data by iteration.
     # We'll assume that all runs record data at the same iteration checkpoints.
@@ -103,25 +102,29 @@ def main(_):
         for row in run_data:
             iter_val = row["iteration"]
             if iter_val not in aggregated:
-                aggregated[iter_val] = {"exploitability": [], "total_time": []}
+                aggregated[iter_val] = {"exploitability": [], "init_tid": [], "total_time": []}
             aggregated[iter_val]["exploitability"].append(row["exploitability"])
+            aggregated[iter_val]["init_tid"].append(row["init_tid"])
             aggregated[iter_val]["total_time"].append(row["total_time"])
 
     # Compute averages for each evaluation checkpoint.
     avg_results = []
     for iter_val in sorted(aggregated.keys()):
         avg_exploit = sum(aggregated[iter_val]["exploitability"]) / len(aggregated[iter_val]["exploitability"])
+        avg_init_time = sum(aggregated[iter_val]["init_tid"]) / len(aggregated[iter_val]["init_tid"])
         avg_time = sum(aggregated[iter_val]["total_time"]) / len(aggregated[iter_val]["total_time"])
         avg_results.append({
             "iteration": iter_val,
             "average_exploitability": avg_exploit,
+            "graph": graph_short_name,
+            "average_init_time": avg_init_time,
             "average_total_time": avg_time
         })
 
     # Write the averaged results to a CSV file.
-    csv_filename = "MCCFR_average_results.csv"
+    csv_filename = os.path.join(main_dir, "CSV", "MCCFR_average_results.csv")
     with open(csv_filename, "w", newline="") as f:
-        fieldnames = ["iteration", "average_exploitability", "average_total_time"]
+        fieldnames = ["iteration", "graph", "average_exploitability", "average_init_time", "average_total_time"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(avg_results)
