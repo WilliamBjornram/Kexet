@@ -81,7 +81,7 @@ def run_experiment(filename, graph_short_name, iter, sampling="external"):
 
 def main(_):
     
-    graph_short_name = "L_Graf3"
+    graph_short_name = "L_Graf2"
     main_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(main_dir, "grafer", f"{graph_short_name}.csv")
 
