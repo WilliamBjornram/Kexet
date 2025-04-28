@@ -1,4 +1,4 @@
-iteration,exploitability,graph,average_total_time
+iteration,average_exploitability,graph,average_total_time
 0,0.2553029738074454,L_Graf2,0
 1,0.2553029738074454,L_Graf2,7541.136960029602
 2,0.11861475748846972,L_Graf2,15122.0053627491
