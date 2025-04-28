@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 def main():
     csv_files = {
         '/content/Kexet/main/CSV/Graf2/MCCFR_average_results': 'MCCFR',
-        '/content/Kexet/main/CSV/Graf2/DCFR_old/DeepCFR_average_results_c': 'Deep CFR',
-        '/content/Kexet/main/CSV/Graf2/CFR_average_results': 'CFR'
+        '/content/Kexet/main/CSV/Graf2/DeepCFR_average_results_L_Graf2': 'Deep CFR (total time)',
+        '/content/Kexet/main/CSV/Graf2/DeepCFR_average_learntime_L_Graf2': 'Deep CFR (learning time)',
+        '/content/Kexet/main/CSV/Graf2/CFR_average_results_L_Graf2': 'CFR'
     }
 
     fig, ax = plt.subplots(figsize=(8, 6))
