@@ -34,36 +34,15 @@ Lägga till vad hyperparameterna är, kan läggas i apendix och sen reffera till
 
 Allmänna anteckningar:
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
-- Ska vi skriva "choke points" eller "chokepoints"? Se över ord så vi skriver samma.
+- Ska vi skriva "choke points" eller "chokepoints"? Payoff eller pay-off etc... Se över ord så vi skriver samma.
 
-# Davids mötesanteckningar angående rapporten
-
-Teori:
-Ta bort RL stycke möjligtvis...?
-
-#### Angående CFR har William anteckningar ####
-
-Någon mer lekmannamässig förklaring av CFR?
-
-Sigma har vi inte förklarat innan? Nash equilibrium blir lite för teoretisk? Förklara vad det är bättre
-
-Säg att chokepoints i skärgård är noder i grafer
-
-ASW rör sig bara en nod men har ingen budget, förtydliga
-
-Design choices flyttas till diskussionen?
-
-Metod:
-En del av metoden flyttas till diskussionen
 
 Resultat:
-Förklara varför CFR är snabbare än MCCFR, teorin säger tvärtemot (future work)
-
-GENERELLT:
-Ha en ingress vid varje kapitel så att man förklarar vad varje kapitel kommer att gå igenom - KLAR
+- Förklara varför CFR är snabbare än MCCFR, teorin säger tvärtemot (future work).
+- Heat map över vilka drag som ubåt/ASW styrka väljer, hur den sprider ut sig dvs?
+- Ta med i plot spridningen för DCFR och MCCFR? Staplar i grafen? Utsuddade kanter?
 
 APPENDIX:
-- Hyperparametrar för DCFR
 - Vad är observationen för DCFR
 
 # Tidigare rapporter
