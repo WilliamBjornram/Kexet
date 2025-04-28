@@ -38,22 +38,8 @@ Allmänna anteckningar:
 
 # Davids mötesanteckningar angående rapporten
 
-Introduktion:
-Sida 1: byt ”strategic” till ”tactical decision” - KLAR
-
-Introduktionen inte för lång - KLAR
-
-Ställa frågan tydligare: ”vi har det här problemet och vilken algoritm är bäst för det?” - KLAR
-
-Background:
-Förklara hur vårat spel skiljer sig mot deras - KLAR
-- Här hade man att ASW placerar ut sig först och sen gör ubåt drag (ej sekventiellt)
- Bastion har perfect information - Läste på Bastion har inte perfekt info utan man vet några saker medans andra är hemliga. - KLAR
-
-Sista stycket inte relevant? - KLAR, JAG TOG BORT
-
 Teori:
-Ta bort RL och/eller MARL? Eller koppla ihop tydligare att CFR kan ses som RL? - KLAR, jag tog skrev ihop RL och MARL och sedan försökte jag koppla att CFR kan ses som en typ av MARL, eller jag tycker det iaf
+Ta bort RL stycke möjligtvis...?
 
 #### Angående CFR har William anteckningar ####
 

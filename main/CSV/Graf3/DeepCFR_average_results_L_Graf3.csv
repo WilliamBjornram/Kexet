@@ -1,2 +1,3 @@
-iteration,exploitability,graph,total_time,total learn time
-1,0.5864290642374428,L_Graf3,231314.81155109406,7.759925127029419
+iteration,average_exploitability,graph,average_total_time
+0,0.5864290642374428,L_Graf3,0
+1,0.5864290642374428,L_Graf3,231314.81155109406
