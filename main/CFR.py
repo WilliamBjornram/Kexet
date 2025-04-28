@@ -28,7 +28,7 @@ def main(_):
     main_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(main_dir, "grafer", graph_short_name)
     # Filväg till grafen, inkludera namnet och filändelse
-    model_data_file = os.path.join(main_dir, "PKL_models", f"CFR_model_{graph_short_name}.pkl") # filen där den tränade modelen ska sparas
+    model_data_file = os.path.join(main_dir, "PKL_models", f"CFR_model_{graph_short_name}") # filen där den tränade modelen ska sparas
     training_data_file = os.path.join(main_dir, "CSV", f"CFR_average_results_{graph_short_name}.csv") # filen där träningsdatan ska sparas
 
     # starttid för initialisering av spelträdet
