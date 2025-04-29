@@ -272,12 +272,14 @@ class DeepCFRSolver(policy.Policy):
         if self._reinitialize_advantage_networks:
           # Re-initialize advantage network for player and train from scratch.
           self.reinitialize_advantage_network(p)
-        learn_time = time.time() # added by user
+        learn_time_a = time.time() # added by user
         advantage_losses[p].append(self._learn_advantage_network(p))
-        tot_learn_time += time.time() - learn_time # added by user
+        tot_learn_time += time.time() - learn_time_a # added by user
       self._iteration += 1
+    learn_time_p = time.time() # added by user
     # Train policy network.
     policy_loss = self._learn_strategy_network()
+    tot_learn_time += time.time() - learn_time_p # added by user
     return self._policy_network, advantage_losses, policy_loss, tot_learn_time # added by user
 
   def get_environment_steps(self):
