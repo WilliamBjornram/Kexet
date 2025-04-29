@@ -18,10 +18,10 @@ Allmänna anteckningar:
 - Ska vi skriva "choke points" eller "chokepoints"? Payoff eller pay-off etc... Se över ord så vi skriver samma.
 
 Generella anteckningar:
-- Förklara varför CFR är snabbare än MCCFR på större graf, teorin säger tvärtemot (future work).
+- Förklara varför CFR är snabbare än MCCFR på större graf bättre, teorin säger tvärtemot (future work).
 - Heat map över vilka drag som ubåt/ASW styrka väljer, hur den sprider ut sig dvs?
 - Ta med i plot spridningen för DCFR och MCCFR? Staplar i grafen? Utsuddade kanter? Spara intermediate results (spara allt i en fil? och gör om fil där vi ritar resultaten)
-- Ändra så att ASW styrka börjar i mitten ej i slutnod
+- Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden
 - Ändra så att vi tar dijkstra's algoritm från scipy istället
 - Källorna inte helt korrekta?
 
