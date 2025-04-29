@@ -1,0 +1,45 @@
+def help_heli_act(graph, N, key):
+    """recursively computes the nodes reachable from `key` within N steps.
+    
+    Only chokepoint nodes are included
+    
+    Args:
+      graph: the graph (object) to compute on
+      N: number of steps away (recursive depth)
+      key: start node
+    
+    Returns:
+      A set of nodes that can be reached N steps away (including the start node)
+    """
+    result = set()
+    if N == 0:
+        # base case, if not transit node and reached recursive depth include node
+        if graph.discovery[key] != 0:
+            result.add(key)
+        return result
+    else:
+        # if not reached recursive depth, update result for each neighbor
+        for neighbor in graph.adjacency[key]:
+            result.update(help_heli_act(graph, N-1, neighbor))
+        # optionally add the current node too
+        if graph.discovery[key] != 0:
+            result.add(key)
+        return result
+
+
+def heli_act(self):
+    """becomes a unique list with all neighbors and indirect neighbors (two steps)
+    removes nodes with discovery rate 0 (transit nodes)
+    """
+    temp = copy.deepcopy(self)
+    # add so that adjacency list for each node is symmetrical
+    for k in temp.adjacency.keys():
+        tl = temp.adjacency[k]
+        for i in tl:
+            if k not in temp.adjacency[i]:
+                temp.adjacency[i].append(k)
+
+    N = 2 # can move up to two nodes away each time step
+    for key in self.nodes.keys():
+        output = help_heli_act(temp, N, key)
+        self.heli_act_space[key] = list(output)

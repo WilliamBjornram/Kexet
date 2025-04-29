@@ -6,7 +6,6 @@ After all runs complete, it aggregates the results by iteration, computes averag
 and time, and writes them to a CSV file.
 """
 
-import numpy as np
 import time
 import csv
 import pickle
@@ -69,7 +68,7 @@ def run_experiment(filename, graph_short_name, iter, sampling="external"):
     total_run_time = time.time() - start_time
     print(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
 
-    # Spara average policy med pickle
+    # saving policy with pickle
     main_dir = os.path.dirname(os.path.abspath(__file__))
     pkl_file = os.path.join(main_dir, "PKL_models", f"MCCFR_model_{graph_short_name}_{iter}")
 
@@ -81,7 +80,7 @@ def run_experiment(filename, graph_short_name, iter, sampling="external"):
 
 def main(_):
     
-    graph_short_name = "L_Graf2"
+    graph_short_name = "Graf2"
     main_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(main_dir, "grafer", f"{graph_short_name}.csv")
 

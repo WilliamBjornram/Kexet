@@ -1,9 +1,9 @@
-"""Submarine Helicopter game i Python med OpenSpiel.
+"""Submarine Helicopter game in Python using OpenSpiel.
 
-Spelet är zero-sum och är ett imperfekt informations spel.
-Spelas på en graf tänkt att simulera en skärgårdsmiljö.
-Player 0 (Sub) rör sig längs grann-noder och har en budget för antalet drag.
-Player 1 (Heli) rör sig en eller två grannar bort.
+The game is zero-sum and is an imperfect information game.
+Played on a graph designed to simulate an archipelago environment.
+Player 0 (Sub) moves along neighboring nodes and has a move budget.
+Player 1 (Heli) moves one or two neighbors away.
 """
 
 import numpy as np
@@ -11,13 +11,12 @@ import pyspiel
 import math
 import csv
 import heapq
-import copy
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
 
 _DEFAULT_PARAMS = {
-    "filename": "/content/Kexet/main/grafer/Test0.csv"
+    "filename": "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
 }
 
 _GAME_TYPE = pyspiel.GameType(
@@ -38,27 +37,27 @@ _GAME_TYPE = pyspiel.GameType(
     parameter_specification=_DEFAULT_PARAMS)
 
 class SubmarineHelicopterGame(pyspiel.Game):
-  """en Python version av spelet Submarine Helicopter mha OpenSpiel."""
+  """A Python version of the Submarine Helicopter game using OpenSpiel."""
 
   def __init__(self, params=_DEFAULT_PARAMS):
-    """konstruktor
+    """constructor
     Args:
-      params: (optional) dictionary av parametrar
+      params: (optional) dictionary of parameters
     """
     file = params["filename"]
-    self._graph =  Graph(file) # laddar in grafen
+    self._graph =  Graph(file) # loads the graph
     self._budget = self._graph.calc_shortest_path() * 2
-    max_moves = math.ceil(self._budget/10) # tar budget/10 och rundar uppåt för att få max antal drag
-                                    # blir ett worst case scenario där ubåt bara gör drag men inte kommer någon vart
+    max_moves = math.ceil(self._budget/10) # takes budget/10 and rounds up to get max number of moves
+                                    # becomes a worst-case scenario where the sub only makes moves without progress
     
-    # sätter action space till all noder, vi ger sen det subset som är aktuellt i varje nod
+    # sets action space to all nodes, we later provide the relevant subset per node
     max_act = len(self._graph.nodes)
 
     _GAME_INFO = pyspiel.GameInfo(
-        num_distinct_actions=max_act, # varierar, därför sätter vi till max antal actions
-        max_chance_outcomes=2, # när sub.pos == heli.pos chance ger två alternativ
+        num_distinct_actions=max_act, # varies, so we set to max number of actions
+        max_chance_outcomes=2, # when sub.pos == heli.pos chance gives two alternatives
         num_players=_NUM_PLAYERS,
-        min_utility=-1.0, # belöning max, min och summa (zero sums)
+        min_utility=-1.0, # reward max, min and sum (zero sums)
         max_utility=1.0,
         utility_sum=0.0,
         max_game_length=max_moves)
@@ -66,63 +65,63 @@ class SubmarineHelicopterGame(pyspiel.Game):
     super().__init__(_GAME_TYPE, _GAME_INFO, params or dict())
 
   def new_initial_state(self):
-    """returnerar ett objekt med återställt state"""
+    """returns an object with reset state"""
     return SubmarineHelicopterState(self, self._graph, self._budget)
 
   def make_py_observer(self, iig_obs_type=None, params=None):
-    """returnerar ett objekt för observation"""
+    """returns an observation object"""
     return SubmarineHelicopterObserver(
         iig_obs_type or pyspiel.IIGObservationType(perfect_recall=True),
         params,
-        decay_factor=0.9) # vi har denna faktor för att algortimen ska se historien av vart man varit 
+        decay_factor=0.9) # we use this factor so the algorithm sees the history of where one has been 
 
 
 class SubmarineHelicopterState(pyspiel.State):
   """
-  State håller koll på:
-    - sub_pos: node_id för ubåtens nuvarande position
-    - heli_pos: node_id för helikopterns nuvarande position
-    - timer: återstående budget för ubåten
-    - _current_player: vems tur det är
-    - _game_over: flagga för om spelet är över
+  State keeps track of:
+    - sub_pos: node_id for the submarine's current position
+    - heli_pos: node_id for the helicopter's current position
+    - timer: remaining budget for the submarine
+    - _current_player: whose turn it is
+    - _game_over: flag indicating whether the game is over
   """
 
   def __init__(self, game, graph, budget):
-    """initialiserar spelet"""
+    """initializes the game"""
     super().__init__(game)
     self.graph = graph
 
     self.budget = budget
     self.timer = budget
     
-    # startpositioner != random enligt CFR, därav start i bestämda punkter
+    # starting positions != random per CFR, hence start at specific points
     self.sub_pos = 0
     self.heli_pos = self.graph.end_nodes[0]
 
     self._game_over = False
 
-    # ubåten rör sig först
+    # the submarine moves first
     self._current_player = 0
 
-    # för att hålla koll på vilka drag som gjorts
+    # to track which moves have been made
     self.history = []
 
-    # behövs flagga för CFR chance event
+    # flag needed for CFR chance event
     self._pending_chance_event = False
 
   def information_state_string(self, player=None):
       """
-      Returnerar en string representation av information state för den givna spelaren.
-      String inkluderar enbart information som finns tillgänglig till den spelaren,
-      bland annat dess historik av information, avräknat för när den var där.
+      Returns a string representation of the information state for the given player.
+      String includes only information available to that player,
+      including its history of information, weighted by when it occurred.
       """
       if player is None:
         player = self.current_player()
-      # Normaliserar timer värde
+      # Normalizes timer value
       normalized_timer = self.timer / self.budget
-      decay_factor = 0.9  # Decay factor för historik
+      decay_factor = 0.9  # Decay factor for history
       
-      # Beräknar decayed besök för historiken, ger: [pos1*0,9^2, pos2*0,9, pos3], vid tredje noden
+      # Calculates decayed visits for the history, gives: [pos1*0.9^2, pos2*0.9, pos3], at the third node
       decayed_visits = np.zeros(len(self.graph.nodes), dtype=np.float32)
       for (pl, action) in self.history:
           decayed_visits *= decay_factor
@@ -139,9 +138,9 @@ class SubmarineHelicopterState(pyspiel.State):
   
   def information_state_tensor(self, player=None):
     """
-    Returnerar en tensor som beskriver state för aktuell spelare, imperfect information
-    så har ingen information om motspelaren. Se information_state_string för vidare info, samma upplägg.
-    Implementerar samma funktionalitet som funktionen set_from i observer.
+    Returns a tensor describing the state for the current player, imperfect information
+    so has no information about the opponent. See information_state_string for details, same setup.
+    Implements the same functionality as the set_from function in observer.
     """
     if player is None:
       player = self.current_player()
@@ -150,18 +149,18 @@ class SubmarineHelicopterState(pyspiel.State):
     obs_size = 4 * N + 1
     decay_factor = 0.9
     tensor = np.zeros(obs_size, dtype=np.float32)
-    # normaliserat värde för timer
+    # normalized value for timer
     tensor[-1] = self.timer/self.budget
 
     decayed_visits = np.zeros(N, dtype=np.float32)
     for (pl, action) in self.history:
-        # gångra vectorn med decay_factor
+        # multiply vector by decay_factor
         decayed_visits *= decay_factor
-        # inkrementera positionen där den varit
+        # increment the position it has been in
         if pl == player:
             decayed_visits[action] += 1.0
 
-    # player ser bara sin egna position
+    # player only sees their own position
     if player == 0:
       tensor[self.sub_pos] = 1.0 
       tensor[N:2*N] = -1
@@ -175,9 +174,9 @@ class SubmarineHelicopterState(pyspiel.State):
     
     return tensor
   
-  # CFR behöver clone function
+  # CFR needs clone function
   def clone(self):
-    """skapar ett nytt state som är en komplett kopia"""
+    """creates a new state that is a complete copy"""
     new_state = SubmarineHelicopterState(self.get_game(), self.graph, self.budget)
     new_state.timer = self.timer
     new_state.sub_pos = self.sub_pos
@@ -188,70 +187,70 @@ class SubmarineHelicopterState(pyspiel.State):
     return new_state
 
   def current_player(self):
-    """returnerar id av den aktuella spelaren annars om spel slut -> terminal"""
+    """returns the id of the current player or terminal if game is over"""
     if self._game_over:
       return pyspiel.PlayerId.TERMINAL
-    # om pågående chance event returnerar chance
+    # if ongoing chance event return chance
     if self._pending_chance_event:
       return pyspiel.PlayerId.CHANCE
     return self._current_player
 
   def _legal_actions(self, player):
-    """returnerar en lista på legala drag för aktuell spelare"""
-    # chance noder behandlas som extra spelare  
+    """returns a list of legal moves for the current player"""
+    # chance nodes are treated as extra players  
     if player == pyspiel.PlayerId.CHANCE:
-      # 0 betyder detektion och 1 betyder ingen detektion
+      # 0 means detection and 1 means no detection
       return [0, 1]
     if player == 0:
-      return self.graph.adjacency[self.sub_pos] # rör sig till någon adjecent nod
+      return self.graph.adjacency[self.sub_pos] # moves to an adjacent node
     elif player == 1:
       return self.graph.adjacency[self.heli_pos]
     else:
       return []
 
   def chance_outcomes(self):
-    """funktionen kallas när vi har ett chance event pågående"""
+    """function is called when a chance event is ongoing"""
     if self.sub_pos == self.heli_pos and self._pending_chance_event:
-      # chance av detektion är ett tal 0 till 10
+      # chance of detection is a number 0 to 10
       p_detection = self.graph.discovery[self.sub_pos] / 10.0
       return [(0, p_detection), (1, 1 - p_detection)]
     return []
 
   def _apply_action(self, action):
-    """genomför action"""
-    # hanterar chance node separat
+    """executes action"""
+    # handles chance node separately
     if self.current_player() == pyspiel.PlayerId.CHANCE:
-      if action == 0:  # detektion -> terminal
+      if action == 0:  # detection -> terminal
         self._game_over = True
         self._returns = [-1, 1]
-      elif action == 1:  # ingen detektion: ta bort chance event och fortsätt
+      elif action == 1:  # no detection: remove chance event and continue
         self._pending_chance_event = False
 
-        # kollar ifall episode slut
+        # check if episode is done
         terminal, reward = self._check_terminal()
         if terminal:
           self._game_over = True
-          # om klart så returnerar vi reward
+          # if done, return reward
           self._returns = [reward, -reward]
           return
 
-        # om senaste drag gjordes av ubåt -> helis tur och tvärtom
+        # if last move was by sub -> heli's turn, and vice versa
         if self.history[-1][0] == 0:
           self._current_player = 1
         else:
           self._current_player = 0
       return
 
-    # håller koll på vilka drag som gjorts
+    # keep track of moves made
     self.history.append((self._current_player, action))
 
     if self._current_player == 0:
-      # om det är ubåts drag
+      # if it's the submarine's move
       key = f"{self.sub_pos}:{action}"
       move_cost = self.graph.weights.get(key, float('inf'))
       self.timer -= move_cost
       if action not in self._legal_actions(self._current_player):
-        raise Exception("Illegalt drag från Ubåt.")
+        raise Exception("Illegal move from Submarine.")
       self.sub_pos = action
 
       # If the sub moves into the heli's position, trigger chance event.
@@ -260,21 +259,21 @@ class SubmarineHelicopterState(pyspiel.State):
         self._current_player = pyspiel.PlayerId.CHANCE
         return
 
-      # kolla om spelet är slut
+      # check if the game is over
       terminal, reward = self._check_terminal()
       if terminal:
         self._game_over = True
-        # om klart så returnerar vi reward
+        # if done, return reward
         self._returns = [reward, -reward]
         return
 
-      # byter tur till nästa spelare
+      # switch turn to next player
       self._current_player = 1
       
     elif self._current_player == 1:
-      # kollar så gör legalt drag
+      # check for legal move
       if action not in self._legal_actions(self._current_player):
-        raise Exception("Illegalt drag från Helikopter.")
+        raise Exception("Illegal move from Helicopter.")
       self.heli_pos = action
 
       # If the heli moves into the sub's position, trigger chance event.
@@ -283,60 +282,60 @@ class SubmarineHelicopterState(pyspiel.State):
         self._current_player = pyspiel.PlayerId.CHANCE
         return
 
-      # samma som ovan
+      # same as above
       terminal, reward = self._check_terminal()
       if terminal:
         self._game_over = True
         self._returns = [reward, -reward]
         return
       
-      # byter spelare
+      # switch player
       self._current_player = 0
 
   def _check_terminal(self):
-    """kollar om episoden är slut och returnerar (terminal_flag, belöning).
-    belöning är från ubåtens perspektiv (och spelet är zero-sum, så omvända belöningen är helikopterns).
-    terminal för chance event hanteras separat.
+    """checks if the episode is over and returns (terminal_flag, reward).
+    reward is from the submarine's perspective (and the game is zero-sum, so the helicopter's is the inverse).
+    terminal for chance event is handled separately.
     """
-    # om ubåt vid slutnod -> spelet slut
+    # if sub is at end node -> game over
     if self.sub_pos in self.graph.end_nodes:
       return True, +1
-    # om timer är slut -> negativ belöning
+    # if timer runs out -> negative reward
     if self.timer <= 0:
       return True, -1
     return False, 0
 
   def returns(self):
-    """returnerar belöning om state är terminal,
-    annars om inte terminal -> 0
+    """returns reward if state is terminal,
+    otherwise if not terminal -> 0
     """
     if not self._game_over:
       return [0.0, 0.0]
     return self._returns
   
   def is_terminal(self):
-    """returnerar True om spelet är över (obligatorisk funktion)"""
+    """returns True if the game is over (mandatory function)"""
     return self._game_over
 
   def __str__(self):
-    """returnerar en string som representation över state"""
+    """returns a string representation of the state"""
     return (f"Sub: {self.sub_pos}, Heli: {self.heli_pos}, "
             f"Timer: {self.timer:.1f}, History: {self.history}")
 
 
 class SubmarineHelicopterObserver:
-  """Observer för game state.
+  """Observer for game state.
 
-  För enkelhetens skull bygger vi en platt observations vektor bestående av:
-    - One-hot encoding av Sub's pos.
-    - One-hot encoding av Heli's pos.
-    - Historia av position för Sub's pos, decayed visits
-    - Historia av position för Heli's pos, decayed visits
-    - En normaliserad timer värde (mellan 0 och 1)
+  For simplicity, we build a flat observation vector consisting of:
+    - One-hot encoding of Sub's pos.
+    - One-hot encoding of Heli's pos.
+    - History of position for Sub's pos, decayed visits
+    - History of position for Heli's pos, decayed visits
+    - A normalized timer value (between 0 and 1)
   """
   def __init__(self, iig_obs_type, params, decay_factor=0.9):
     if params:
-      raise ValueError(f"Observation parameter stöttas ej; fick {params}")
+      raise ValueError(f"Observation parameter not supported; got {params}")
 
     self.tensor = None
     self.dict = None
@@ -351,18 +350,18 @@ class SubmarineHelicopterObserver:
     N = len(state.graph)
     obs_size = 4 * N + 1
     obs = np.zeros(obs_size, dtype=np.float32)
-    # normaliserat värde för timer
+    # normalized value for timer
     obs[-1] = state.timer/state.budget
 
     decayed_visits = np.zeros(N, dtype=np.float32)
     for (pl, action) in state.history:
-        # gångra vectorn med decay_factor
+        # multiply vector by decay_factor
         decayed_visits *= self.decay_factor
-        # inkrementera positionen där den varit
+        # increment the position it has been in
         if pl == player:
             decayed_visits[action] += 1.0
 
-    # placera in vectorn där den ska vara
+    # place the vector where it should be
     if player == 0:
       obs[state.sub_pos] = 1.0 
       obs[N:2*N] = -1
@@ -378,7 +377,7 @@ class SubmarineHelicopterObserver:
     self.dict = {"observation": obs.tolist()}
 
   def string_from(self, state, player):
-    """skriver ut observation"""
+    """prints observation"""
     N = len(state.graph)
     decayed_visits = np.zeros(N, dtype=np.float32)
     for (pl, action) in state.history:
@@ -395,121 +394,100 @@ class SubmarineHelicopterObserver:
     return f"{position_info}, Timer: {state.timer:.1f}, {visits_info}"
   
 
-#class för grafen, laddar grafen från csv fil
+# class for the graph, loads the graph from csv file
 class Graph:
   def __init__(self, csv_file):
-      # (x, y) position för varje nod sparas som node_id som nyckel och (x, y) som tuple
+      # (x, y) position for each node saved with node_id as key and (x, y) as tuple
       self.nodes = {}
-      # dictionary för grannar med node_id som nyckel och grannar som lista
+      # dictionary for neighbors with node_id as key and neighbors as list
       self.adjacency = {}
-      # listor för start och slutnoder för ubåten
+      # lists for start and end nodes for the submarine
       self.start_nodes = []
       self.end_nodes = []
-      # dictionary för att hålla koll på vikter mellan övergångar
+      # dictionary to keep track of transition weights
       self.weights = {}
-      # dictionary för sannolikhet av upptäckt
+      # dictionary for detection probability
       self.discovery = {}
-      # dictionary för heli's möjliga drag i varje position
-      self.heli_act_space = {}
 
-      # laddar in grafen
+      # loads the graph
       self.load_from_csv(csv_file)
-      # kallar funktionen som sätter dictionary för heli's legal moves
-      self.heli_act()
 
   def load_from_csv(self, csv_file):
-    """förväntar sig kolumnerna: node_id:prob,x,y,is_start,is_end,neighbors:weights
-    efter is_end, alla efter det är grannar"""
+    """expects columns: node_id:prob,x,y,is_start,is_end,neighbors:weights
+    after is_end, all remaining entries are neighbors"""
     with open(csv_file, 'r', newline='') as f:
         reader = csv.reader(f)
         header = next(reader)
         rows = list(reader)
         size = len(rows)
         for row in rows:
-            # för varje rad sparar värdena i listor/dictionary 
+            # for each row save values in lists/dictionary 
             node_id = int(row[0].split(":")[0])
             self.discovery[node_id] = int(row[0].split(":")[1])
             x = float(row[1])
             y = float(row[2])
             is_start = int(row[3])
             is_end = int(row[4])
-            # resterande är neighbors:weights
+            # remaining are neighbors:weights
             neighbors_w = [n for n in row[5:]]
-            # tom lista för grannar
+            # empty list for neighbors
             neighbors = []
             for n in neighbors_w:
-                # första index efter split är node_id for grannar
+                # first index after split is node_id for neighbors
                 temp = n.split(":")
                 neighbors.append(int(temp[0]))
-                # skapar unik nyckel för weights dictionary
+                # creates unique key for weights dictionary
                 key = str(node_id) + ":" + temp[0]
                 self.weights[key] = int(temp[1])
 
-            # nya entries till dictionaries
+            # new entries to dictionaries
             self.nodes[node_id] = (x, y)
             self.adjacency[node_id] = neighbors
 
             self.start_nodes.append(node_id) if bool(is_start) else None
             self.end_nodes.append(node_id) if bool(is_end) else None
 
-    # kontrollerar så finns start och slutnoder
+    # check for existence of start and end nodes
     if not self.start_nodes:
-      raise Exception("Inga startnoder definerade i grafen.")
+      raise Exception("No start nodes defined in the graph.")
     elif not self.end_nodes:
-        raise Exception("Inga slutnoder definierade i grafen.")
+        raise Exception("No end nodes defined in the graph.")
     
     if len(self.nodes) != len(self.adjacency) or len(self.nodes) != len(self.discovery):
-        raise Exception("Dimensioner för dictionaries stämmer ej.")
+        raise Exception("Dimensions for dictionaries do not match.")
 
-  # gör klassen iterable
+  # make the class iterable
   def __iter__(self):
     return iter(self.nodes)
 
-  # för att kunna köra len(Graph)
+  # to enable len(Graph)
   def __len__(self):
     return len(self.nodes)
   
-  def heli_act(self):
-    """blir en unik lista med alla neighbors och indirekta neighbors (två steg)
-    tar bort noder med discovery rate 0 (transit noder)
-    """
-    temp = copy.deepcopy(self)
-    # adderar så att adjacency list för varje nod motsvarar varandra
-    for k in temp.adjacency.keys():
-        tl = temp.adjacency[k]
-        for i in tl:
-          if k not in temp.adjacency[i]:
-              temp.adjacency[i].append(k)
-
-    N = 2 # kan röra sig upp till två noder bort varje tidssteg
-    for key in self.nodes.keys():
-      output = help_heli_act(temp, N, key)
-      self.heli_act_space[key] = list(output)
-  
   def calc_shortest_path(self):
-    # initialiserar distanser och föregångare
+    # initialize distances and predecessors
     dist = {node: float('inf') for node in self.nodes}
     prev = {node: None for node in self.nodes}
 
-    # använd listorna
+    # use the lists
     start_nodes = self.start_nodes
     end_nodes = self.end_nodes
 
-    # sätter distans noll för alla startnoder
+    # set distance zero for all start nodes
     heap = []
     for s in start_nodes:
         dist[s] = 0
         heapq.heappush(heap, (0, s))
 
-    # kör Dijkstra's algoritm
+    # run Dijkstra's algorithm
     while heap:
         current_dist, u = heapq.heappop(heap)
         if current_dist > dist[u]:
             continue
-        # iterar över listan av grannar
+        # iterate over list of neighbors
         for v in self.adjacency[u]:
             key = f"{u}:{v}"
-            # få vikten för övergången
+            # get the weight for the transition
             weight_uv = self.weights.get(key)
             if weight_uv is None:
                 continue
@@ -519,7 +497,7 @@ class Graph:
                 prev[v] = u
                 heapq.heappush(heap, (alt, v))
 
-    # välj noden med kortast distans
+    # choose node with shortest distance
     best_end = None
     best_cost = float('inf')
     for e in end_nodes:
@@ -528,37 +506,9 @@ class Graph:
             best_end = e
 
     if best_end is None or best_cost == float('inf'):
-        raise Exception("Fann ingen kortaste väg till slutnod.")
+        raise Exception("Did not find a shortest path to end node.")
 
     return best_cost
 
-def help_heli_act(graph, N, key):
-    """beräknar rekursivt de noder som kan nås från `key` inom N steg.
-    
-    Enbart chokepoint nodes inkluderas
-    
-    Args:
-      graph: grafen (objekt) som det ska beräknas på
-      N: antal steg bort (rekursivt djup)
-      key: startnoden
-    
-    Returns:
-      Ett antal noder som går att nå N steg bort (inklusive startnoden)
-    """
-    result = set()
-    if N == 0:
-        # basfallet, om inte transit node och nått rekursivt djup inkludera noden
-        if graph.discovery[key] != 0:
-            result.add(key)
-        return result
-    else:
-        # om ej nått rekursivt djup, uppdatera då resultatet för varje granne
-        for neighbor in graph.adjacency[key]:
-            result.update(help_heli_act(graph, N-1, neighbor))
-        # addera eventuellt den nuvarande noden också
-        if graph.discovery[key] != 0:
-            result.add(key)
-        return result
-
-# registrera spelet i open_spiel
+# register the game in open_spiel
 pyspiel.register_game(_GAME_TYPE, SubmarineHelicopterGame)

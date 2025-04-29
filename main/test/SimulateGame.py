@@ -1,4 +1,8 @@
 
+"""
+Används för att simulera spelet givet en modell.
+"""
+
 from open_spiel.python import games
 import pyspiel
 import pickle
