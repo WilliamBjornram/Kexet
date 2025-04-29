@@ -17,11 +17,11 @@ Allmänna anteckningar:
 - Jag skriver "As meantioned in this study [16] time is a good way..." studierna jag läser skriver dock ungefär så här "As meantioned by Brown at el., 2018 time is a good way..." Hur borde vi skriva? 
 - Ska vi skriva "choke points" eller "chokepoints"? Payoff eller pay-off etc... Se över ord så vi skriver samma.
 
-
-Resultat:
+Generella anteckningar:
 - Förklara varför CFR är snabbare än MCCFR, teorin säger tvärtemot (future work).
 - Heat map över vilka drag som ubåt/ASW styrka väljer, hur den sprider ut sig dvs?
-- Ta med i plot spridningen för DCFR och MCCFR? Staplar i grafen? Utsuddade kanter?
+- Ta med i plot spridningen för DCFR och MCCFR? Staplar i grafen? Utsuddade kanter? Spara intermediate results
+- Ändra så att ASW styrka börjar i mitten ej i slutnod
 
 APPENDIX:
 - Vad är observationen för DCFR
