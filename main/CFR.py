@@ -24,11 +24,11 @@ import os
 
 def main(_):
 
-    graph_short_name = "Graf3" # name of graph: Graf2 | Graf3
+    graph_short_name = "Graf2" # name of graph: Graf2 | Graf3
     main_dir = os.path.dirname(os.path.abspath(__file__)) # dir of this file
     filename = os.path.join(main_dir, "grafer", graph_short_name)
-    model_data_file = os.path.join(main_dir, "PKL_models", f"CFR_model_{graph_short_name}.pkl") # file for saving the trained model
-    training_data_file = os.path.join(main_dir, "CSV", f"CFR_average_results_{graph_short_name}.csv") # file for saving the data from training
+    model_data_file = os.path.join(main_dir, "PKL_models", graph_short_name, f"CFR_model_{graph_short_name}.pkl") # file for saving the trained model
+    training_data_file = os.path.join(main_dir, "CSV", graph_short_name, f"CFR_average_results_{graph_short_name}.csv") # file for saving the data from training
 
     s_time = time.time() # start time
 

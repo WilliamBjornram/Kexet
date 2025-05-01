@@ -11,6 +11,7 @@ import pyspiel
 import math
 import csv
 import heapq
+import copy
 
 # Player 0 == Sub, Player 1 == Helicopter
 _NUM_PLAYERS = 2
@@ -42,7 +43,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
   def __init__(self, params=_DEFAULT_PARAMS):
     """constructor
     Args:
-      params: (optional) dictionary of parameters
+      params: dictionary of parameters
     """
     file = params["filename"]
     self._graph =  Graph(file) # loads the graph
@@ -68,7 +69,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
     """returns an object with reset state"""
     return SubmarineHelicopterState(self, self._graph, self._budget)
 
-  def make_py_observer(self, iig_obs_type=None, params=None):
+  def make_py_observer(self, iig_obs_type=None, params=_DEFAULT_PARAMS):
     """returns an observation object"""
     return SubmarineHelicopterObserver(
         iig_obs_type or pyspiel.IIGObservationType(perfect_recall=True),
@@ -96,7 +97,7 @@ class SubmarineHelicopterState(pyspiel.State):
     
     # starting positions != random per CFR, hence start at specific points
     self.sub_pos = 0
-    self.heli_pos = self.graph.end_nodes[0]
+    self.heli_pos = 4
 
     self._game_over = False
 
@@ -204,7 +205,8 @@ class SubmarineHelicopterState(pyspiel.State):
     if player == 0:
       return self.graph.adjacency[self.sub_pos] # moves to an adjacent node
     elif player == 1:
-      return self.graph.adjacency[self.heli_pos]
+      # all adjacent nodes except end nodes  
+      return [node for node in self.graph.adjacency[self.heli_pos] if node not in self.graph.end_nodes]
     else:
       return []
 
@@ -399,8 +401,10 @@ class Graph:
   def __init__(self, csv_file):
       # (x, y) position for each node saved with node_id as key and (x, y) as tuple
       self.nodes = {}
-      # dictionary for neighbors with node_id as key and neighbors as list
+      # action space for submarine
       self.adjacency = {}
+      # action space for heli
+      self.heli_act_space = {}
       # lists for start and end nodes for the submarine
       self.start_nodes = []
       self.end_nodes = []
@@ -447,6 +451,15 @@ class Graph:
             self.start_nodes.append(node_id) if bool(is_start) else None
             self.end_nodes.append(node_id) if bool(is_end) else None
 
+    # heli should be able to move freely and not just forward
+    for key in self.adjacency:
+      temp = set()
+      for ind in self.adjacency:
+        for node in self.adjacency[ind]:
+          temp.add(ind) if node == key and ind not in self.end_nodes else None
+          temp.add(node) if ind == key and node not in self.end_nodes else None
+      self.heli_act_space[key] = list(temp)
+    
     # check for existence of start and end nodes
     if not self.start_nodes:
       raise Exception("No start nodes defined in the graph.")

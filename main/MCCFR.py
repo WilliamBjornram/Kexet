@@ -19,7 +19,7 @@ from open_spiel.python.algorithms import outcome_sampling_mccfr as outcome_mccfr
 from open_spiel.python import games
 import pyspiel
 
-def run_experiment(filename, graph_short_name, iter, sampling="external"):
+def run_experiment(filename, graph_short_name, iter, main_dir, sampling="external"):
     """
     Run one instance of the MCCFR experiment until exploitability drops below 0.1.
     
@@ -66,11 +66,10 @@ def run_experiment(filename, graph_short_name, iter, sampling="external"):
         i += 1
 
     total_run_time = time.time() - start_time
-    print(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
+    logging.info(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
 
     # saving policy with pickle
-    main_dir = os.path.dirname(os.path.abspath(__file__))
-    pkl_file = os.path.join(main_dir, "PKL_models", f"MCCFR_model_{graph_short_name}_{iter}")
+    pkl_file = os.path.join(main_dir, "PKL_models", graph_short_name, f"MCCFR_model_{graph_short_name}_{iter}")
 
     avg_policy = mccfr_solver.average_policy()
     with open(pkl_file, "wb") as f:
@@ -90,8 +89,8 @@ def main(_):
 
     # Run the experiment multiple times.
     for run in range(num_runs):
-        print(f"\n=== Starting run {run + 1} ===")
-        run_data = run_experiment(filename, graph_short_name, run, sampling)
+        logging.info(f"\n=== Starting run {run + 1} ===")
+        run_data = run_experiment(filename, graph_short_name, run, main_dir, sampling)
         all_run_data.append(run_data)
     
     # Aggregate evaluation data by iteration.
@@ -121,16 +120,14 @@ def main(_):
         })
 
     # Write the averaged results to a CSV file.
-    csv_filename = os.path.join(main_dir, "CSV", "MCCFR_average_results.csv")
+    csv_filename = os.path.join(main_dir, "CSV", graph_short_name, f"MCCFR_average_results_{graph_short_name}.csv")
     with open(csv_filename, "w", newline="") as f:
         fieldnames = ["iteration", "graph", "average_exploitability", "average_init_time", "average_total_time"]
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(avg_results)
     
-    print(f"\n=== Average evaluation data written to {csv_filename} ===")
-    for row in avg_results:
-        print(row)
+    logging.info(f"\n=== Average evaluation data written to {csv_filename} ===")
 
 if __name__ == "__main__":
     app.run(main)
