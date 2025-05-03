@@ -24,16 +24,25 @@ import os
 
 def main(_):
 
-    graph_short_name = "Graf2" # name of graph: Graf2 | Graf3
+    graph_short_name = "Graf1" # name of graph: Graf2 | Graf3
     main_dir = os.path.dirname(os.path.abspath(__file__)) # dir of this file
-    filename = os.path.join(main_dir, "grafer", graph_short_name)
-    model_data_file = os.path.join(main_dir, "PKL_models", graph_short_name, f"CFR_model_{graph_short_name}.pkl") # file for saving the trained model
-    training_data_file = os.path.join(main_dir, "CSV", graph_short_name, f"CFR_average_results_{graph_short_name}.csv") # file for saving the data from training
+    filepath = os.path.join(main_dir, "grafer", f"{graph_short_name}.csv")
+    model_data_file = os.path.join(main_dir, "PKL_models", graph_short_name, f"CFR_model_{graph_short_name}.pkl")  # file for saving the trained model
+    training_data_file = os.path.join(main_dir, "CSV", graph_short_name, f"CFR_average_results_{graph_short_name}.csv")  # file for saving the data from training
+
+    # Ensure output directories exist
+    os.makedirs(os.path.dirname(training_data_file), exist_ok=True)
+    os.makedirs(os.path.dirname(model_data_file), exist_ok=True)
 
     s_time = time.time() # start time
 
     # loading game and initializing CFR solver
-    game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
+    logging.info("Loading game and CFR solver.")
+    params = {
+        "filepath": filepath,
+        "filename": graph_short_name
+    }
+    game = pyspiel.load_game("python_submarine_helicopter", params)
     cfr_solver = cfr.CFRSolver(game)
 
     e_time = time.time()  # time after intialization

@@ -7,7 +7,7 @@ from open_spiel.python import games
 import pyspiel
 
 # Load the game
-game = pyspiel.load_game("python_submarine_helicopter")
+game = pyspiel.load_game("python_submarine_helicopter", dict(filename="/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"))
 
 # Create the observer (with perfect recall or whichever IIGObservationType you need).
 observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))

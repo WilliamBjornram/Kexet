@@ -17,7 +17,8 @@ import copy
 _NUM_PLAYERS = 2
 
 _DEFAULT_PARAMS = {
-    "filename": "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
+    "filepath": "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf0.csv",
+    "filename": "Graf0"
 }
 
 _GAME_TYPE = pyspiel.GameType(
@@ -45,7 +46,8 @@ class SubmarineHelicopterGame(pyspiel.Game):
     Args:
       params: dictionary of parameters
     """
-    file = params["filename"]
+    self._filename_graph = params["filename"]
+    file = params["filepath"]
     self._graph =  Graph(file) # loads the graph
     self._budget = self._graph.calc_shortest_path() * 2
     max_moves = math.ceil(self._budget/10) # takes budget/10 and rounds up to get max number of moves
@@ -67,7 +69,7 @@ class SubmarineHelicopterGame(pyspiel.Game):
 
   def new_initial_state(self):
     """returns an object with reset state"""
-    return SubmarineHelicopterState(self, self._graph, self._budget)
+    return SubmarineHelicopterState(self, self._graph, self._budget, self._filename_graph)
 
   def make_py_observer(self, iig_obs_type=None, params=_DEFAULT_PARAMS):
     """returns an observation object"""
@@ -87,17 +89,18 @@ class SubmarineHelicopterState(pyspiel.State):
     - _game_over: flag indicating whether the game is over
   """
 
-  def __init__(self, game, graph, budget):
+  def __init__(self, game, graph, budget, graph_filename):
     """initializes the game"""
     super().__init__(game)
     self.graph = graph
 
     self.budget = budget
     self.timer = budget
+    self.graph_short_name = graph_filename
     
     # starting positions != random per CFR, hence start at specific points
     self.sub_pos = 0
-    self.heli_pos = 4
+    self.heli_pos = 3 if self.graph_short_name == "Graf0" else 4
 
     self._game_over = False
 
@@ -178,7 +181,7 @@ class SubmarineHelicopterState(pyspiel.State):
   # CFR needs clone function
   def clone(self):
     """creates a new state that is a complete copy"""
-    new_state = SubmarineHelicopterState(self.get_game(), self.graph, self.budget)
+    new_state = SubmarineHelicopterState(self.get_game(), self.graph, self.budget, self.graph_short_name)
     new_state.timer = self.timer
     new_state.sub_pos = self.sub_pos
     new_state.heli_pos = self.heli_pos
@@ -206,7 +209,7 @@ class SubmarineHelicopterState(pyspiel.State):
       return self.graph.adjacency[self.sub_pos] # moves to an adjacent node
     elif player == 1:
       # all adjacent nodes except end nodes  
-      return [node for node in self.graph.adjacency[self.heli_pos] if node not in self.graph.end_nodes]
+      return self.graph.heli_act_space[self.heli_pos]
     else:
       return []
 
