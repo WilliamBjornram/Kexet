@@ -19,7 +19,7 @@ from open_spiel.python.algorithms import outcome_sampling_mccfr as outcome_mccfr
 from open_spiel.python import games
 import pyspiel
 
-def run_experiment(filename, graph_short_name, iter, main_dir, sampling="external"):
+def run_experiment(filepath, graph_short_name, iter, main_dir, sampling="external"):
     """
     Run one instance of the MCCFR experiment until exploitability drops below 0.1.
     
@@ -34,7 +34,11 @@ def run_experiment(filename, graph_short_name, iter, main_dir, sampling="externa
 
     start_time = time.time()
 
-    game = pyspiel.load_game("python_submarine_helicopter", dict(filename=filename))
+    params = {
+        "filepath": filepath,
+        "filename": graph_short_name
+    }
+    game = pyspiel.load_game("python_submarine_helicopter", params)
     if sampling == "external":
         mccfr_solver = external_mccfr.ExternalSamplingSolver(
             game, external_mccfr.AverageType.SIMPLE)
@@ -79,7 +83,7 @@ def run_experiment(filename, graph_short_name, iter, main_dir, sampling="externa
 
 def main(_):
     
-    graph_short_name = "Graf2"
+    graph_short_name = "Graf0"
     main_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(main_dir, "grafer", f"{graph_short_name}.csv")
 
@@ -91,6 +95,14 @@ def main(_):
     for run in range(num_runs):
         logging.info(f"\n=== Starting run {run + 1} ===")
         run_data = run_experiment(filename, graph_short_name, run, main_dir, sampling)
+
+        inter_csv_filenpath = os.path.join(main_dir, "CSV", graph_short_name, f"MCCFR_intermediate_results_{graph_short_name}_{run}.csv")
+        with open(inter_csv_filenpath, "w", newline="") as f:
+            fieldnames = ["iteration", "graph", "exploitability", "init_tid", "total_time"]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(run_data)
+
         all_run_data.append(run_data)
     
     # Aggregate evaluation data by iteration.
