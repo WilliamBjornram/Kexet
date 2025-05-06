@@ -10,7 +10,7 @@ import numpy as np
 from absl import app
 
 def simulate_episode(game, policy, model):
-    observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
+    #observer = game.make_py_observer(iig_obs_type=pyspiel.IIGObservationType(perfect_recall=True))
     state = game.new_initial_state()
     while not state.is_terminal():
         cur_player = state.current_player()
@@ -36,12 +36,16 @@ def simulate_episode(game, policy, model):
 def main(_):
     
     # filväg till filen, inkludera namnet och filändelse && filnamnet till pickle model att använda
-    graph_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf2.csv"
-    model_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/PKL_models/Graf2/Resultat prel. rapport/CFR_model_L_Graf2.pkl"
+    graph_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/grafer/Graf1.csv"
+    model_name = "/Users/davidklasa/Documents/GitHub/Kexet/main/PKL_models/Graf1/CFR_model_Graf1.pkl"
     model = "CFR" # CFR | D_CFR | MCCFR
 
     # laddar in spelet
-    game = pyspiel.load_game("python_submarine_helicopter", dict(filename = graph_name))
+    params = {
+        "filepath": graph_name,
+        "filename": "Graf1"
+    }
+    game = pyspiel.load_game("python_submarine_helicopter", params)
 
     # laddar in modell från pickle fil
     with open(model_name, "rb") as file:

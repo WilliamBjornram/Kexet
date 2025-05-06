@@ -12,6 +12,7 @@ import pickle
 from absl import app
 from absl import logging
 import os
+import multiprocessing
 
 from open_spiel.python.algorithms import exploitability
 from open_spiel.python.algorithms import external_sampling_mccfr as external_mccfr
@@ -67,6 +68,16 @@ def run_experiment(filepath, graph_short_name, iter, main_dir, sampling="externa
                 "total_time": total_iter_time
             }
             run_data.append(row)
+
+            # Write intermediate results to CSV after each checkpoint
+            inter_csv_filepath = os.path.join(main_dir, "CSV", graph_short_name,
+                                               f"MCCFR_intermediate_results_{graph_short_name}_{iter}.csv")
+            os.makedirs(os.path.dirname(inter_csv_filepath), exist_ok=True)
+            with open(inter_csv_filepath, "w", newline="") as f:
+                fieldnames = ["iteration", "graph", "exploitability", "init_tid", "total_time"]
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(run_data)
         i += 1
 
     total_run_time = time.time() - start_time
@@ -83,7 +94,7 @@ def run_experiment(filepath, graph_short_name, iter, main_dir, sampling="externa
 
 def main(_):
     
-    graph_short_name = "Graf0"
+    graph_short_name = "Graf1"
     main_dir = os.path.dirname(os.path.abspath(__file__))
     filename = os.path.join(main_dir, "grafer", f"{graph_short_name}.csv")
 
@@ -91,19 +102,24 @@ def main(_):
     num_runs = 5
     all_run_data = []  # List to store evaluation data for each run
 
+    logging.info(f"\n=== Starting runs ===")
+
+    """
     # Run the experiment multiple times.
     for run in range(num_runs):
         logging.info(f"\n=== Starting run {run + 1} ===")
         run_data = run_experiment(filename, graph_short_name, run, main_dir, sampling)
-
-        inter_csv_filenpath = os.path.join(main_dir, "CSV", graph_short_name, f"MCCFR_intermediate_results_{graph_short_name}_{run}.csv")
-        with open(inter_csv_filenpath, "w", newline="") as f:
-            fieldnames = ["iteration", "graph", "exploitability", "init_tid", "total_time"]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(run_data)
-
         all_run_data.append(run_data)
+    """
+
+    # Prepare arguments for parallel execution
+    args = [
+        (filename, graph_short_name, run, main_dir, sampling)
+        for run in range(num_runs)
+    ]
+    # Execute runs in parallel using multiprocessing Pool
+    with multiprocessing.Pool() as pool:
+        all_run_data = pool.starmap(run_experiment, args)
     
     # Aggregate evaluation data by iteration.
     # We'll assume that all runs record data at the same iteration checkpoints.
