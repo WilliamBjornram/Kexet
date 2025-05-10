@@ -24,4 +24,6 @@ Generella anteckningar:
 - Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden #KLART (kolla dock igenom andra punkten)
 - Ändra så att vi tar dijkstra's algoritm från scipy istället
 - Källorna inte helt korrekta? Se Williams anteckningar ovan
+- Måste skriva att vi begränsat till 24h körning inklusive beräkning av exploitability, förenkling då den beräkningen tar ungefär lika lång tid för samtliga algoritmer.
+- Visst skriver vi om påverkan på hur ofta vi väljer att beräkna exploitability?
 

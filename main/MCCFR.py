@@ -53,16 +53,17 @@ def run_experiment(filepath, graph_short_name, iter, main_dir, sampling="externa
     i = 0
     conv = 1.0
 
-    while conv >= 0.02:
+    while conv >= 0.02 and time.time() - start_time < float(86400):
         iter_start = time.time()
         mccfr_solver.iteration()
         total_iter_time += time.time() - iter_start
-        logging.info(str(i+1) + " iterations")
-        if i % 8 == 0:
+        #logging.info(str(i+1) + " iterations")
+        if i % 500 == 0:
             conv = exploitability.nash_conv(game, mccfr_solver.average_policy())
-            logging.info(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
+            #logging.info(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
             row = {
                 "iteration": i,
+                "graph": graph_short_name,
                 "exploitability": conv,
                 "init_tid": init_time,
                 "total_time": total_iter_time
@@ -80,8 +81,8 @@ def run_experiment(filepath, graph_short_name, iter, main_dir, sampling="externa
                 writer.writerows(run_data)
         i += 1
 
-    total_run_time = time.time() - start_time
-    logging.info(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
+    #total_run_time = time.time() - start_time
+    #logging.info(f"Finished run: Total iterations {i}, Final Exploitability: {conv}, Total Run Time: {total_run_time:.2f} seconds")
 
     # saving policy with pickle
     pkl_file = os.path.join(main_dir, "PKL_models", graph_short_name, f"MCCFR_model_{graph_short_name}_{iter}")

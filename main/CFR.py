@@ -51,11 +51,11 @@ def main(_):
     iter_time = init_time
     i = 0
     expl = 1
-    eval_interv = 3 # interval for evalutating the model
+    eval_interv = 50 # interval for evalutating the model
 
     run_data = [] # list for tracking evaluation data
 
-    while expl >= 0.02:
+    while expl >= 0.02 and time.time() - s_time < float(86400):
         logging.info(str(i+1) + " iterations")
         c_time = time.time()  # time before iteration
         cfr_solver.evaluate_and_update_policy()
