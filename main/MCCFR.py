@@ -52,13 +52,14 @@ def run_experiment(filepath, graph_short_name, iter, main_dir, sampling="externa
 
     i = 0
     conv = 1.0
+    eval_inter = 1000
 
     while conv >= 0.02 and time.time() - start_time < float(86400):
         iter_start = time.time()
         mccfr_solver.iteration()
         total_iter_time += time.time() - iter_start
         #logging.info(str(i+1) + " iterations")
-        if i % 500 == 0:
+        if i % eval_inter == 0:
             conv = exploitability.nash_conv(game, mccfr_solver.average_policy())
             #logging.info(f"Run progress - Iteration {i}, Exploitability: {conv}, Total Time: {total_iter_time:.2f}")
             row = {
