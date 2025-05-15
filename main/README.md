@@ -8,11 +8,8 @@ Allmänna anteckningar:
 - Ska vi skriva "choke points" eller "chokepoints"? Payoff eller pay-off etc... Se över ord så vi skriver samma.
 
 Generella anteckningar:
--Flytta mycket till bakgrund, typ första tre paragraferna så vi kommer snabbare in på CFR
-
--Flytta om så att man förklarar spel och nash
-sedan:
-regret matching sen regret och sen förklarar vi med regret, regret matching igen
+- Flytta mycket till bakgrund, typ första tre paragraferna så vi kommer snabbare in på CFR
+- Flytta om så att man förklarar spel och nash sedan: regret matching sen regret och sen förklarar vi med regret, regret matching igen
 - Vad är det för strategier som algoritmerna konvergerar till.
 - Ersätt graferna med nya samt plots med nya.
 - Hänvisa till appendix eller Git för fullständiga resultat för MCCFR och DCFR så ser spridning, medelvärdesbildning..
