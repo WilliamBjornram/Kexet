@@ -1,15 +1,10 @@
 # Williams anteckningar till David
-- Det saknas vem som skrivit vissa källor, hur bör man göra då?
-- Hittar inte tillräckligt med info för den här källan: https://api.semanticscholar.org/CorpusID:17509330
-- Osäker hur jag ska göra med källar märkta med "inproceedings"
-- För "Deep Counterfactual Regret Minimization" hittade jag inte "number"
-- För "OpenSpiel: A Framework for Reinforcement Learning in Games" hittar jag inte "number"
-- När källor endast är upplagda på arxiv så finns inte number för det betyder "issue number" på journalen den var publicerad i, alltså vet jag inte vad vi ska göra på dem källorna. jag skriver number = arxiv så länge
-- Feedback från Mika samt så la jag kommentarer i rapporten: Dela upp CFR förklaringen i flera
-  
-- I diskussion så ska man försöka förklara varför graferna ser ut som dom gör 
+-Flytta mycket till bakgrund, typ första tre paragraferna så vi kommer snabbare in på CFR
 
-- Varför är MCCFR snabbare? Försöka förklara det
+-Flytta om så att man förklarar spel och nash
+sedan:
+regret matching sen regret och sen förklarar vi med regret, regret matching igen
+
 
 # Davids anteckningar till William
 
