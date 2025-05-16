@@ -11,8 +11,8 @@ Generella anteckningar:
 - Flytta mycket till bakgrund, typ första tre paragraferna så vi kommer snabbare in på CFR. KLART
 - Flytta om så att man förklarar spel och nash sedan: regret matching sen regret och sen förklarar vi med regret, regret matching igen
 - Vad är det för strategier som algoritmerna konvergerar till.
-- Ersätt graferna med nya samt plots med nya.
-- Hänvisa till appendix eller Git för fullständiga resultat för MCCFR och DCFR så ser spridning, medelvärdesbildning..
+- Ersätt graferna med nya samt plots med nya. KLART.
+- Hänvisa till appendix eller Git för fullständiga resultat för MCCFR och DCFR så ser spridning, medelvärdesbildning.. LA BARA TILL I OPNE RESEARCH STATEMENT.
 - Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden. KLART
 - Måste skriva att vi begränsat till 20h körning exklusive beräkning av exploitability. KLART
 - Hur valde vi gränsen på 0.02 exploitability? Se över. KLART.
