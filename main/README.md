@@ -1,5 +1,5 @@
 # Williams anteckningar till David
-Ändrade abstract och sammanfattning
+Ändrade abstract och sammanfattning och conclusion
 
 # Davids anteckningar till William
 
