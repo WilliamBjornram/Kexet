@@ -13,7 +13,7 @@ Generella anteckningar:
 - Vad är det för strategier som algoritmerna konvergerar till.
 - Ersätt graferna med nya samt plots med nya.
 - Hänvisa till appendix eller Git för fullständiga resultat för MCCFR och DCFR så ser spridning, medelvärdesbildning..
-- Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden
-- Måste skriva att vi begränsat till 20h körning exklusive beräkning av exploitability.
-- Hur valde vi gränsen på 0.02 exploitability? Se över.
+- Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden. KLART
+- Måste skriva att vi begränsat till 20h körning exklusive beräkning av exploitability. KLART
+- Hur valde vi gränsen på 0.02 exploitability? Se över. KLART.
 - Ändra i resultatet.
