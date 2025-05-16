@@ -17,3 +17,4 @@ Generella anteckningar:
 - Måste skriva att vi begränsat till 20h körning exklusive beräkning av exploitability. KLART
 - Hur valde vi gränsen på 0.02 exploitability? Se över. KLART.
 - Ändra i resultatet. KLART.
+- Kolla igenom diskussionen så att vi tar bort varför MCCFR var långsammare
