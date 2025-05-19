@@ -1,15 +1,5 @@
 # Williams anteckningar till David
-- Det saknas vem som skrivit vissa källor, hur bör man göra då?
-- Hittar inte tillräckligt med info för den här källan: https://api.semanticscholar.org/CorpusID:17509330
-- Osäker hur jag ska göra med källar märkta med "inproceedings"
-- För "Deep Counterfactual Regret Minimization" hittade jag inte "number"
-- För "OpenSpiel: A Framework for Reinforcement Learning in Games" hittar jag inte "number"
-- När källor endast är upplagda på arxiv så finns inte number för det betyder "issue number" på journalen den var publicerad i, alltså vet jag inte vad vi ska göra på dem källorna. jag skriver number = arxiv så länge
-- Feedback från Mika samt så la jag kommentarer i rapporten: Dela upp CFR förklaringen i flera
-  
-- I diskussion så ska man försöka förklara varför graferna ser ut som dom gör 
-
-- Varför är MCCFR snabbare? Försöka förklara det
+Ändrade abstract och sammanfattning och conclusion
 
 # Davids anteckningar till William
 
@@ -18,12 +8,13 @@ Allmänna anteckningar:
 - Ska vi skriva "choke points" eller "chokepoints"? Payoff eller pay-off etc... Se över ord så vi skriver samma.
 
 Generella anteckningar:
-- Förklara varför CFR är snabbare än MCCFR på större graf bättre, teorin säger tvärtemot (future work).
-- Heat map över vilka drag som ubåt/ASW styrka väljer, hur den sprider ut sig dvs?
-- Ta med i plot spridningen för DCFR och MCCFR? Staplar i grafen? Utsuddade kanter? Spara intermediate results (spara allt i en fil? och gör om fil där vi ritar resultaten)
-- Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden #KLART (kolla dock igenom andra punkten)
-- Ändra så att vi tar dijkstra's algoritm från scipy istället
-- Källorna inte helt korrekta? Se Williams anteckningar ovan
-- Måste skriva att vi begränsat till 24h körning inklusive beräkning av exploitability, förenkling då den beräkningen tar ungefär lika lång tid för samtliga algoritmer.
-- Visst skriver vi om påverkan på hur ofta vi väljer att beräkna exploitability?
-
+- Flytta mycket till bakgrund, typ första tre paragraferna så vi kommer snabbare in på CFR. KLART
+- Flytta om så att man förklarar spel och nash sedan: regret matching sen regret och sen förklarar vi med regret, regret matching igen
+- Vad är det för strategier som algoritmerna konvergerar till.
+- Ersätt graferna med nya samt plots med nya. KLART.
+- Hänvisa till appendix eller Git för fullständiga resultat för MCCFR och DCFR så ser spridning, medelvärdesbildning.. LA BARA TILL I OPNE RESEARCH STATEMENT.
+- Ändra så att ASW styrka börjar i mitten ej i slutnod och ej får gå till slutnoden. KLART
+- Måste skriva att vi begränsat till 20h körning exklusive beräkning av exploitability. KLART
+- Hur valde vi gränsen på 0.02 exploitability? Se över. KLART.
+- Ändra i resultatet. KLART.
+- Kolla igenom diskussionen så att vi tar bort varför MCCFR var långsammare. TROR KLART.
