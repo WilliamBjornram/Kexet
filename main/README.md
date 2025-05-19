@@ -18,3 +18,13 @@ Generella anteckningar:
 - Hur valde vi gränsen på 0.02 exploitability? Se över. KLART.
 - Ändra i resultatet. KLART.
 - Kolla igenom diskussionen så att vi tar bort varför MCCFR var långsammare. TROR KLART.
+
+Teori upplägg:
+Spel
+Extensive form...
+Regret
+Nash
+Regret matching
+CFR
+MCCFR
+DCFR
